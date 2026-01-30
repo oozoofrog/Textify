@@ -62,6 +62,9 @@ public final class TextifyViewModel {
     public var isGenerating = false
     public var errorMessage: String?
     public var copied = false
+    /// Flag to indicate the next result should animate with typing effect
+    /// Set to true for "Generate" button, false for slider/toggle changes
+    public var shouldAnimateNextResult: Bool = false
 
     // Options
     public var selectedPreset: PalettePreset = .standard
@@ -164,6 +167,8 @@ public final class TextifyViewModel {
                 await MainActor.run {
                     self.textArt = result
                     self.isGenerating = false
+                    // Reset animation flag after generation completes
+                    // View is responsible for resetting after animation plays
                 }
             } catch is CancellationError {
                 await MainActor.run {
@@ -176,6 +181,11 @@ public final class TextifyViewModel {
                 }
             }
         }
+    }
+
+    public func generateWithAnimation() async {
+        shouldAnimateNextResult = true
+        await generate()
     }
 
     public func copyToClipboard() {
