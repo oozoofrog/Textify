@@ -90,7 +90,7 @@ public struct TextifyView: View {
                             isSelected: viewModel.selectedPreset == preset
                         ) {
                             viewModel.selectPreset(preset)
-                            Task { await viewModel.generate() }
+                            viewModel.generateFinal()
                         }
                     }
                 }
@@ -122,7 +122,7 @@ public struct TextifyView: View {
             HStack(spacing: 20) {
                 Toggle("반전", isOn: $viewModel.invertBrightness)
                     .onChange(of: viewModel.invertBrightness) { _, _ in
-                        Task { await viewModel.generate() }
+                        viewModel.generateFinal()
                     }
 
                 Spacer()
@@ -173,10 +173,14 @@ public struct TextifyView: View {
 }
 
 /// 팔레트 프리셋 버튼
-struct PaletteButton: View {
+struct PaletteButton: View, Equatable {
     let preset: PalettePreset
     let isSelected: Bool
     let action: () -> Void
+
+    nonisolated static func == (lhs: PaletteButton, rhs: PaletteButton) -> Bool {
+        lhs.preset == rhs.preset && lhs.isSelected == rhs.isSelected
+    }
 
     var body: some View {
         Button(action: action) {

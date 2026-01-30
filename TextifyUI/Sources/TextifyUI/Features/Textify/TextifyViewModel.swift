@@ -55,7 +55,7 @@ public enum PalettePreset: String, CaseIterable, Sendable {
 public final class TextifyViewModel {
     // Input
     public let image: CGImage
-    let generator: TextArtGenerator
+    let generator: any TextArtGenerating
 
     // State
     public var textArt: TextArt?
@@ -74,7 +74,7 @@ public final class TextifyViewModel {
     private let widthThrottler = Throttler(interval: .milliseconds(50))
     private let finalDebouncer = Debouncer(delay: .milliseconds(200))
 
-    public init(image: CGImage, generator: TextArtGenerator) {
+    public init(image: CGImage, generator: any TextArtGenerating) {
         self.image = image
         self.generator = generator
     }

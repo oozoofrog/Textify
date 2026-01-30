@@ -202,16 +202,23 @@ Result → @Observable state → SwiftUI re-render
 
 ## Quick Commands
 
+**IMPORTANT: 이 프로젝트는 반드시 xcodebuild로 빌드해야 합니다. 루트에 Package.swift가 없습니다.**
+
 ```bash
-# TextifyKit 빌드
-cd TextifyKit && swift build
+# 전체 앱 빌드 (권장)
+cd /Volumes/eyedisk/develop/oozoofrog/Textify/TextifyApp && xcodebuild -scheme TextifyApp -destination 'platform=iOS Simulator,name=iPhone 17' build
 
-# TextifyUI 빌드 (iOS Simulator)
-cd TextifyUI && swift build --sdk $(xcrun --sdk iphonesimulator --show-sdk-path) --triple arm64-apple-ios26.0-simulator
+# 테스트 실행 (TextifyKit)
+cd /Volumes/eyedisk/develop/oozoofrog/Textify/TextifyApp && xcodebuild -scheme TextifyApp -destination 'platform=iOS Simulator,name=iPhone 17' test
 
-# TextifyApp 빌드
-cd TextifyApp && xcodebuild -scheme TextifyApp -destination 'platform=iOS Simulator,name=iPhone 17' build
+# 빌드 에러만 확인 (빠름)
+cd /Volumes/eyedisk/develop/oozoofrog/Textify/TextifyApp && xcodebuild -scheme TextifyApp -destination 'platform=iOS Simulator,name=iPhone 17' build 2>&1 | grep -E "(error:|warning:)" | head -20
 ```
+
+### 빌드 시스템 주의사항
+- **swift build 사용 금지**: 루트에 Package.swift 없음
+- **xcodebuild 필수**: TextifyApp.xcodeproj 사용
+- SPM 패키지(TextifyKit, TextifyUI)는 Xcode 프로젝트에서 로컬 패키지로 참조됨
 
 ---
 
