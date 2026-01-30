@@ -1,14 +1,14 @@
 import SwiftUI
 import TextifyUI
+import TextifyKit
 
 @main
 struct TextifyApp: App {
-    @State private var dependencies = AppDependencies()
+    @State private var generator = TextArtGenerator()
 
     var body: some Scene {
         WindowGroup {
-            HomeView(viewModel: dependencies.makeHomeViewModel())
-                .environment(dependencies)
+            MainView(viewModel: MainViewModel(generator: generator))
         }
     }
 }
