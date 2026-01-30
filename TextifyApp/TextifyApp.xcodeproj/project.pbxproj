@@ -3,50 +3,22 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		052C7ACD4FD849BB1573014E /* PhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EE1264D694F2F7A3A2A39D /* PhotoLibraryService.swift */; };
 		1572F404027832133465C4F0 /* TextifyKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9DED8BD0A018C9CD61278DC2 /* TextifyKit */; };
-		2DF811ABA2079E35E4F18E88 /* ImageExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A918A8956B7196CA79B37794 /* ImageExportService.swift */; };
-		4076468168693B2954169A39 /* ClipboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B13151E502BDDF7C919BA4 /* ClipboardService.swift */; };
-		433D93A92E91BABE7628E506 /* ImageSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7808BC75BD6069D695BB0E8D /* ImageSelectionViewModel.swift */; };
-		55264F8455B356719DF440B9 /* GenerationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655C0B9293F66F57E55B2E39 /* GenerationViewModel.swift */; };
-		64BDE3E8CA51C9C3F6C1A7D5 /* ResultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F74A4D0C5E3C18238FE5E3 /* ResultViewModel.swift */; };
-		7DC6A3FB93165138F53A58F0 /* TextifyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB88DF11DEF221EE682B18B /* TextifyApp.swift */; };
-		8006AB407CCA41166607B6D8 /* GenerationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7296F940EFB0099593D31AA6 /* GenerationView.swift */; };
-		8284DAEF4E5E00EACC7D045B /* ImageSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDAF3AAD1A61E489A700126 /* ImageSelectionView.swift */; };
-		82D24E6F5D4DF287903D6FC5 /* TextInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78ED73CF044E462C5270059 /* TextInputView.swift */; };
-		BBD0FAC950ACA78B2616E5A3 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CF89F89313C626F7F32A0E9 /* HomeViewModel.swift */; };
-		C44C7AC7C42903CCC3B71230 /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 784FE65204CA1B7531BE91A4 /* ResultView.swift */; };
-		DE2C68341FAAB9157CC3247E /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11F2E27E33109D47F8200A96 /* AppDependencies.swift */; };
-		DF806A4CB6E8A332DD16D84B /* FileImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B365743E3603598918EA3E2 /* FileImportService.swift */; };
-		F5CBE62009A298E9CB1238E2 /* TextInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D35F41ADEABE806438D248C6 /* TextInputViewModel.swift */; };
-		F838A032F57351545298F95B /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB207BB0E6EB9EE50211C5CA /* HomeView.swift */; };
+		AAAA11112222333344445555 /* TextifyUI in Frameworks */ = {isa = PBXBuildFile; productRef = BBBB11112222333344445555 /* TextifyUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0B365743E3603598918EA3E2 /* FileImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImportService.swift; sourceTree = "<group>"; };
-		11F2E27E33109D47F8200A96 /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
-		2855231387C1F837FFC76C48 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
-		35F74A4D0C5E3C18238FE5E3 /* ResultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultViewModel.swift; sourceTree = "<group>"; };
-		39B13151E502BDDF7C919BA4 /* ClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardService.swift; sourceTree = "<group>"; };
-		3AB88DF11DEF221EE682B18B /* TextifyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextifyApp.swift; sourceTree = "<group>"; };
-		655C0B9293F66F57E55B2E39 /* GenerationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationViewModel.swift; sourceTree = "<group>"; };
-		6CF89F89313C626F7F32A0E9 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
-		7296F940EFB0099593D31AA6 /* GenerationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationView.swift; sourceTree = "<group>"; };
-		7808BC75BD6069D695BB0E8D /* ImageSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSelectionViewModel.swift; sourceTree = "<group>"; };
-		784FE65204CA1B7531BE91A4 /* ResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
-		A918A8956B7196CA79B37794 /* ImageExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageExportService.swift; sourceTree = "<group>"; };
-		AF082081133C56ADB2F2DEE9 /* TextifyKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = TextifyKit; path = ../TextifyKit; sourceTree = SOURCE_ROOT; };
-		B4EE1264D694F2F7A3A2A39D /* PhotoLibraryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryService.swift; sourceTree = "<group>"; };
-		B78ED73CF044E462C5270059 /* TextInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputView.swift; sourceTree = "<group>"; };
-		BB207BB0E6EB9EE50211C5CA /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		CBDAF3AAD1A61E489A700126 /* ImageSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSelectionView.swift; sourceTree = "<group>"; };
-		D35F41ADEABE806438D248C6 /* TextInputViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputViewModel.swift; sourceTree = "<group>"; };
-		F55A54C000F76F3A9FD25ABD /* TextifyApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TextifyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7474FB872F2C8E11003C2F4C /* TextifyApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TextifyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		7474FB7F2F2C8DD0003C2F4C /* Sources */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = Sources; path = TextifyApp/Sources; sourceTree = "<group>"; };
+		7474FB862F2C8DF5003C2F4C /* Resources */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = Resources; path = TextifyApp/Resources; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		000FB0C25DDD21AD952242D7 /* Frameworks */ = {
@@ -54,132 +26,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				1572F404027832133465C4F0 /* TextifyKit in Frameworks */,
+				AAAA11112222333344445555 /* TextifyUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		12EE9ED0EDCD3E522D5E024E /* Home */ = {
-			isa = PBXGroup;
-			children = (
-				BB207BB0E6EB9EE50211C5CA /* HomeView.swift */,
-				6CF89F89313C626F7F32A0E9 /* HomeViewModel.swift */,
-			);
-			path = Home;
-			sourceTree = "<group>";
-		};
 		12FB0F96AE0C62BF7D8E76AD = {
 			isa = PBXGroup;
 			children = (
-				2EC44D00AE4ED99BFBBA9DBE /* Packages */,
-				647C4EEF5B4FCF24D8A88518 /* Sources */,
-				A48D7561CBE3810883CE4CFD /* Products */,
+				7474FB862F2C8DF5003C2F4C /* Resources */,
+				7474FB7F2F2C8DD0003C2F4C /* Sources */,
+				7474FB882F2C8E11003C2F4C /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		157E25B8B69545B6C7B85506 /* Extensions */ = {
+		7474FB882F2C8E11003C2F4C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-			);
-			path = Extensions;
-			sourceTree = "<group>";
-		};
-		2EC44D00AE4ED99BFBBA9DBE /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				AF082081133C56ADB2F2DEE9 /* TextifyKit */,
-			);
-			name = Packages;
-			sourceTree = "<group>";
-		};
-		4BADEFA716AAB4DBD1D2068E /* Generation */ = {
-			isa = PBXGroup;
-			children = (
-				7296F940EFB0099593D31AA6 /* GenerationView.swift */,
-				655C0B9293F66F57E55B2E39 /* GenerationViewModel.swift */,
-			);
-			path = Generation;
-			sourceTree = "<group>";
-		};
-		59B97A1A075CAE27F67780AB /* Result */ = {
-			isa = PBXGroup;
-			children = (
-				784FE65204CA1B7531BE91A4 /* ResultView.swift */,
-				35F74A4D0C5E3C18238FE5E3 /* ResultViewModel.swift */,
-			);
-			path = Result;
-			sourceTree = "<group>";
-		};
-		5D94914A314F3977C4923155 /* App */ = {
-			isa = PBXGroup;
-			children = (
-				11F2E27E33109D47F8200A96 /* AppDependencies.swift */,
-				3AB88DF11DEF221EE682B18B /* TextifyApp.swift */,
-			);
-			path = App;
-			sourceTree = "<group>";
-		};
-		647C4EEF5B4FCF24D8A88518 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				2855231387C1F837FFC76C48 /* .gitkeep */,
-				5D94914A314F3977C4923155 /* App */,
-				157E25B8B69545B6C7B85506 /* Extensions */,
-				E07035D9C94F0E52EC6CFBE6 /* Features */,
-				F470BF12DBF9A18E955E3853 /* Services */,
-			);
-			name = Sources;
-			path = TextifyApp/Sources;
-			sourceTree = "<group>";
-		};
-		9DC3C377CBC330663B333889 /* TextInput */ = {
-			isa = PBXGroup;
-			children = (
-				B78ED73CF044E462C5270059 /* TextInputView.swift */,
-				D35F41ADEABE806438D248C6 /* TextInputViewModel.swift */,
-			);
-			path = TextInput;
-			sourceTree = "<group>";
-		};
-		A48D7561CBE3810883CE4CFD /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				F55A54C000F76F3A9FD25ABD /* TextifyApp.app */,
+				7474FB872F2C8E11003C2F4C /* TextifyApp.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		CFBCB8799F4767540D619F07 /* ImageSelection */ = {
-			isa = PBXGroup;
-			children = (
-				CBDAF3AAD1A61E489A700126 /* ImageSelectionView.swift */,
-				7808BC75BD6069D695BB0E8D /* ImageSelectionViewModel.swift */,
-			);
-			path = ImageSelection;
-			sourceTree = "<group>";
-		};
-		E07035D9C94F0E52EC6CFBE6 /* Features */ = {
-			isa = PBXGroup;
-			children = (
-				4BADEFA716AAB4DBD1D2068E /* Generation */,
-				12EE9ED0EDCD3E522D5E024E /* Home */,
-				CFBCB8799F4767540D619F07 /* ImageSelection */,
-				59B97A1A075CAE27F67780AB /* Result */,
-				9DC3C377CBC330663B333889 /* TextInput */,
-			);
-			path = Features;
-			sourceTree = "<group>";
-		};
-		F470BF12DBF9A18E955E3853 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				39B13151E502BDDF7C919BA4 /* ClipboardService.swift */,
-				0B365743E3603598918EA3E2 /* FileImportService.swift */,
-				A918A8956B7196CA79B37794 /* ImageExportService.swift */,
-				B4EE1264D694F2F7A3A2A39D /* PhotoLibraryService.swift */,
-			);
-			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -196,12 +64,17 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				7474FB7F2F2C8DD0003C2F4C /* Sources */,
+				7474FB862F2C8DF5003C2F4C /* Resources */,
+			);
 			name = TextifyApp;
 			packageProductDependencies = (
 				9DED8BD0A018C9CD61278DC2 /* TextifyKit */,
+				BBBB11112222333344445555 /* TextifyUI */,
 			);
 			productName = TextifyApp;
-			productReference = F55A54C000F76F3A9FD25ABD /* TextifyApp.app */;
+			productReference = 7474FB872F2C8E11003C2F4C /* TextifyApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -225,8 +98,9 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F6B5DA696EF3AFB7429E6941 /* XCLocalSwiftPackageReference "../TextifyKit" */,
+				DDDD11112222333344445555 /* XCLocalSwiftPackageReference "../TextifyUI" */,
 			);
-			preferredProjectObjectVersion = 77;
+			productRefGroup = 7474FB882F2C8E11003C2F4C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -240,22 +114,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE2C68341FAAB9157CC3247E /* AppDependencies.swift in Sources */,
-				4076468168693B2954169A39 /* ClipboardService.swift in Sources */,
-				DF806A4CB6E8A332DD16D84B /* FileImportService.swift in Sources */,
-				8006AB407CCA41166607B6D8 /* GenerationView.swift in Sources */,
-				55264F8455B356719DF440B9 /* GenerationViewModel.swift in Sources */,
-				F838A032F57351545298F95B /* HomeView.swift in Sources */,
-				BBD0FAC950ACA78B2616E5A3 /* HomeViewModel.swift in Sources */,
-				2DF811ABA2079E35E4F18E88 /* ImageExportService.swift in Sources */,
-				8284DAEF4E5E00EACC7D045B /* ImageSelectionView.swift in Sources */,
-				433D93A92E91BABE7628E506 /* ImageSelectionViewModel.swift in Sources */,
-				052C7ACD4FD849BB1573014E /* PhotoLibraryService.swift in Sources */,
-				C44C7AC7C42903CCC3B71230 /* ResultView.swift in Sources */,
-				64BDE3E8CA51C9C3F6C1A7D5 /* ResultViewModel.swift in Sources */,
-				82D24E6F5D4DF287903D6FC5 /* TextInputView.swift in Sources */,
-				F5CBE62009A298E9CB1238E2 /* TextInputViewModel.swift in Sources */,
-				7DC6A3FB93165138F53A58F0 /* TextifyApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,6 +126,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HY47J4787Q;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TextifyApp/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -334,7 +193,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -392,7 +251,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -409,6 +268,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HY47J4787Q;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TextifyApp/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -447,6 +307,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		DDDD11112222333344445555 /* XCLocalSwiftPackageReference "../TextifyUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../TextifyUI;
+		};
 		F6B5DA696EF3AFB7429E6941 /* XCLocalSwiftPackageReference "../TextifyKit" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../TextifyKit;
@@ -457,6 +321,10 @@
 		9DED8BD0A018C9CD61278DC2 /* TextifyKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TextifyKit;
+		};
+		BBBB11112222333344445555 /* TextifyUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TextifyUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

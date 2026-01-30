@@ -1,5 +1,13 @@
+# Claude Code / oh-my-claudecode
+.omc/
+.serena/
+
+# Build outputs
+Build/
+
 # Xcode
 *.xcodeproj/**/xcuserdata/
+xcuserdata/
 *.xcworkspace/**/xcuserdata/
 *.pbxuser
 *.mode1v3

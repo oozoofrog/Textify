@@ -1,5 +1,5 @@
 import SwiftUI
-import TextifyKit
+import TextifyUI
 
 @main
 struct TextifyApp: App {
