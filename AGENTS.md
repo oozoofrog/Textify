@@ -212,3 +212,175 @@ cd TextifyUI && swift build --sdk $(xcrun --sdk iphonesimulator --show-sdk-path)
 # TextifyApp 빌드
 cd TextifyApp && xcodebuild -scheme TextifyApp -destination 'platform=iOS Simulator,name=iPhone 17' build
 ```
+
+---
+
+## 9. Swift 6 Anti-Pattern Checklist
+
+### ❌ 사용 금지 패턴
+
+| 패턴 | 문제 | 대안 |
+|------|------|------|
+| `@StateObject` | iOS 17+ deprecated | `@State` with `@Observable` |
+| `@ObservedObject` | iOS 17+ deprecated | Direct property access |
+| `@Published` in `@Observable` | 중복, 불필요 | Plain `var` |
+| `DispatchQueue.main.async` | Legacy GCD | `@MainActor` |
+| `DispatchQueue.global().async` | Legacy GCD | `Task { }` |
+| `semaphore.wait()` | Blocking | Actor isolation |
+| `Task.detached { }` | Context 손실 | `Task { }` |
+| `nonisolated(unsafe)` | 안전하지 않음 | Proper isolation |
+| `@unchecked Sendable` | 컴파일러 우회 | Make truly Sendable |
+| Singleton `shared` | 테스트 어려움 | DI via Composition Root |
+
+### ✅ 사용 권장 패턴
+
+| 상황 | 권장 패턴 |
+|------|----------|
+| ViewModel 상태 | `@Observable @MainActor final class` |
+| View-owned state | `@State private var vm = ViewModel()` |
+| Passed state | Direct property (no wrapper) |
+| Environment DI | `@Environment(AppDependencies.self)` |
+| Shared mutable state | `actor` |
+| Background work | `Task { await ... }` |
+| Main thread work | `@MainActor` or `MainActor.run { }` |
+| Value types | `struct` (auto-Sendable) |
+
+### Concurrency Decision Tree
+
+```
+데이터 공유 필요?
+├─ No → 일반 async/await
+└─ Yes → 여러 Task에서 접근?
+         ├─ No → 단일 Task 내 처리
+         └─ Yes → 가변 상태?
+                  ├─ No → Struct (자동 Sendable)
+                  └─ Yes → Actor 사용
+                           └─ UI 관련? → @MainActor
+```
+
+---
+
+## 10. Testing Guidelines
+
+### Test Structure
+
+```
+TextifyKit/Tests/TextifyKitTests/
+├── Models/
+│   ├── CharacterPaletteTests.swift
+│   ├── GrayscalePixelBufferTests.swift
+│   ├── ProcessingOptionsTests.swift
+│   └── TextArtTests.swift
+├── Services/
+│   ├── CharacterMapperTests.swift
+│   ├── ImageProcessorTests.swift
+│   └── TextArtGeneratorTests.swift
+└── Mocks/
+    └── MockImageProcessor.swift
+```
+
+### Swift Testing Framework (권장)
+
+```swift
+import Testing
+
+@Test("TextArt 생성 성공")
+func testTextArtGeneration() async throws {
+    let generator = TextArtGenerator(imageProcessor: MockImageProcessor())
+    let palette = CharacterPalette(characters: ["@", "#", " "])
+    let options = ProcessingOptions(outputWidth: 40)
+
+    let result = try await generator.generate(
+        from: mockImage,
+        palette: palette,
+        options: options
+    )
+
+    #expect(result.width == 40)
+    #expect(!result.rows.isEmpty)
+}
+
+@Test("잘못된 팔레트 에러", .tags(.validation))
+func testInvalidPalette() async {
+    let generator = TextArtGenerator()
+    let emptyPalette = CharacterPalette(characters: [])
+
+    await #expect(throws: TextArtGenerationError.invalidPalette) {
+        try await generator.generate(
+            from: mockImage,
+            palette: emptyPalette,
+            options: .default
+        )
+    }
+}
+```
+
+### Test Doubles Strategy
+
+| Type | 용도 | 예시 |
+|------|------|------|
+| **Fake** | 실제 구현의 간단한 버전 | `FakeHistoryService` (in-memory) |
+| **Mock** | Protocol 기반 대체 | `MockImageProcessor` |
+| **Stub** | 고정 반환값 | `StubPhotoLibrary` |
+
+### Mock 작성 패턴
+
+```swift
+// Protocol 정의 (TextifyKit)
+public protocol ImageProcessing: Sendable {
+    func grayscalePixels(from: CGImage, ...) async throws -> GrayscalePixelBuffer
+}
+
+// Mock 구현 (Tests)
+final class MockImageProcessor: ImageProcessing, @unchecked Sendable {
+    var stubbedResult: GrayscalePixelBuffer?
+    var shouldThrow: ImageProcessingError?
+
+    func grayscalePixels(from: CGImage, ...) async throws -> GrayscalePixelBuffer {
+        if let error = shouldThrow { throw error }
+        return stubbedResult ?? GrayscalePixelBuffer(width: 10, height: 10, pixels: [])
+    }
+}
+```
+
+### ViewModel 테스트 패턴
+
+```swift
+@Test("Generation 성공 시 상태 업데이트")
+@MainActor
+func testGenerationSuccess() async {
+    let mockGenerator = MockTextArtGenerator()
+    mockGenerator.stubbedResult = TextArt.mock
+
+    let viewModel = GenerationViewModel(generator: mockGenerator)
+
+    await viewModel.generate(from: mockImage, characters: "@# ")
+
+    #expect(viewModel.isGenerating == false)
+    #expect(viewModel.generatedTextArt != nil)
+    #expect(viewModel.errorMessage == nil)
+}
+```
+
+### Test Coverage Goals
+
+| Layer | Target | Focus |
+|-------|--------|-------|
+| TextifyKit | 80%+ | Models, Services |
+| TextifyUI ViewModels | 70%+ | State transitions, error handling |
+| TextifyUI Services | 60%+ | Happy path + edge cases |
+| Views | Snapshot only | Visual regression |
+
+---
+
+## 11. Code Review Checklist
+
+### PR 리뷰 시 확인 사항
+
+- [ ] `@Observable` 사용 (not `ObservableObject`)
+- [ ] ViewModel은 `@MainActor` 적용
+- [ ] Actor 경계 넘는 타입은 `Sendable`
+- [ ] 새 Service는 Protocol 추상화
+- [ ] 새 ViewModel Factory는 `AppDependencies`에 추가
+- [ ] 에러 처리 및 사용자 피드백
+- [ ] 테스트 추가됨
