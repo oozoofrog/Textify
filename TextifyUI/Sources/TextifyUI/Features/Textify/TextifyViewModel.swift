@@ -4,7 +4,7 @@ import CoreGraphics
 import TextifyKit
 
 /// 팔레트 프리셋
-public enum PalettePreset: String, CaseIterable {
+public enum PalettePreset: String, CaseIterable, Sendable {
     case standard = "기본"
     case blocks = "블록"
     case minimal = "미니멀"
@@ -100,13 +100,17 @@ public final class TextifyViewModel {
     }
 
     private func generatePreview() async {
+        let characters = selectedPreset.characters
+        let width = outputWidth
+        let invert = invertBrightness
+
         await taskManager.startGeneration(priority: .utility) { [weak self] in
             guard let self else { return }
             do {
-                let palette = CharacterPalette(characters: self.selectedPreset.characters)
+                let palette = CharacterPalette(characters: characters)
                 let options = ProcessingOptions(
-                    outputWidth: self.outputWidth,
-                    invertBrightness: self.invertBrightness,
+                    outputWidth: width,
+                    invertBrightness: invert,
                     contrastBoost: 1.0
                 )
                 let result = try await self.generator.generate(
@@ -126,8 +130,10 @@ public final class TextifyViewModel {
     }
 
     public func generateFinal() {
-        finalDebouncer.debounce { [weak self] in
-            await self?.generate()
+        Task {
+            await finalDebouncer.debounce { [weak self] in
+                await self?.generate()
+            }
         }
     }
 
@@ -135,13 +141,17 @@ public final class TextifyViewModel {
         isGenerating = true
         errorMessage = nil
 
+        let characters = selectedPreset.characters
+        let width = outputWidth
+        let invert = invertBrightness
+
         await taskManager.startGeneration(priority: .userInitiated) { [weak self] in
             guard let self else { return }
             do {
-                let palette = CharacterPalette(characters: self.selectedPreset.characters)
+                let palette = CharacterPalette(characters: characters)
                 let options = ProcessingOptions(
-                    outputWidth: self.outputWidth,
-                    invertBrightness: self.invertBrightness,
+                    outputWidth: width,
+                    invertBrightness: invert,
                     contrastBoost: 1.0
                 )
 
