@@ -1,4 +1,5 @@
 import SwiftUI
+import TextifyKit
 
 /// 텍스트 아트 컨텐츠 영역 뷰
 public struct TextifyContentView: View {
@@ -140,4 +141,39 @@ public struct TextifyContentView: View {
             }
         }
     }
+}
+
+// MARK: - Preview
+
+private struct TextifyContentViewPreview: View {
+    @State private var viewModel: TextifyViewModel
+    @State private var showingOriginalImage = false
+    @State private var toolbarState: ToolbarState = .main
+    @State private var showFocusMode = false
+    @Namespace private var imageTransition
+
+    init() {
+        let cgImage = PreviewImageFactory.shared.createDefaultImage()!
+        self._viewModel = State(initialValue: TextifyViewModel(
+            image: cgImage,
+            generator: TextArtGenerator()
+        ))
+    }
+
+    var body: some View {
+        TextifyContentView(
+            viewModel: viewModel,
+            showingOriginalImage: $showingOriginalImage,
+            toolbarState: $toolbarState,
+            showFocusMode: $showFocusMode,
+            imageTransition: imageTransition
+        )
+        .task {
+            await viewModel.generate()
+        }
+    }
+}
+
+#Preview {
+    TextifyContentViewPreview()
 }
