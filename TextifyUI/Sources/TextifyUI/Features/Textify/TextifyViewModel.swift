@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import CoreGraphics
 import TextifyKit
+import Photos
 
 /// 팔레트 프리셋
 public enum PalettePreset: String, CaseIterable, Sendable {
@@ -212,6 +213,69 @@ public final class TextifyViewModel {
     public func decreaseFontSize() {
         if fontSize > 4 {
             fontSize -= 2
+        }
+    }
+
+    // MARK: - Save Image
+
+    public enum SaveResult: Sendable {
+        case success
+        case noTextArt
+        case renderFailed
+        case encodeFailed
+        case permissionDenied
+        case saveFailed
+
+        public var message: String {
+            switch self {
+            case .success: return "Saved to Photos"
+            case .noTextArt: return "No text art to save"
+            case .renderFailed: return "Failed to render image"
+            case .encodeFailed: return "Failed to encode image"
+            case .permissionDenied: return "Photo access required"
+            case .saveFailed: return "Save failed"
+            }
+        }
+
+        public var isSuccess: Bool {
+            self == .success
+        }
+    }
+
+    public func saveAsImage() async -> SaveResult {
+        guard let textArt = textArt else {
+            return .noTextArt
+        }
+
+        let renderer = ImageRenderer(
+            content: Text(textArt.asString)
+                .font(.system(size: 12, design: .monospaced))
+                .padding(16)
+                .background(Color.white)
+        )
+        renderer.scale = 3.0
+
+        guard let uiImage = renderer.uiImage else {
+            return .renderFailed
+        }
+
+        guard let imageData = uiImage.pngData() else {
+            return .encodeFailed
+        }
+
+        let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+        guard status == .authorized || status == .limited else {
+            return .permissionDenied
+        }
+
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
+                let creationRequest = PHAssetCreationRequest.forAsset()
+                creationRequest.addResource(with: .photo, data: imageData, options: nil)
+            }
+            return .success
+        } catch {
+            return .saveFailed
         }
     }
 }

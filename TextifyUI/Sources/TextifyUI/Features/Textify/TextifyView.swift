@@ -1,7 +1,6 @@
 import SwiftUI
 import CoreGraphics
 import TextifyKit
-import Photos
 
 /// Textify screen - Real-time text art conversion
 public struct TextifyView: View {
@@ -141,54 +140,9 @@ public struct TextifyView: View {
     @MainActor
     private func saveAsImage() {
         Task {
-            await saveAsImageAsync()
-        }
-    }
-
-    @MainActor
-    private func saveAsImageAsync() async {
-        guard let textArt = viewModel.textArt else {
-            toastMessage = "No text art to save"
-            return
-        }
-
-        let renderer = ImageRenderer(
-            content: Text(textArt.asString)
-                .font(.system(size: 12, design: .monospaced))
-                .padding(16)
-                .background(Color.white)
-        )
-        renderer.scale = 3.0
-
-        guard let uiImage = renderer.uiImage else {
-            toastMessage = "Failed to render image"
-            return
-        }
-
-        // Convert to Data (Sendable) before crossing actor boundary
-        guard let imageData = uiImage.pngData() else {
-            toastMessage = "Failed to encode image"
-            return
-        }
-
-        do {
-            let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
-            guard status == .authorized || status == .limited else {
-                toastMessage = "Photo access required"
-                HapticsService.shared.notification(type: .error)
-                return
-            }
-
-            try await PHPhotoLibrary.shared().performChanges {
-                let creationRequest = PHAssetCreationRequest.forAsset()
-                creationRequest.addResource(with: .photo, data: imageData, options: nil)
-            }
-
-            toastMessage = "Saved to Photos"
-            HapticsService.shared.notification(type: .success)
-        } catch {
-            toastMessage = "Save failed"
-            HapticsService.shared.notification(type: .error)
+            let result = await viewModel.saveAsImage()
+            toastMessage = result.message
+            HapticsService.shared.notification(type: result.isSuccess ? .success : .error)
         }
     }
 }
