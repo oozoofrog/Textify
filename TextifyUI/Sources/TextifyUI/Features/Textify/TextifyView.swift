@@ -276,7 +276,7 @@ public struct TextifyView: View {
 
 #Preview {
     NavigationStack {
-        if let uiImage = UIImage(systemName: "star.fill"),
+        if let uiImage = UIImage(systemName: "face.smiling.fill"),
            let cgImage = uiImage.cgImage {
             TextifyView(viewModel: TextifyViewModel(
                 image: cgImage,
