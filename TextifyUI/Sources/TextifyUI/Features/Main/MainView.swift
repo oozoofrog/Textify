@@ -8,6 +8,7 @@ public struct MainView: View {
     @State var viewModel: MainViewModel
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var navigateToTextify = false
+    @State private var isLoadingImage = false
 
     public init(viewModel: MainViewModel) {
         self._viewModel = State(initialValue: viewModel)
@@ -25,16 +26,21 @@ public struct MainView: View {
                     Spacer()
 
                     // 로고 영역
-                    VStack(spacing: 16) {
-                        Text("✦")
-                            .font(.system(size: 60))
+                    VStack(spacing: 12) {
+                        Image(systemName: "sparkle")
+                            .font(.system(size: 48))
+                            .foregroundStyle(.primary)
 
                         Text("Textify")
-                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .font(.system(size: 40, weight: .bold, design: .rounded))
 
                         Text("이미지를 텍스트 아트로")
-                            .font(.title3)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
+
+                        Text("선명한 사진이 좋은 결과를 만듭니다")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
                     }
 
                     Spacer()
@@ -62,6 +68,15 @@ public struct MainView: View {
                     .padding(.horizontal, 32)
                     .padding(.bottom, 60)
                 }
+
+                // Loading overlay
+                if isLoadingImage {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(.white)
+                }
             }
             .navigationDestination(isPresented: $navigateToTextify) {
                 if let image = viewModel.selectedImage {
@@ -75,8 +90,12 @@ public struct MainView: View {
             }
         }
         .onChange(of: selectedPhotoItem) { _, newItem in
+            HapticsService.shared.impact(style: .medium)
+            guard newItem != nil else { return }
+            isLoadingImage = true
             Task {
                 await viewModel.loadImage(from: newItem)
+                isLoadingImage = false
                 if viewModel.selectedImage != nil {
                     navigateToTextify = true
                 }
@@ -142,8 +161,8 @@ struct BackgroundTextArtAnimation: View {
             .offset(y: offset)
             .onAppear {
                 withAnimation(
-                    .linear(duration: 20)
-                    .repeatForever(autoreverses: false)
+                    .easeInOut(duration: 20)
+                    .repeatForever(autoreverses: true)
                 ) {
                     offset = -400
                 }
