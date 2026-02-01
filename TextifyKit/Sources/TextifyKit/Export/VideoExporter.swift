@@ -69,11 +69,11 @@ public final class VideoExporter {
     ///   - outputURL: Output file URL
     ///   - progressHandler: Called with progress updates (0.0 - 1.0)
     public nonisolated func export(
-        renderFrame: @escaping (TimeInterval, MTLTexture) async -> Void,
+        renderFrame: @escaping @Sendable (TimeInterval, MTLTexture) async -> Void,
         duration: TimeInterval,
         config: VideoExportConfiguration = .hd1080p30,
         to outputURL: URL,
-        progressHandler: ((Double) -> Void)? = nil
+        progressHandler: (@Sendable (Double) -> Void)? = nil
     ) async throws {
         await MainActor.run {
             guard !isExporting else {
