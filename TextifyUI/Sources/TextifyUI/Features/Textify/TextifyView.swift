@@ -10,8 +10,6 @@ public struct TextifyView: View {
 
     @State private var toolbarState: ToolbarState = .main
     @State private var showFocusMode = false
-    @GestureState private var pinchScale: CGFloat = 1.0
-    @State private var baseFontSize: CGFloat?
     @State private var showingOriginalImage = false
     @Namespace private var imageTransition
     @State private var toastMessage: String?
@@ -23,7 +21,13 @@ public struct TextifyView: View {
     public var body: some View {
         ZStack {
             // Main content area with tap-to-toggle
-            mainContentArea
+            TextifyContentView(
+                viewModel: viewModel,
+                showingOriginalImage: $showingOriginalImage,
+                toolbarState: $toolbarState,
+                showFocusMode: $showFocusMode,
+                imageTransition: imageTransition
+            )
 
             // Bottom: MorphingToolbar
             VStack {
@@ -129,123 +133,6 @@ public struct TextifyView: View {
                     toastMessage = nil
                 }
             }
-        }
-    }
-
-    // MARK: - Sections
-
-    @ViewBuilder
-    private var mainContentArea: some View {
-        ZStack {
-            if showingOriginalImage {
-                Image(decorative: viewModel.image, scale: 1.0)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .matchedGeometryEffect(id: "content", in: imageTransition)
-            } else {
-                textifyContentView
-                    .matchedGeometryEffect(id: "content", in: imageTransition)
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if toolbarState != .main {
-                let haptics = HapticsService.shared
-                haptics.impact(style: .light)
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    toolbarState = .main
-                }
-            } else {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                    showingOriginalImage.toggle()
-                }
-                HapticsService.shared.impact(style: .light)
-            }
-        }
-        .onTapGesture(count: 2) {
-            // Double-tap to enter focus mode
-            if viewModel.textArt != nil {
-                HapticsService.shared.impact(style: .medium)
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    showFocusMode = true
-                }
-            }
-        }
-        .gesture(
-            MagnificationGesture()
-                .updating($pinchScale) { value, state, _ in
-                    state = value
-                }
-                .onChanged { value in
-                    // Initialize base font size on gesture start
-                    if baseFontSize == nil {
-                        baseFontSize = viewModel.fontSize
-                    }
-                }
-                .onEnded { value in
-                    // Calculate final font size based on pinch scale
-                    let newSize = (baseFontSize ?? viewModel.fontSize) * value
-                    // Clamp between 4 and 20
-                    let clampedSize = min(max(newSize, 4), 20)
-                    viewModel.fontSize = clampedSize
-                    HapticsService.shared.impact(style: .light)
-                    // Reset base font size
-                    baseFontSize = nil
-                }
-        )
-    }
-
-    @ViewBuilder
-    private var textifyContentView: some View {
-        if viewModel.isGenerating {
-            ProgressView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if let textArt = viewModel.textArt {
-            GeometryReader { geometry in
-                ScrollViewReader { scrollProxy in
-                    ScrollView([.horizontal, .vertical]) {
-                        Text(textArt.asString)
-                            .font(.system(size: viewModel.fontSize, design: .monospaced))
-                            .minimumScaleFactor(0.1)
-                            .lineLimit(nil)
-                            .fixedSize(horizontal: true, vertical: true)
-                            .textSelection(.enabled)
-                            .scaleEffect(pinchScale)
-                            .padding()
-                            .frame(
-                                minWidth: geometry.size.width,
-                                minHeight: geometry.size.height
-                            )
-                            .id("textArtContent")
-                    }
-                    .defaultScrollAnchor(.center)
-                    .onChange(of: viewModel.outputWidth) { _, _ in
-                        withAnimation(.easeOut(duration: 0.15)) {
-                            scrollProxy.scrollTo("textArtContent", anchor: .center)
-                        }
-                    }
-                    .onChange(of: viewModel.fontSize) { _, _ in
-                        withAnimation(.easeOut(duration: 0.15)) {
-                            scrollProxy.scrollTo("textArtContent", anchor: .center)
-                        }
-                    }
-                }
-            }
-        } else if let error = viewModel.errorMessage {
-            VStack(spacing: 16) {
-                Image(systemName: "exclamationmark.triangle")
-                    .font(.largeTitle)
-                    .foregroundStyle(.secondary)
-                Text(error)
-                    .foregroundStyle(.secondary)
-                Button("Retry") {
-                    Task { await viewModel.generate() }
-                }
-                .buttonStyle(.bordered)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
