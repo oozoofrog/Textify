@@ -275,13 +275,24 @@ public struct TextifyView: View {
 }
 
 #Preview {
-    NavigationStack {
-        if let uiImage = UIImage(systemName: "face.smiling.fill"),
-           let cgImage = uiImage.cgImage {
-            TextifyView(viewModel: TextifyViewModel(
-                image: cgImage,
-                generator: TextArtGenerator()
-            ))
-        }
+    let cgImage: CGImage = {
+        let config = UIImage.SymbolConfiguration(pointSize: 200, weight: .regular)
+        let uiImage = UIImage(systemName: "face.smiling.fill", withConfiguration: config)!
+            .withTintColor(.black, renderingMode: .alwaysOriginal)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let renderer = UIGraphicsImageRenderer(size: uiImage.size, format: format)
+        return renderer.image { context in
+            UIColor.white.setFill()
+            context.fill(CGRect(origin: .zero, size: uiImage.size))
+            uiImage.draw(in: CGRect(origin: .zero, size: uiImage.size))
+        }.cgImage!
+    }()
+
+    return NavigationStack {
+        TextifyView(viewModel: TextifyViewModel(
+            image: cgImage,
+            generator: TextArtGenerator()
+        ))
     }
 }
