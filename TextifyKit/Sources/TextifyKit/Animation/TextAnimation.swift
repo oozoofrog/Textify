@@ -69,6 +69,7 @@ public protocol TextAnimation: Sendable {
 }
 
 /// Animation state manager
+@available(iOS 13.0, macOS 10.15, *)
 @MainActor
 public final class AnimationController: ObservableObject {
     @Published public private(set) var currentTime: TimeInterval = 0

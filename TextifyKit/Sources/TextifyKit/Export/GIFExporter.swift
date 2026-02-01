@@ -6,6 +6,7 @@ import CoreVideo
 import UniformTypeIdentifiers
 
 /// Exports animated text art to GIF
+@available(iOS 14.0, macOS 11.0, *)
 @MainActor
 public final class GIFExporter {
 

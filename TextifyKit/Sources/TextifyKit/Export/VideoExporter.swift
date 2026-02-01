@@ -44,6 +44,7 @@ public struct VideoExportConfiguration: Sendable {
 }
 
 /// Exports animated text art to video
+@available(iOS 13.0, macOS 10.15, *)
 @MainActor
 public final class VideoExporter {
 
