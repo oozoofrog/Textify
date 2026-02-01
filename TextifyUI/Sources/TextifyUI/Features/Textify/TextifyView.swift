@@ -208,20 +208,28 @@ public struct TextifyView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let textArt = viewModel.textArt {
             GeometryReader { geometry in
-                ScrollView([.horizontal, .vertical]) {
-                    Text(textArt.asString)
-                        .font(.system(size: viewModel.fontSize, design: .monospaced))
-                        .minimumScaleFactor(0.1)
-                        .lineLimit(nil)
-                        .fixedSize(horizontal: true, vertical: true)
-                        .textSelection(.enabled)
-                        .padding()
-                        .frame(
-                            minWidth: geometry.size.width,
-                            minHeight: geometry.size.height
-                        )
+                ScrollViewReader { scrollProxy in
+                    ScrollView([.horizontal, .vertical]) {
+                        Text(textArt.asString)
+                            .font(.system(size: viewModel.fontSize, design: .monospaced))
+                            .minimumScaleFactor(0.1)
+                            .lineLimit(nil)
+                            .fixedSize(horizontal: true, vertical: true)
+                            .textSelection(.enabled)
+                            .padding()
+                            .frame(
+                                minWidth: geometry.size.width,
+                                minHeight: geometry.size.height
+                            )
+                            .id("textArtContent")
+                    }
+                    .defaultScrollAnchor(.center)
+                    .onChange(of: viewModel.outputWidth) { _, _ in
+                        withAnimation(.easeOut(duration: 0.15)) {
+                            scrollProxy.scrollTo("textArtContent", anchor: .center)
+                        }
+                    }
                 }
-                .defaultScrollAnchor(.center)
             }
         } else if let error = viewModel.errorMessage {
             VStack(spacing: 16) {
