@@ -183,18 +183,14 @@ public struct TextifyView: View {
                     if baseFontSize == nil {
                         baseFontSize = viewModel.fontSize
                     }
-                    // Calculate new font size based on pinch scale
-                    let newSize = (baseFontSize ?? viewModel.fontSize) * value
-                    // Clamp between 4 and 20, with haptic at boundaries
-                    let clampedSize = min(max(newSize, 4), 20)
-                    if clampedSize != viewModel.fontSize {
-                        if clampedSize == 4 || clampedSize == 20 {
-                            HapticsService.shared.impact(style: .light)
-                        }
-                        viewModel.fontSize = clampedSize
-                    }
                 }
-                .onEnded { _ in
+                .onEnded { value in
+                    // Calculate final font size based on pinch scale
+                    let newSize = (baseFontSize ?? viewModel.fontSize) * value
+                    // Clamp between 4 and 20
+                    let clampedSize = min(max(newSize, 4), 20)
+                    viewModel.fontSize = clampedSize
+                    HapticsService.shared.impact(style: .light)
                     // Reset base font size
                     baseFontSize = nil
                 }
@@ -216,6 +212,7 @@ public struct TextifyView: View {
                             .lineLimit(nil)
                             .fixedSize(horizontal: true, vertical: true)
                             .textSelection(.enabled)
+                            .scaleEffect(pinchScale)
                             .padding()
                             .frame(
                                 minWidth: geometry.size.width,
