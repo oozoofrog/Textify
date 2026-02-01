@@ -15,9 +15,6 @@ public struct TextifyContentView: View {
     @GestureState private var pinchScale: CGFloat = 1.0
     @State private var baseFontSize: CGFloat?
 
-    /// Whether to use Metal rendering (falls back to SwiftUI Text if Metal unavailable)
-    @State private var useMetalRendering: Bool = false
-
     /// Check if Metal is available on this device
     private var isMetalAvailable: Bool {
         MetalContext.shared != nil
@@ -57,7 +54,7 @@ public struct TextifyContentView: View {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let textArt = viewModel.textArt {
-            if useMetalRendering && isMetalAvailable {
+            if viewModel.useMetalRendering && isMetalAvailable {
                 metalTextifyContent(textArt: textArt)
             } else {
                 swiftUITextifyContent(textArt: textArt)
@@ -81,7 +78,7 @@ public struct TextifyContentView: View {
     /// Metal-based rendering with MSDF for infinite zoom quality
     @ViewBuilder
     private func metalTextifyContent(textArt: TextArt) -> some View {
-        MetalTextifyWrapper(textArt: textArt)
+        MetalTextifyWrapper(textArt: textArt, colorPaletteType: viewModel.colorPaletteType)
     }
 
     /// SwiftUI Text-based rendering (fallback)
@@ -172,6 +169,7 @@ public struct TextifyContentView: View {
 /// Wrapper to manage TextArtPro state for MetalTextifyView
 private struct MetalTextifyWrapper: View {
     let textArt: TextArt
+    let colorPaletteType: ColorPaletteType
     @State private var textArtPro: TextArtPro?
 
     var body: some View {
@@ -180,11 +178,19 @@ private struct MetalTextifyWrapper: View {
             backgroundColor: .black
         )
         .onAppear {
-            textArtPro = TextArtProAdapter.convert(textArt, palette: .white)
+            updateTextArtPro(from: textArt)
         }
         .onChange(of: textArt) { _, newValue in
-            textArtPro = TextArtProAdapter.convert(newValue, palette: .white)
+            updateTextArtPro(from: newValue)
         }
+        .onChange(of: colorPaletteType) { _, _ in
+            updateTextArtPro(from: textArt)
+        }
+    }
+
+    private func updateTextArtPro(from textArt: TextArt) {
+        let palette = ColorPalette(type: colorPaletteType)
+        textArtPro = TextArtProAdapter.convert(textArt, palette: palette)
     }
 }
 

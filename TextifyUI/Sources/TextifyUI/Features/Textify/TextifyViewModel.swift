@@ -73,6 +73,10 @@ public final class TextifyViewModel {
     public var invertBrightness: Bool = false
     public var fontSize: CGFloat = 8
 
+    // Metal rendering options
+    public var colorPaletteType: ColorPaletteType = .original
+    public var useMetalRendering: Bool = false
+
     // Preview coordination
     private let taskManager = GenerationTaskManager()
     private let widthThrottler = Throttler(interval: .milliseconds(50))
