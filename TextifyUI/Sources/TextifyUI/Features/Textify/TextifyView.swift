@@ -140,7 +140,17 @@ public struct TextifyView: View {
 
     @MainActor
     private func saveAsImage() {
-        guard let textArt = viewModel.textArt else { return }
+        Task {
+            await saveAsImageAsync()
+        }
+    }
+
+    @MainActor
+    private func saveAsImageAsync() async {
+        guard let textArt = viewModel.textArt else {
+            toastMessage = "No text art to save"
+            return
+        }
 
         let renderer = ImageRenderer(
             content: Text(textArt.asString)
@@ -148,32 +158,37 @@ public struct TextifyView: View {
                 .padding(16)
                 .background(Color.white)
         )
-        renderer.scale = 3.0  // High resolution
+        renderer.scale = 3.0
 
-        guard let uiImage = renderer.uiImage else { return }
+        guard let uiImage = renderer.uiImage else {
+            toastMessage = "Failed to render image"
+            return
+        }
 
-        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+        // Convert to Data (Sendable) before crossing actor boundary
+        guard let imageData = uiImage.pngData() else {
+            toastMessage = "Failed to encode image"
+            return
+        }
+
+        do {
+            let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
             guard status == .authorized || status == .limited else {
-                Task { @MainActor in
-                    toastMessage = "Photo access required"
-                    HapticsService.shared.notification(type: .error)
-                }
+                toastMessage = "Photo access required"
+                HapticsService.shared.notification(type: .error)
                 return
             }
 
-            PHPhotoLibrary.shared().performChanges({
-                PHAssetChangeRequest.creationRequestForAsset(from: uiImage)
-            }) { success, error in
-                Task { @MainActor in
-                    if success {
-                        toastMessage = "Saved to Photos"
-                        HapticsService.shared.notification(type: .success)
-                    } else {
-                        toastMessage = "Save failed"
-                        HapticsService.shared.notification(type: .error)
-                    }
-                }
+            try await PHPhotoLibrary.shared().performChanges {
+                let creationRequest = PHAssetCreationRequest.forAsset()
+                creationRequest.addResource(with: .photo, data: imageData, options: nil)
             }
+
+            toastMessage = "Saved to Photos"
+            HapticsService.shared.notification(type: .success)
+        } catch {
+            toastMessage = "Save failed"
+            HapticsService.shared.notification(type: .error)
         }
     }
 }
