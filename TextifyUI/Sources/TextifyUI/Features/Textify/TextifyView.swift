@@ -207,14 +207,21 @@ public struct TextifyView: View {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let textArt = viewModel.textArt {
-            ScrollView([.horizontal, .vertical]) {
-                Text(textArt.asString)
-                    .font(.system(size: viewModel.fontSize, design: .monospaced))
-                    .minimumScaleFactor(0.1)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: false)
-                    .textSelection(.enabled)
-                    .padding()
+            GeometryReader { geometry in
+                ScrollView([.horizontal, .vertical]) {
+                    Text(textArt.asString)
+                        .font(.system(size: viewModel.fontSize, design: .monospaced))
+                        .minimumScaleFactor(0.1)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: true, vertical: true)
+                        .textSelection(.enabled)
+                        .padding()
+                        .frame(
+                            minWidth: geometry.size.width,
+                            minHeight: geometry.size.height
+                        )
+                }
+                .defaultScrollAnchor(.center)
             }
         } else if let error = viewModel.errorMessage {
             VStack(spacing: 16) {
