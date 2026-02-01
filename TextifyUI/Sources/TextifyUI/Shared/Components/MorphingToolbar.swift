@@ -751,6 +751,7 @@ private struct PremiumSlider: View {
             value = clampedValue
             let haptics = HapticsService.shared
             haptics.selection()
+            onChange()
         }
     }
 }

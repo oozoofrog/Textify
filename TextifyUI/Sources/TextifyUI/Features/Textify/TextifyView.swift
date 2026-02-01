@@ -46,7 +46,7 @@ public struct TextifyView: View {
                         outputWidth: $viewModel.outputWidth,
                         fontSize: $viewModel.fontSize,
                         onWidthChange: {
-                            viewModel.generateFinal()
+                            viewModel.throttledGenerate()
                         }
                     )
                 } shareContent: {

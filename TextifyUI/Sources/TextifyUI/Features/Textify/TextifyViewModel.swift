@@ -96,9 +96,11 @@ public final class TextifyViewModel {
         )
     }
 
-    private func throttledGenerate() async {
-        await widthThrottler.throttle { [weak self] in
-            await self?.generatePreview()
+    public func throttledGenerate() {
+        Task {
+            await widthThrottler.throttle { [weak self] in
+                await self?.generatePreview()
+            }
         }
     }
 
