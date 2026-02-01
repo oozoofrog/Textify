@@ -229,6 +229,11 @@ public struct TextifyView: View {
                             scrollProxy.scrollTo("textArtContent", anchor: .center)
                         }
                     }
+                    .onChange(of: viewModel.fontSize) { _, _ in
+                        withAnimation(.easeOut(duration: 0.15)) {
+                            scrollProxy.scrollTo("textArtContent", anchor: .center)
+                        }
+                    }
                 }
             }
         } else if let error = viewModel.errorMessage {
