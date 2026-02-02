@@ -2,11 +2,12 @@ import SwiftUI
 import PhotosUI
 import CoreGraphics
 import TextifyKit
+import UniformTypeIdentifiers
 
-/// 메인 화면 - 사진 선택 + 배경 텍스트 아트 애니메이션
 public struct MainView: View {
     @State var viewModel: MainViewModel
     @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var showingFileImporter = false
     @State private var navigateToTextify = false
     @State private var isLoadingImage = false
 
@@ -45,25 +46,45 @@ public struct MainView: View {
 
                     Spacer()
 
-                    // 사진 선택 버튼
-                    PhotosPicker(
-                        selection: $selectedPhotoItem,
-                        matching: .images
-                    ) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "photo.fill")
-                                .font(.title2)
-                            Text("사진 선택")
-                                .font(.title3.weight(.semibold))
+                    VStack(spacing: 16) {
+                        PhotosPicker(
+                            selection: $selectedPhotoItem,
+                            matching: .images
+                        ) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "photo.fill")
+                                    .font(.title2)
+                                Text("사진 라이브러리")
+                                    .font(.title3.weight(.semibold))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 20)
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(.white.opacity(0.2), lineWidth: 1)
+                            )
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 20)
-                        .background(.ultraThinMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(.white.opacity(0.2), lineWidth: 1)
-                        )
+
+                        Button {
+                            showingFileImporter = true
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "folder.fill")
+                                    .font(.title2)
+                                Text("파일 선택")
+                                    .font(.title3.weight(.semibold))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 20)
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(.white.opacity(0.2), lineWidth: 1)
+                            )
+                        }
                     }
                     .padding(.horizontal, 32)
                     .padding(.bottom, 60)
@@ -84,7 +105,11 @@ public struct MainView: View {
                         viewModel: TextifyViewModel(
                             image: image,
                             generator: viewModel.generator
-                        )
+                        ),
+                        onChangeImage: {
+                            viewModel.clearSelection()
+                            navigateToTextify = false
+                        }
                     )
                 }
             }
@@ -101,12 +126,40 @@ public struct MainView: View {
                 }
             }
         }
+        .fileImporter(
+            isPresented: $showingFileImporter,
+            allowedContentTypes: [.image],
+            allowsMultipleSelection: false
+        ) { result in
+            handleFileImport(result: result)
+        }
         .alert("오류", isPresented: .constant(viewModel.errorMessage != nil)) {
             Button("확인") {
                 viewModel.errorMessage = nil
             }
         } message: {
             Text(viewModel.errorMessage ?? "")
+        }
+    }
+
+    private func handleFileImport(result: Result<[URL], Error>) {
+        HapticsService.shared.impact(style: .medium)
+
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+
+            isLoadingImage = true
+            Task {
+                await viewModel.loadImage(from: url)
+                isLoadingImage = false
+                if viewModel.selectedImage != nil {
+                    navigateToTextify = true
+                }
+            }
+
+        case .failure(let error):
+            viewModel.errorMessage = "파일을 불러올 수 없습니다: \(error.localizedDescription)"
         }
     }
 }

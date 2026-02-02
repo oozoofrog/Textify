@@ -2,7 +2,6 @@ import SwiftUI
 import CoreGraphics
 import TextifyKit
 
-/// Textify screen - Real-time text art conversion
 public struct TextifyView: View {
     @State var viewModel: TextifyViewModel
     @Environment(\.dismiss) private var dismiss
@@ -13,8 +12,11 @@ public struct TextifyView: View {
     @Namespace private var imageTransition
     @State private var toastMessage: String?
 
-    public init(viewModel: TextifyViewModel) {
+    let onChangeImage: () -> Void
+
+    public init(viewModel: TextifyViewModel, onChangeImage: @escaping () -> Void = {}) {
         self._viewModel = State(initialValue: viewModel)
+        self.onChangeImage = onChangeImage
     }
 
     public var body: some View {
@@ -93,6 +95,25 @@ public struct TextifyView: View {
         }
         .navigationTitle("Textify")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("뒤로")
+                    }
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    onChangeImage()
+                } label: {
+                    Image(systemName: "photo.badge.arrow.down")
+                }
+            }
+        }
         .overlay(alignment: .top) {
             if let message = toastMessage {
                 toastView(message: message)

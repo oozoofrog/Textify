@@ -4,7 +4,6 @@ import PhotosUI
 import CoreGraphics
 import TextifyKit
 
-/// 메인 화면 ViewModel
 @Observable
 @MainActor
 public final class MainViewModel {
@@ -37,6 +36,32 @@ public final class MainViewModel {
             selectedImage = cgImage
         } catch {
             errorMessage = "이미지를 불러올 수 없습니다: \(error.localizedDescription)"
+            selectedImage = nil
+        }
+
+        isLoading = false
+    }
+
+    public func loadImage(from url: URL) async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            guard url.startAccessingSecurityScopedResource() else {
+                throw ImageError.loadFailed
+            }
+            defer { url.stopAccessingSecurityScopedResource() }
+
+            let data = try Data(contentsOf: url)
+
+            guard let uiImage = UIImage(data: data),
+                  let cgImage = uiImage.cgImage else {
+                throw ImageError.invalidFormat
+            }
+
+            selectedImage = cgImage
+        } catch {
+            errorMessage = "파일을 불러올 수 없습니다: \(error.localizedDescription)"
             selectedImage = nil
         }
 
