@@ -3,6 +3,7 @@ import CoreGraphics
 
 /// Actor that generates text art from images.
 /// Coordinates image processing and character mapping.
+@available(iOS 13.0, macOS 10.15, *)
 public actor TextArtGenerator: TextArtGenerating {
 
     private let imageProcessor: any ImageProcessing

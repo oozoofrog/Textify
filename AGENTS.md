@@ -1,127 +1,105 @@
-# Textify iOS App - Architecture Overview
+# Textify iOS - AGENTS Knowledge Base
 
-> AI 에이전트 및 개발자를 위한 코드베이스 컨텍스트 문서
+> Swift 6.2 + SwiftUI + MVVM. 이미지→텍스트 아트 변환 iOS 앱.
 
 ---
 
-## Module Structure
+## Quick Reference
+
+| Module | Path | Purpose |
+|--------|------|---------|
+| **TextifyKit** | `TextifyKit/` | Core engine (actor-based, Metal, zero deps) |
+| **TextifyUI** | `TextifyUI/` | SwiftUI layer (@_exported TextifyKit) |
+| **TextifyApp** | `TextifyApp/` | Xcode app entry (1 file) |
+
+**Build:**
+```bash
+# Full app build
+cd TextifyApp && xcodebuild -scheme TextifyApp -destination 'platform=iOS Simulator,name=iPhone 17' build
+
+# Test TextifyKit
+cd TextifyApp && xcodebuild -scheme TextifyKit -destination 'platform=iOS Simulator,name=iPhone 17' test
+```
+
+**Docs:**
+- `docs/PRODUCT_SPEC.md` - 제품 기획서
+- `docs/DESIGN_SYSTEM.md` - 디자인 시스템
+- `docs/DEVELOPMENT_GUIDE.md` - 알고리즘/아키텍처
+
+---
+
+## Architecture
 
 ```
-TextifyApp (Xcode iOS Project)
+TextifyApp (Xcode)
     ↓ imports
-TextifyUI (SPM Library) - 37 files
-    ↓ imports (@_exported)
-TextifyKit (SPM Library) - 21 files
+TextifyUI (SPM, 50 files)
+    ↓ @_exported import TextifyKit
+TextifyKit (SPM, 32 files, zero deps)
 ```
 
-**Dependency Flow:** TextifyApp → TextifyUI → TextifyKit (단방향)
+| Layer | Pattern | Key Tech |
+|-------|---------|----------|
+| **State** | `@Observable` macro | SwiftUI native |
+| **DI** | Pure DI | `AppDependencies` (Composition Root) |
+| **Concurrency** | Swift 6 actors | `@MainActor` VM, `actor` services |
+| **Navigation** | Enum-based | `NavigationStack` + `AppDestination` |
 
 ---
 
-## Architecture Pattern: MVVM + Pure DI
+## Module Boundaries
 
-| 패턴 | 구현 |
-|------|------|
-| **State Management** | SwiftUI `@Observable` macro |
-| **Dependency Injection** | Pure DI via `AppDependencies` (Composition Root) |
-| **Concurrency** | Swift 6 actors + async/await |
-| **Navigation** | NavigationStack + enum-based destinations |
+### TextifyKit (Core)
+- **Models:** TextArt, ProcessingOptions, CharacterPalette, GrayscalePixelBuffer
+- **Protocols:** TextArtGenerating, ImageProcessing (Sendable)
+- **Services:** TextArtGenerator (actor), ImageProcessor (actor), CharacterMapper
+- **Pipeline:** `CGImage → ImageProcessor → GrayscalePixelBuffer → CharacterMapper → TextArt`
+- **Tests:** 13 files (Models/, Services/, Mocks/)
 
----
-
-## 1. TextifyKit (Core Logic)
-
-**경로:** `/TextifyKit/Sources/TextifyKit/`
-
-### Models
-| Type | Purpose |
-|------|---------|
-| `TextArt` | 생성된 텍스트 아트 결과 |
-| `ProcessingOptions` | 생성 파라미터 (width, contrast, invert) |
-| `CharacterPalette` | 문자 팔레트 (dark→light) |
-| `GrayscalePixelBuffer` | 처리된 픽셀 데이터 |
-
-### Protocols
-| Protocol | Implementation |
-|----------|----------------|
-| `TextArtGenerating` | `TextArtGenerator` (actor) |
-| `ImageProcessing` | `ImageProcessor` (actor) |
-
-### Services
-| Service | Type | Responsibility |
-|---------|------|----------------|
-| `TextArtGenerator` | actor | 이미지→텍스트 변환 파이프라인 |
-| `ImageProcessor` | actor | CGImage → grayscale 변환 |
-| `CharacterMapper` | struct | 픽셀→문자 매핑 |
-
-**Generation Pipeline:**
-```
-CGImage → ImageProcessor → GrayscalePixelBuffer → CharacterMapper → TextArt
-```
+### TextifyUI (Presentation)
+- **App/:** AppDependencies.swift (DI composition root)
+- **Features/ (9):** Home, Main, Textify, ImageSelection, TextInput, Generation, Result, Settings, History
+- **Services/ (8):** PhotoLibrary, FileImport, Clipboard, ImageExport, History (actor), Appearance, Haptics, ImageValidation
+- **Shared/Components/ (13):** MorphingToolbar (1056L), GlassCard, etc.
+- **Shared/Theme/:** AppTheme, ThemeEnvironment
 
 ---
 
-## 2. TextifyUI (UI Layer)
+## Patterns
 
-**경로:** `/TextifyUI/Sources/TextifyUI/`
-
-### Features (MVVM)
-| Feature | Files | 역할 |
-|---------|-------|------|
-| Home | HomeView, HomeViewModel | 네비게이션 루트 |
-| ImageSelection | View + ViewModel | 사진 선택 |
-| TextInput | View + ViewModel | 문자 팔레트 입력 |
-| Generation | View + ViewModel | 텍스트 아트 생성 |
-| Result | View + ViewModel | 결과 표시/내보내기 |
-| Settings | View + ViewModel | 앱 설정 |
-| History | 3 Views + ViewModel | 히스토리 관리 |
-
-### Services (8개)
-| Service | 역할 |
-|---------|------|
-| `PhotoLibraryService` | PhotosUI 통합 |
-| `FileImportService` | 파일 가져오기 |
-| `ClipboardService` | 클립보드 복사 |
-| `ImageExportService` | 이미지 저장 |
-| `HistoryService` | JSON 기반 히스토리 (actor) |
-| `AppearanceService` | 다크/라이트 모드 |
-| `HapticsService` | 햅틱 피드백 |
-| `ImageValidationService` | 이미지 검증 |
-
-### Shared Components (8개)
-`GlassCard`, `LoadingButton`, `ErrorBanner`, `ValueSlider`, `AnimatedGradient`, `PreviewPanel`, `HistoryCard`, `RetryView`
-
-### App
-| File | 역할 |
-|------|------|
-| `AppDependencies.swift` | Composition Root - 모든 서비스/VM 팩토리 |
-
----
-
-## 3. TextifyApp (Entry Point)
-
-**경로:** `/TextifyApp/TextifyApp/Sources/App/`
-
+### ViewModel
 ```swift
-@main
-struct TextifyApp: App {
-    @State private var dependencies = AppDependencies()
+@Observable
+@MainActor
+public final class SomeViewModel {
+    @ObservationIgnored
+    private let service: SomeServicing
+    
+    init(service: SomeServicing) { ... }  // Constructor injection
+}
+```
 
-    var body: some Scene {
-        WindowGroup {
-            HomeView(viewModel: dependencies.makeHomeViewModel())
-                .environment(dependencies)
-        }
+### Service
+```swift
+public protocol SomeServicing: Sendable {
+    func doWork() async throws
+}
+
+public actor SomeService: SomeServicing { ... }
+```
+
+### View
+```swift
+struct SomeView: View {
+    @State private var viewModel: SomeViewModel
+    
+    init(viewModel: SomeViewModel) {
+        _viewModel = State(initialValue: viewModel)
     }
 }
 ```
 
-**파일 수:** 1개 (TextifyApp.swift만)
-
----
-
-## 4. Navigation
-
+### Navigation
 ```swift
 enum AppDestination: Hashable {
     case imageSelection
@@ -133,261 +111,166 @@ enum AppDestination: Hashable {
 }
 ```
 
-**Flow:**
-```
-Home → ImageSelection → TextInput → Generation → Result
-  ↓           ↑
-Settings   History
-```
+---
+
+## Anti-Patterns (DO NOT)
+
+| ❌ Forbidden | Reason | ✅ Correct |
+|-------------|--------|----------|
+| `HapticsService.shared` | Singleton breaks DI | Constructor inject |
+| `@StateObject` | Deprecated iOS 17+ | `@State` with `@Observable` VM |
+| `@ObservedObject` | Deprecated iOS 17+ | Direct property access |
+| `@Published` in `@Observable` | Redundant | Plain `var` |
+| `DispatchQueue.main.async` | Legacy GCD | `@MainActor` |
+| `DispatchQueue.global().async` | Legacy GCD | `Task { }` |
+| `Task.detached { }` | Context loss | `Task { }` |
+| `nonisolated(unsafe)` | Unsafe | Proper isolation |
+| `@unchecked Sendable` | Compiler bypass | Make truly Sendable |
+| `class` for services | Thread-unsafe | `actor` |
+| `UIKit import` | Project rule | SwiftUI only |
+
+**Known Violations:**
+- `HapticsService.shared` used in 9 files (migration in progress)
+- `@unchecked Sendable` in FrameCapturer, MockImageProcessor
+- `@Published` in TransformState, TextAnimation (legacy)
+- `DispatchQueue.main.async` in 4 UI components
 
 ---
 
-## 5. Data Flow
+## Adding Features
 
-```
-User Action
-    ↓
-ViewModel (async method)
-    ↓
-Service (actor-isolated)
-    ↓
-TextifyKit (core processing)
-    ↓
-Result → @Observable state → SwiftUI re-render
-```
+### New Feature
+1. `TextifyUI/Sources/TextifyUI/Features/{Name}/` 디렉토리 생성
+2. `{Name}View.swift` + `{Name}ViewModel.swift` 생성
+3. `AppDependencies.swift`에 factory method 추가
+4. `AppDestination`에 case 추가 (if navigable)
+5. `HomeView`에 navigation 연결
 
----
-
-## 6. Key Files
-
-| 파일 | 역할 |
-|------|------|
-| `AppDependencies.swift` | DI Composition Root |
-| `HomeViewModel.swift` | 네비게이션 관리 |
-| `TextArtGenerator.swift` | 핵심 생성 로직 |
-| `HistoryService.swift` | 히스토리 저장 |
-| `AppTheme.swift` | UI 테마 상수 |
-
----
-
-## 7. Development Guidelines
-
-### 새 기능 추가
-1. `Features/`에 View + ViewModel 쌍 생성
-2. `AppDependencies`에 팩토리 메서드 추가
-3. `AppDestination`에 케이스 추가
-4. `HomeView`에 네비게이션 연결
-
-### 새 서비스 추가
-1. `Services/`에 서비스 파일 생성
-2. 프로토콜 정의 (테스트 용이성)
+### New Service
+1. `TextifyUI/Sources/TextifyUI/Services/{Name}Service.swift` 생성
+2. Protocol 정의 (`{Name}Servicing: Sendable`)
 3. `AppDependencies`에 인스턴스 추가
 4. 필요한 ViewModel에 주입
 
-### Concurrency 규칙
-- **Core 로직:** `actor` 사용
-- **ViewModel:** `@MainActor` + `@Observable`
-- **모든 타입:** `Sendable` 준수
+### New Model (TextifyKit)
+1. `TextifyKit/Sources/TextifyKit/Models/`에 추가
+2. `Sendable` 준수 확인
+3. Tests 추가
 
 ---
 
-## 8. Constraints
-
-- **iOS 26.0+** (Swift 6.2)
-- **SwiftUI only** (no UIKit views)
-- **Zero 3rd-party dependencies**
-- **한국어 에러 메시지** (`AppError`)
-
----
-
-## Quick Commands
-
-**IMPORTANT: 이 프로젝트는 반드시 xcodebuild로 빌드해야 합니다. 루트에 Package.swift가 없습니다.**
+## Testing
 
 ```bash
-# 전체 앱 빌드 (권장)
-cd /Volumes/eyedisk/develop/oozoofrog/Textify/TextifyApp && xcodebuild -scheme TextifyApp -destination 'platform=iOS Simulator,name=iPhone 17' build
+# TextifyKit tests
+cd TextifyApp && xcodebuild -scheme TextifyKit -destination 'platform=iOS Simulator,name=iPhone 17' test
 
-# 테스트 실행 (TextifyKit)
-cd /Volumes/eyedisk/develop/oozoofrog/Textify/TextifyApp && xcodebuild -scheme TextifyApp -destination 'platform=iOS Simulator,name=iPhone 17' test
-
-# 빌드 에러만 확인 (빠름)
-cd /Volumes/eyedisk/develop/oozoofrog/Textify/TextifyApp && xcodebuild -scheme TextifyApp -destination 'platform=iOS Simulator,name=iPhone 17' build 2>&1 | grep -E "(error:|warning:)" | head -20
+# Full test
+cd TextifyApp && xcodebuild -scheme TextifyApp -destination 'platform=iOS Simulator,name=iPhone 17' test
 ```
-
-### 빌드 시스템 주의사항
-- **swift build 사용 금지**: 루트에 Package.swift 없음
-- **xcodebuild 필수**: TextifyApp.xcodeproj 사용
-- SPM 패키지(TextifyKit, TextifyUI)는 Xcode 프로젝트에서 로컬 패키지로 참조됨
-
----
-
-## 9. Swift 6 Anti-Pattern Checklist
-
-### ❌ 사용 금지 패턴
-
-| 패턴 | 문제 | 대안 |
-|------|------|------|
-| `@StateObject` | iOS 17+ deprecated | `@State` with `@Observable` |
-| `@ObservedObject` | iOS 17+ deprecated | Direct property access |
-| `@Published` in `@Observable` | 중복, 불필요 | Plain `var` |
-| `DispatchQueue.main.async` | Legacy GCD | `@MainActor` |
-| `DispatchQueue.global().async` | Legacy GCD | `Task { }` |
-| `semaphore.wait()` | Blocking | Actor isolation |
-| `Task.detached { }` | Context 손실 | `Task { }` |
-| `nonisolated(unsafe)` | 안전하지 않음 | Proper isolation |
-| `@unchecked Sendable` | 컴파일러 우회 | Make truly Sendable |
-| Singleton `shared` | 테스트 어려움 | DI via Composition Root |
-
-### ✅ 사용 권장 패턴
-
-| 상황 | 권장 패턴 |
-|------|----------|
-| ViewModel 상태 | `@Observable @MainActor final class` |
-| View-owned state | `@State private var vm = ViewModel()` |
-| Passed state | Direct property (no wrapper) |
-| Environment DI | `@Environment(AppDependencies.self)` |
-| Shared mutable state | `actor` |
-| Background work | `Task { await ... }` |
-| Main thread work | `@MainActor` or `MainActor.run { }` |
-| Value types | `struct` (auto-Sendable) |
-
-### Concurrency Decision Tree
-
-```
-데이터 공유 필요?
-├─ No → 일반 async/await
-└─ Yes → 여러 Task에서 접근?
-         ├─ No → 단일 Task 내 처리
-         └─ Yes → 가변 상태?
-                  ├─ No → Struct (자동 Sendable)
-                  └─ Yes → Actor 사용
-                           └─ UI 관련? → @MainActor
-```
-
----
-
-## 10. Testing Guidelines
-
-### Test Structure
-
-```
-TextifyKit/Tests/TextifyKitTests/
-├── Models/
-│   ├── CharacterPaletteTests.swift
-│   ├── GrayscalePixelBufferTests.swift
-│   ├── ProcessingOptionsTests.swift
-│   └── TextArtTests.swift
-├── Services/
-│   ├── CharacterMapperTests.swift
-│   ├── ImageProcessorTests.swift
-│   └── TextArtGeneratorTests.swift
-└── Mocks/
-    └── MockImageProcessor.swift
-```
-
-### Swift Testing Framework (권장)
-
-```swift
-import Testing
-
-@Test("TextArt 생성 성공")
-func testTextArtGeneration() async throws {
-    let generator = TextArtGenerator(imageProcessor: MockImageProcessor())
-    let palette = CharacterPalette(characters: ["@", "#", " "])
-    let options = ProcessingOptions(outputWidth: 40)
-
-    let result = try await generator.generate(
-        from: mockImage,
-        palette: palette,
-        options: options
-    )
-
-    #expect(result.width == 40)
-    #expect(!result.rows.isEmpty)
-}
-
-@Test("잘못된 팔레트 에러", .tags(.validation))
-func testInvalidPalette() async {
-    let generator = TextArtGenerator()
-    let emptyPalette = CharacterPalette(characters: [])
-
-    await #expect(throws: TextArtGenerationError.invalidPalette) {
-        try await generator.generate(
-            from: mockImage,
-            palette: emptyPalette,
-            options: .default
-        )
-    }
-}
-```
-
-### Test Doubles Strategy
-
-| Type | 용도 | 예시 |
-|------|------|------|
-| **Fake** | 실제 구현의 간단한 버전 | `FakeHistoryService` (in-memory) |
-| **Mock** | Protocol 기반 대체 | `MockImageProcessor` |
-| **Stub** | 고정 반환값 | `StubPhotoLibrary` |
-
-### Mock 작성 패턴
-
-```swift
-// Protocol 정의 (TextifyKit)
-public protocol ImageProcessing: Sendable {
-    func grayscalePixels(from: CGImage, ...) async throws -> GrayscalePixelBuffer
-}
-
-// Mock 구현 (Tests)
-final class MockImageProcessor: ImageProcessing, @unchecked Sendable {
-    var stubbedResult: GrayscalePixelBuffer?
-    var shouldThrow: ImageProcessingError?
-
-    func grayscalePixels(from: CGImage, ...) async throws -> GrayscalePixelBuffer {
-        if let error = shouldThrow { throw error }
-        return stubbedResult ?? GrayscalePixelBuffer(width: 10, height: 10, pixels: [])
-    }
-}
-```
-
-### ViewModel 테스트 패턴
-
-```swift
-@Test("Generation 성공 시 상태 업데이트")
-@MainActor
-func testGenerationSuccess() async {
-    let mockGenerator = MockTextArtGenerator()
-    mockGenerator.stubbedResult = TextArt.mock
-
-    let viewModel = GenerationViewModel(generator: mockGenerator)
-
-    await viewModel.generate(from: mockImage, characters: "@# ")
-
-    #expect(viewModel.isGenerating == false)
-    #expect(viewModel.generatedTextArt != nil)
-    #expect(viewModel.errorMessage == nil)
-}
-```
-
-### Test Coverage Goals
 
 | Layer | Target | Focus |
 |-------|--------|-------|
 | TextifyKit | 80%+ | Models, Services |
-| TextifyUI ViewModels | 70%+ | State transitions, error handling |
-| TextifyUI Services | 60%+ | Happy path + edge cases |
-| Views | Snapshot only | Visual regression |
+| TextifyUI VM | 70%+ | State transitions |
+| TextifyUI Services | 60%+ | Happy path + edges |
+| Views | Snapshot | Visual regression |
+
+### Test Pattern (Swift Testing)
+```swift
+import Testing
+
+@Test("Generation success")
+func testGeneration() async throws {
+    let mock = MockImageProcessor()
+    mock.stubbedResult = GrayscalePixelBuffer(...)
+    
+    let generator = TextArtGenerator(imageProcessor: mock)
+    let result = try await generator.generate(...)
+    
+    #expect(result.width == expectedWidth)
+}
+```
 
 ---
 
-## 11. Code Review Checklist
+## Code Review Checklist
 
-### PR 리뷰 시 확인 사항
+- [ ] `@Observable` (not `ObservableObject`)
+- [ ] `@MainActor` on ViewModels
+- [ ] `Sendable` for cross-actor types
+- [ ] Protocol abstraction for services
+- [ ] Factory method in `AppDependencies`
+- [ ] Error handling + user feedback
+- [ ] Tests included
+- [ ] No singleton `.shared` usage
 
-- [ ] `@Observable` 사용 (not `ObservableObject`)
-- [ ] ViewModel은 `@MainActor` 적용
-- [ ] Actor 경계 넘는 타입은 `Sendable`
-- [ ] 새 Service는 Protocol 추상화
-- [ ] 새 ViewModel Factory는 `AppDependencies`에 추가
-- [ ] 에러 처리 및 사용자 피드백
-- [ ] 테스트 추가됨
+---
+
+## Constraints
+
+- **iOS 26.0+** (Swift 6.2)
+- **SwiftUI only** (no UIKit)
+- **Zero 3rd-party dependencies**
+- **한국어 에러 메시지** (`AppError`)
+- **xcodebuild only** (root has no Package.swift)
+
+---
+
+## Build System
+
+**Hybrid SPM + Xcode:**
+- `TextifyKit/Package.swift` - Core SPM package
+- `TextifyUI/Package.swift` - UI SPM package (depends on TextifyKit)
+- `TextifyApp/project.yml` - XcodeGen spec (generates .xcodeproj)
+
+**Key Files:**
+| Purpose | Path |
+|---------|------|
+| DI Root | `TextifyUI/Sources/TextifyUI/App/AppDependencies.swift` |
+| Navigation | `TextifyUI/Sources/TextifyUI/Features/Home/HomeViewModel.swift` |
+| Generation Engine | `TextifyKit/Sources/TextifyKit/Services/TextArtGenerator.swift` |
+| History | `TextifyUI/Sources/TextifyUI/Services/HistoryService.swift` |
+| Theme | `TextifyUI/Sources/TextifyUI/Shared/Theme/AppTheme.swift` |
+| Main UI | `TextifyUI/Sources/TextifyUI/Features/Textify/TextifyView.swift` |
+| Main VM | `TextifyUI/Sources/TextifyUI/Features/Textify/TextifyViewModel.swift` |
+
+---
+
+## UI Patterns
+
+### Morphing Toolbar
+**Pattern:** Inline transformation (no overlays/popups)
+
+```swift
+enum ToolbarState: String, CaseIterable, Sendable {
+    case main, style, adjust, share
+}
+
+MorphingToolbar(state: $toolbarState) {
+    styleContent
+} adjustContent: {
+    adjustContent
+} shareContent: {
+    shareContent
+}
+```
+
+**Animation Spec:**
+```swift
+Animation.spring(response: 0.4, dampingFraction: 0.75)
+
+.transition(.asymmetric(
+    insertion: .scale(scale: 1.05).combined(with: .opacity),
+    removal: .scale(scale: 0.95).combined(with: .opacity)
+))
+```
+
+**Design Tokens:**
+- Fixed height: 76pt (prevents layout jumps)
+- Glassmorphism: ultra-thin material + 20% white border + shadow
+- Back button: 90pt fixed width for layout stability
+
+---
+
+*Generated: 2026-02-02 | See subdir AGENTS.md for module details*
