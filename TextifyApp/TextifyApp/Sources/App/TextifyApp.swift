@@ -8,7 +8,7 @@ struct TextifyApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainView(viewModel: MainViewModel(generator: generator))
+            RootView(generator: generator)
         }
     }
 }
