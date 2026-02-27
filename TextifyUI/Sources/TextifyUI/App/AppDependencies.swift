@@ -38,43 +38,6 @@ public final class AppDependencies {
 
     // MARK: - ViewModel Factories
 
-    public func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel()
-    }
-
-    public func makeImageSelectionViewModel() -> ImageSelectionViewModel {
-        ImageSelectionViewModel(photoService: photoLibraryService)
-    }
-
-    public func makeTextInputViewModel() -> TextInputViewModel {
-        TextInputViewModel(fileService: fileImportService)
-    }
-
-    public func makeGenerationViewModel() -> GenerationViewModel {
-        GenerationViewModel(generator: textArtGenerator)
-    }
-
-    public func makeResultViewModel(
-        textArt: TextArt,
-        sourceImage: CGImage? = nil,
-        sourceCharacters: String = "",
-        outputWidth: Int = 80,
-        invertBrightness: Bool = false,
-        contrastBoost: Float = 1.0
-    ) -> ResultViewModel {
-        ResultViewModel(
-            textArt: textArt,
-            clipboardService: clipboardService,
-            exportService: imageExportService,
-            historyService: historyService,
-            sourceImage: sourceImage,
-            sourceCharacters: sourceCharacters,
-            outputWidth: outputWidth,
-            invertBrightness: invertBrightness,
-            contrastBoost: contrastBoost
-        )
-    }
-
     public func makeSettingsViewModel() -> SettingsViewModel {
         SettingsViewModel(appearanceService: appearanceService)
     }
