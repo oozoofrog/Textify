@@ -1,0 +1,11 @@
+{
+  "agent" : "codex",
+  "installedDirectories" : [
+    "swiftnest-concurrency-rules",
+    "swiftnest-ios-architecture",
+    "swiftnest-logging-rules",
+    "swiftnest-networking-rules",
+    "swiftnest-swiftui-rules",
+    "swiftnest-testing-rules"
+  ]
+}
