@@ -30,8 +30,64 @@ targets:
         GENERATE_INFOPLIST_FILE: false
         SWIFT_STRICT_CONCURRENCY: complete
     dependencies:
-      - package: TextifyKit
+      - target: TextifyKit
+        embed: true
+      - target: TextifyUI
+        embed: true
 
-packages:
   TextifyKit:
-    path: ../TextifyKit
+    type: framework
+    platform: iOS
+    sources:
+      - path: TextifyKit
+        excludes:
+          - "**/.DS_Store"
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_BUNDLE_IDENTIFIER: com.oozoofrog.ios.TextifyKit
+
+  TextifyKitTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: TextifyKitTests
+        excludes:
+          - "**/.DS_Store"
+    dependencies:
+      - target: TextifyKit
+      - target: TextifyApp
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_BUNDLE_IDENTIFIER: com.oozoofrog.ios.TextifyKitTests
+
+  TextifyUI:
+    type: framework
+    platform: iOS
+    sources:
+      - path: TextifyUI
+        excludes:
+          - "**/.DS_Store"
+    dependencies:
+      - target: TextifyKit
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_BUNDLE_IDENTIFIER: com.oozoofrog.ios.TextifyUI
+
+  TextifyUITests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: TextifyUITests
+        excludes:
+          - "**/.DS_Store"
+    dependencies:
+      - target: TextifyUI
+      - target: TextifyKit
+      - target: TextifyApp
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_BUNDLE_IDENTIFIER: com.oozoofrog.ios.TextifyUITests

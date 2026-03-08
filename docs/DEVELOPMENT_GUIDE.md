@@ -341,21 +341,30 @@ func testFullPipeline() async throws {
 ### 7.1 빌드 명령어
 
 ```bash
-# TextifyKit 빌드 및 테스트
-cd TextifyKit
-swift build
-swift test
-
-# TextifyUI 빌드 (iOS Simulator)
-cd TextifyUI
-swift build --sdk $(xcrun --sdk iphonesimulator --show-sdk-path) \
-            --triple arm64-apple-ios26.0-simulator
-
-# TextifyApp 빌드
+# TextifyKit framework 빌드
 cd TextifyApp
-xcodebuild -scheme TextifyApp \
+xcodebuild -project TextifyApp.xcodeproj \
+           -scheme TextifyKit \
            -destination 'platform=iOS Simulator,name=iPhone 17' \
            build
+
+# TextifyUI framework 빌드
+xcodebuild -project TextifyApp.xcodeproj \
+           -scheme TextifyUI \
+           -destination 'platform=iOS Simulator,name=iPhone 17' \
+           build
+
+# TextifyApp 빌드
+xcodebuild -project TextifyApp.xcodeproj \
+           -scheme TextifyApp \
+           -destination 'platform=iOS Simulator,name=iPhone 17' \
+           build
+
+# 공식 회귀 검증
+xcodebuild -project TextifyApp.xcodeproj \
+           -scheme TextifyApp \
+           -destination 'platform=iOS Simulator,name=iPhone 17' \
+           test
 ```
 
 ### 7.2 CI/CD 체크리스트

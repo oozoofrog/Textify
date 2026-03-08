@@ -3,30 +3,305 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1572F404027832133465C4F0 /* TextifyKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9DED8BD0A018C9CD61278DC2 /* TextifyKit */; };
-		AAAA11112222333344445555 /* TextifyUI in Frameworks */ = {isa = PBXBuildFile; productRef = BBBB11112222333344445555 /* TextifyUI */; };
+		0142D7ADB2AEDA3417BA4CE0 /* TextifyUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DBAD51AA7583D72F0DC4CF /* TextifyUI.swift */; };
+		02003EDBBAB51566BAEF95E0 /* FileImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B26CFE93C07DFA0E34C4CE6 /* FileImportService.swift */; };
+		0342897DA4F692861F6644FC /* TextifyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCFBE2DA8D99E61C84AE5D8 /* TextifyViewModelTests.swift */; };
+		06F0ECB0041ADE591D9B111E /* ImageSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC98DBAE3B78FDB36AB9767B /* ImageSelectionView.swift */; };
+		098BB84915FDE085112BE7AF /* CharacterPaletteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE02C1FBE95E8ECE405A847 /* CharacterPaletteTests.swift */; };
+		0A43D0F6EA92DF5C15A0963F /* TextifyKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98BB9A0CAB97366194306FC1 /* TextifyKit.swift */; };
+		0FC11AB1AA2A4D63830C389F /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 032DE58270DAA402580D11DC /* ResultView.swift */; };
+		0FD12B29C13791199C56CE50 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6652D5957E1D249573D36276 /* HistoryViewModel.swift */; };
+		15FB4DB34A4B273762DE253D /* TextArtTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82F547E0BE712E189DC5AB2 /* TextArtTests.swift */; };
+		19A4BBBE187D0A0944E2AC61 /* TextifyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2626B013FF9449C6B3EC7FA9 /* TextifyViewModel.swift */; };
+		1AA667BDE502380C35762571 /* TextArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A3F0F8A2FF448FE145F2E /* TextArt.swift */; };
+		1B77023C500C81BB309B98EE /* TextifyKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7C8078A590BF227C0871E3 /* TextifyKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		202103AD19153AF21BBD3608 /* PreviewPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FC04FDD03C9DD7E7047C945 /* PreviewPanel.swift */; };
+		24FE6C9441EA12BE07CC1FE4 /* VisualPalettePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8E43D4026B00DC2C4B7845 /* VisualPalettePicker.swift */; };
+		2B532E2C4A4153522D53D477 /* CharacterMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B03DB97AE00943CF3E5F1CA /* CharacterMapperTests.swift */; };
+		391E0D75F967FF3F08FD18B2 /* TextifyKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7C8078A590BF227C0871E3 /* TextifyKit.framework */; };
+		397B3A171A8D9F07468400AD /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD708F413DED86563214381 /* HomeView.swift */; };
+		3B0BFD0B5A150F70CD37E382 /* AnimatedGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267E213001462A77C75DADF6 /* AnimatedGradient.swift */; };
+		3B98A71744DF1D3D5708BF27 /* PhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3466B68372B0726AC55BF2 /* PhotoLibraryService.swift */; };
+		3E3E07C0351A059E52CDBCDA /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD65EBEF36830EE68978596 /* GlassCard.swift */; };
+		3EFFC758FEACED8358303B4E /* ThrottleDebounce.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F42553B585316DD18D63C39 /* ThrottleDebounce.swift */; };
+		413A8DDCD4A849389D86CC19 /* FocusModeOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7D167E46B5B6F70BD689CA /* FocusModeOverlay.swift */; };
+		432406853AF77211AE52FBF9 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186E7EBBE057CA88D8267C2C /* AppDependencies.swift */; };
+		46BF582D0BF63E99EF651325 /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC08B5CB686E3ACBD9D8C99 /* ImageProcessor.swift */; };
+		4BFB86FB0422CC75C2E1DD52 /* HistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C683A0217CAA60CB0A14357F /* HistoryService.swift */; };
+		5193F3AAC5B61A4177A81D58 /* ProcessingOptionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99172A2DB743BD7B94F60D79 /* ProcessingOptionsTests.swift */; };
+		526F47E6CA35D3EDFCBF3B5A /* TextArtGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF901B6477DBFC3DA418F984 /* TextArtGeneratorTests.swift */; };
+		53FF1EF872EE01FA730FB5ED /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6137DCC41D0B9BD0512C58A0 /* MainViewModel.swift */; };
+		55D84479AE747AC3FE59107D /* TextifyKit.docc in Sources */ = {isa = PBXBuildFile; fileRef = FBB2D0E392705A6C92FF31E5 /* TextifyKit.docc */; };
+		59BA2270492583A74BBFB3E3 /* TextifyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E020444B0D87351993A0B4F /* TextifyUITests.swift */; };
+		65C930A64368CC2C3EDF9CED /* HistoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95984F7D32242D5099D8770D /* HistoryDetailView.swift */; };
+		69BF6201AE06DBB801B80242 /* GenerationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4E36A13C80B3EB989C200C /* GenerationViewModel.swift */; };
+		6B19ADD97B0034EF9F559687 /* TextifyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71FCF956230FAF838125AD48 /* TextifyView.swift */; };
+		6CF94FE61BB2C2EE5680FE4F /* RetryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDC92BF75C34F1A95C11FE7D /* RetryView.swift */; };
+		710FFE88A2EEE469C1AF4820 /* MockImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7511E6A9281D3893E49F8C8A /* MockImageProcessor.swift */; };
+		7926C6B6222143E5A585C824 /* GenerationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BBC14D029EF5A445BBC7D5 /* GenerationView.swift */; };
+		7ABDE1943CBD754BA5663C5A /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63692C1F45C0AADF3365E8C /* AppError.swift */; };
+		7DC6A3FB93165138F53A58F0 /* TextifyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB88DF11DEF221EE682B18B /* TextifyApp.swift */; };
+		7F62C559099C37E2E8A24EBB /* ClipboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1DA18B6504D4D4EB0002B /* ClipboardService.swift */; };
+		82B344CDD5057A5F75C0AEA0 /* TextArtGenerating.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EF064B38F26E6C561BCE41 /* TextArtGenerating.swift */; };
+		84A1604EEEC19F0438E2C24B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E2EBCA4AE223C0FFD125A2 /* SettingsView.swift */; };
+		88006A2876393EF9CFF69DAF /* ImageProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCEE51FE69C0904E8CA8ECD /* ImageProcessing.swift */; };
+		9383B5FD5DB0C6CFBB30E8C6 /* GrayscalePixelBufferTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8581F73EC6CB9C6ADF126196 /* GrayscalePixelBufferTests.swift */; };
+		93B3C79B9A50571C2D06D32F /* TextifyKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7C8078A590BF227C0871E3 /* TextifyKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		98ED36C9F7C31B0B11E75C36 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 951821478EF7B16A0F4F01E3 /* SettingsViewModel.swift */; };
+		9B1CEDFBA2690CA519E0DC8F /* TextifyUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8995EBF35368AAAD879961C5 /* TextifyUI.framework */; };
+		9CEC3816FD417E07F9C7A1C4 /* GenerationTaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1505D01B0A2D28BDBE35F2 /* GenerationTaskManager.swift */; };
+		9F8416FABAF74F00AD347779 /* ResultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F4DA3B614FE970BD989BB7A /* ResultViewModel.swift */; };
+		A035210EF481995FB46FA8CE /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C0C9BB7AB93DDDC9290338 /* HistoryView.swift */; };
+		A5296A06CA81A5D14184AC73 /* TextifyKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7C8078A590BF227C0871E3 /* TextifyKit.framework */; };
+		A74FE85B97ADE8A2A0C74614 /* ErrorBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 517BE47F884F74094A5A64DF /* ErrorBanner.swift */; };
+		A903DAC77ACFDB45C3DB7064 /* TextifyKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7C8078A590BF227C0871E3 /* TextifyKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B31860FFEE6B2B0EB2ED2461 /* ImageValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7860E1D75D0BB8D59B674DFA /* ImageValidationService.swift */; };
+		B420347575D926102EB18F27 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3657598BAB8E3A19A2E35AE4 /* MainView.swift */; };
+		B58D6BFC6E81487A796DB462 /* TextifyUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8995EBF35368AAAD879961C5 /* TextifyUI.framework */; };
+		BCD3A168AF83743D9787EFD0 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A653692EEE63985F6BB94C /* AppTheme.swift */; };
+		BD443CE22FBD038C104584AC /* TextInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDBB778A6F1FC44E421D08D /* TextInputView.swift */; };
+		BEBA7C371A3925365CC7366B /* ImageSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037F833E794BC31A28C88F71 /* ImageSelectionViewModel.swift */; };
+		C03F13B1A9E50FA446080E53 /* HistoryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45375506F126815B50817CDF /* HistoryEntry.swift */; };
+		C1C92A724D77236232636B02 /* TextifyKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7C8078A590BF227C0871E3 /* TextifyKit.framework */; };
+		C3E3D1155BB01D5DCB0DFB93 /* AppearanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531C2362A1851484ACB88E79 /* AppearanceService.swift */; };
+		C418C0A1F54EAD17E578D84F /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA7B778217364FE86B92774 /* HomeViewModel.swift */; };
+		C592CD5F79E154B778F434B9 /* TextifyKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82E6F6E43E844BE537E9E2D /* TextifyKitTests.swift */; };
+		C5D98EDD440C512509697C40 /* TextifyUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8995EBF35368AAAD879961C5 /* TextifyUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C6775AF535A771C7C9135C01 /* CharacterMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEC7109426FBA9644E36C2 /* CharacterMapper.swift */; };
+		D432B09CA311680D55F4D2CD /* LoadingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9653FDB8A4B5F834C3A1A0 /* LoadingButton.swift */; };
+		D4ADFF8AF92F9A6CEA83BF73 /* TextifyKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7C8078A590BF227C0871E3 /* TextifyKit.framework */; };
+		D69C7B082FFD33F5F3CF7603 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FAC5722EA04EC5B1BF2C27E /* HapticsService.swift */; };
+		D887E337B6C226620C33FDEA /* ProcessingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78966946F283B4418F2D3DE6 /* ProcessingOptions.swift */; };
+		E051EDEB0F05C18F1C54B64C /* FloatingToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17A0C97DB20ECBFD4E67768 /* FloatingToolbar.swift */; };
+		E2DB7199B2D7D25CFF87FBE3 /* TextifyUI.docc in Sources */ = {isa = PBXBuildFile; fileRef = 2F013CD8D68F092F1A89C2D6 /* TextifyUI.docc */; };
+		E3481EE3C3CB9FD436A1FD3E /* CharacterPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = E880957812DBA10478FE4894 /* CharacterPalette.swift */; };
+		E36D66E383A5EFAE8D6CDC33 /* HistoryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 476FC664EF185E25718CF186 /* HistoryCard.swift */; };
+		E8289B2D2EFBAF4636ECA9CA /* GrayscalePixelBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A49C201C4100042832BABCA /* GrayscalePixelBuffer.swift */; };
+		EA0B911E9867DFE6AA3CCC43 /* ImageProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9F3B63DD864D082AB8C8F7C /* ImageProcessorTests.swift */; };
+		EB1A1541A0BB01AE0C7C9985 /* ValueSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398025D82E0221B402436EFF /* ValueSlider.swift */; };
+		ECF881A36140EF9BEE337F80 /* ThemeEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FA632D72624784A9F472646 /* ThemeEnvironment.swift */; };
+		F2EA5E3856DC0759138C4A1E /* TextifyUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8995EBF35368AAAD879961C5 /* TextifyUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F36364B4DB351C782A73A76A /* TextArtGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF77F80F5AEE31ADE1A7E47 /* TextArtGenerator.swift */; };
+		F3A8C9749B29830B43804F60 /* ControlBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8418CFDBD506DDF9C4172F05 /* ControlBottomSheet.swift */; };
+		F40627CFDE592EE3DA8B7412 /* TypingEffectText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C913FCC10DDE0AB8D638C22 /* TypingEffectText.swift */; };
+		FB4DBB2EB89DD207E7724F70 /* ImageExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00CDD46C7D1D1C241CB86E5 /* ImageExportService.swift */; };
+		FD8AE36977FB8A8BD7BF7B70 /* TextInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C41FA05B2A6C107259785C4 /* TextInputViewModel.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXFileReference section */
-		7474FB872F2C8E11003C2F4C /* TextifyApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TextifyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-/* End PBXFileReference section */
+/* Begin PBXContainerItemProxy section */
+		01647ED4378E0C18534486EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1C742621DE6B48C4B51B2390 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 25C1A9D3518875BEF98239C8;
+			remoteInfo = TextifyUI;
+		};
+		1090CB97BD48479B060CF9DA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1C742621DE6B48C4B51B2390 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 736CBF1FFD93DE16FC46F733;
+			remoteInfo = TextifyKit;
+		};
+		119C19B2D96CD2D448C93FDF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1C742621DE6B48C4B51B2390 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F00FF3ED897215B573D20C1E;
+			remoteInfo = TextifyApp;
+		};
+		405D8BFE5F60890C6EE02B4D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1C742621DE6B48C4B51B2390 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 736CBF1FFD93DE16FC46F733;
+			remoteInfo = TextifyKit;
+		};
+		529F3D091A77CF3EF1B1B4CF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1C742621DE6B48C4B51B2390 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 25C1A9D3518875BEF98239C8;
+			remoteInfo = TextifyUI;
+		};
+		741F6613F3480C6A6892B561 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1C742621DE6B48C4B51B2390 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 736CBF1FFD93DE16FC46F733;
+			remoteInfo = TextifyKit;
+		};
+		7E84787A941025BBCD20065D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1C742621DE6B48C4B51B2390 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 736CBF1FFD93DE16FC46F733;
+			remoteInfo = TextifyKit;
+		};
+		825FC817D8B0FE3B3169DF3D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1C742621DE6B48C4B51B2390 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F00FF3ED897215B573D20C1E;
+			remoteInfo = TextifyApp;
+		};
+/* End PBXContainerItemProxy section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		7474FB7F2F2C8DD0003C2F4C /* Sources */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = Sources; path = TextifyApp/Sources; sourceTree = "<group>"; };
-		7474FB862F2C8DF5003C2F4C /* Resources */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = Resources; path = TextifyApp/Resources; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
+/* Begin PBXCopyFilesBuildPhase section */
+		0CF00A73252BD603C0DE297C /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F2EA5E3856DC0759138C4A1E /* TextifyUI.framework in Embed Frameworks */,
+				93B3C79B9A50571C2D06D32F /* TextifyKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		296D2F0D15EDD1AAB8926D7C /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A903DAC77ACFDB45C3DB7064 /* TextifyKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		47B5FE401C29747EDB439A6C /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				1B77023C500C81BB309B98EE /* TextifyKit.framework in Embed Frameworks */,
+				C5D98EDD440C512509697C40 /* TextifyUI.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		032DE58270DAA402580D11DC /* ResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
+		037F833E794BC31A28C88F71 /* ImageSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSelectionViewModel.swift; sourceTree = "<group>"; };
+		09E2EBCA4AE223C0FFD125A2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		0AC08B5CB686E3ACBD9D8C99 /* ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
+		0FD65EBEF36830EE68978596 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		186E7EBBE057CA88D8267C2C /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
+		1AD1DA18B6504D4D4EB0002B /* ClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardService.swift; sourceTree = "<group>"; };
+		1C913FCC10DDE0AB8D638C22 /* TypingEffectText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingEffectText.swift; sourceTree = "<group>"; };
+		1E020444B0D87351993A0B4F /* TextifyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextifyUITests.swift; sourceTree = "<group>"; };
+		23A653692EEE63985F6BB94C /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		2626B013FF9449C6B3EC7FA9 /* TextifyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextifyViewModel.swift; sourceTree = "<group>"; };
+		267E213001462A77C75DADF6 /* AnimatedGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedGradient.swift; sourceTree = "<group>"; };
+		2855231387C1F837FFC76C48 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		2B8A3F0F8A2FF448FE145F2E /* TextArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArt.swift; sourceTree = "<group>"; };
+		2C9653FDB8A4B5F834C3A1A0 /* LoadingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingButton.swift; sourceTree = "<group>"; };
+		2F013CD8D68F092F1A89C2D6 /* TextifyUI.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TextifyUI.docc; sourceTree = "<group>"; };
+		2F42553B585316DD18D63C39 /* ThrottleDebounce.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrottleDebounce.swift; sourceTree = "<group>"; };
+		3657598BAB8E3A19A2E35AE4 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		398025D82E0221B402436EFF /* ValueSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueSlider.swift; sourceTree = "<group>"; };
+		3AB88DF11DEF221EE682B18B /* TextifyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextifyApp.swift; sourceTree = "<group>"; };
+		3C3466B68372B0726AC55BF2 /* PhotoLibraryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryService.swift; sourceTree = "<group>"; };
+		45375506F126815B50817CDF /* HistoryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEntry.swift; sourceTree = "<group>"; };
+		476FC664EF185E25718CF186 /* HistoryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryCard.swift; sourceTree = "<group>"; };
+		48525068E5BE1F36D2F8CDD8 /* TextifyUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TextifyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F8E43D4026B00DC2C4B7845 /* VisualPalettePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualPalettePicker.swift; sourceTree = "<group>"; };
+		517BE47F884F74094A5A64DF /* ErrorBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorBanner.swift; sourceTree = "<group>"; };
+		531C2362A1851484ACB88E79 /* AppearanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceService.swift; sourceTree = "<group>"; };
+		570501EC17F9701FA3F44EBA /* TextifyKitTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TextifyKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B03DB97AE00943CF3E5F1CA /* CharacterMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterMapperTests.swift; sourceTree = "<group>"; };
+		5C41FA05B2A6C107259785C4 /* TextInputViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputViewModel.swift; sourceTree = "<group>"; };
+		6137DCC41D0B9BD0512C58A0 /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
+		6652D5957E1D249573D36276 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
+		6F4DA3B614FE970BD989BB7A /* ResultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultViewModel.swift; sourceTree = "<group>"; };
+		71FCF956230FAF838125AD48 /* TextifyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextifyView.swift; sourceTree = "<group>"; };
+		7511E6A9281D3893E49F8C8A /* MockImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockImageProcessor.swift; sourceTree = "<group>"; };
+		7860E1D75D0BB8D59B674DFA /* ImageValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageValidationService.swift; sourceTree = "<group>"; };
+		78966946F283B4418F2D3DE6 /* ProcessingOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingOptions.swift; sourceTree = "<group>"; };
+		7A49C201C4100042832BABCA /* GrayscalePixelBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrayscalePixelBuffer.swift; sourceTree = "<group>"; };
+		7B26CFE93C07DFA0E34C4CE6 /* FileImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImportService.swift; sourceTree = "<group>"; };
+		7FAC5722EA04EC5B1BF2C27E /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
+		8418CFDBD506DDF9C4172F05 /* ControlBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlBottomSheet.swift; sourceTree = "<group>"; };
+		8581F73EC6CB9C6ADF126196 /* GrayscalePixelBufferTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrayscalePixelBufferTests.swift; sourceTree = "<group>"; };
+		8995EBF35368AAAD879961C5 /* TextifyUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TextifyUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B7C8078A590BF227C0871E3 /* TextifyKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TextifyKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C4E36A13C80B3EB989C200C /* GenerationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationViewModel.swift; sourceTree = "<group>"; };
+		8FA632D72624784A9F472646 /* ThemeEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeEnvironment.swift; sourceTree = "<group>"; };
+		8FC04FDD03C9DD7E7047C945 /* PreviewPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPanel.swift; sourceTree = "<group>"; };
+		951821478EF7B16A0F4F01E3 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		95984F7D32242D5099D8770D /* HistoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDetailView.swift; sourceTree = "<group>"; };
+		98BB9A0CAB97366194306FC1 /* TextifyKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextifyKit.swift; sourceTree = "<group>"; };
+		99172A2DB743BD7B94F60D79 /* ProcessingOptionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingOptionsTests.swift; sourceTree = "<group>"; };
+		9DA7B778217364FE86B92774 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		A63692C1F45C0AADF3365E8C /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
+		A7C0C9BB7AB93DDDC9290338 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		A7EF064B38F26E6C561BCE41 /* TextArtGenerating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArtGenerating.swift; sourceTree = "<group>"; };
+		AFDBB778A6F1FC44E421D08D /* TextInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputView.swift; sourceTree = "<group>"; };
+		BA1505D01B0A2D28BDBE35F2 /* GenerationTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationTaskManager.swift; sourceTree = "<group>"; };
+		BC98DBAE3B78FDB36AB9767B /* ImageSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSelectionView.swift; sourceTree = "<group>"; };
+		BCF77F80F5AEE31ADE1A7E47 /* TextArtGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArtGenerator.swift; sourceTree = "<group>"; };
+		C4DBAD51AA7583D72F0DC4CF /* TextifyUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextifyUI.swift; sourceTree = "<group>"; };
+		C683A0217CAA60CB0A14357F /* HistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryService.swift; sourceTree = "<group>"; };
+		CAD708F413DED86563214381 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		CCCFBE2DA8D99E61C84AE5D8 /* TextifyViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextifyViewModelTests.swift; sourceTree = "<group>"; };
+		CF901B6477DBFC3DA418F984 /* TextArtGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArtGeneratorTests.swift; sourceTree = "<group>"; };
+		D82F547E0BE712E189DC5AB2 /* TextArtTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArtTests.swift; sourceTree = "<group>"; };
+		D9F3B63DD864D082AB8C8F7C /* ImageProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessorTests.swift; sourceTree = "<group>"; };
+		DFCEE51FE69C0904E8CA8ECD /* ImageProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessing.swift; sourceTree = "<group>"; };
+		E5BBC14D029EF5A445BBC7D5 /* GenerationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationView.swift; sourceTree = "<group>"; };
+		E880957812DBA10478FE4894 /* CharacterPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterPalette.swift; sourceTree = "<group>"; };
+		ECCEC7109426FBA9644E36C2 /* CharacterMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterMapper.swift; sourceTree = "<group>"; };
+		EFE02C1FBE95E8ECE405A847 /* CharacterPaletteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterPaletteTests.swift; sourceTree = "<group>"; };
+		F00CDD46C7D1D1C241CB86E5 /* ImageExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageExportService.swift; sourceTree = "<group>"; };
+		F17A0C97DB20ECBFD4E67768 /* FloatingToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingToolbar.swift; sourceTree = "<group>"; };
+		F55A54C000F76F3A9FD25ABD /* TextifyApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TextifyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F82E6F6E43E844BE537E9E2D /* TextifyKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextifyKitTests.swift; sourceTree = "<group>"; };
+		FBB2D0E392705A6C92FF31E5 /* TextifyKit.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TextifyKit.docc; sourceTree = "<group>"; };
+		FDC92BF75C34F1A95C11FE7D /* RetryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetryView.swift; sourceTree = "<group>"; };
+		FF7D167E46B5B6F70BD689CA /* FocusModeOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusModeOverlay.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		000FB0C25DDD21AD952242D7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1572F404027832133465C4F0 /* TextifyKit in Frameworks */,
-				AAAA11112222333344445555 /* TextifyUI in Frameworks */,
+				D4ADFF8AF92F9A6CEA83BF73 /* TextifyKit.framework in Frameworks */,
+				B58D6BFC6E81487A796DB462 /* TextifyUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		10C6A0F4DDFC40EEAF7E1E44 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9B1CEDFBA2690CA519E0DC8F /* TextifyUI.framework in Frameworks */,
+				391E0D75F967FF3F08FD18B2 /* TextifyKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8FC32D02CBF7734835E9FD58 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A5296A06CA81A5D14184AC73 /* TextifyKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6E13DE429F6CA40889DA5EE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1C92A724D77236232636B02 /* TextifyKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -36,45 +311,437 @@
 		12FB0F96AE0C62BF7D8E76AD = {
 			isa = PBXGroup;
 			children = (
-				7474FB862F2C8DF5003C2F4C /* Resources */,
-				7474FB7F2F2C8DD0003C2F4C /* Sources */,
-				7474FB882F2C8E11003C2F4C /* Products */,
+				647C4EEF5B4FCF24D8A88518 /* Sources */,
+				EB137426A7FB961A45DC2425 /* TextifyKit */,
+				1EE8523E964D90A0282E82E2 /* TextifyKitTests */,
+				66125CB1BD3A0BC7E38741F1 /* TextifyUI */,
+				F0F8CC6044F995C1092434E9 /* TextifyUITests */,
+				A48D7561CBE3810883CE4CFD /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		7474FB882F2C8E11003C2F4C /* Products */ = {
+		1D5E6D50FBE26C73F588A43B /* History */ = {
 			isa = PBXGroup;
 			children = (
-				7474FB872F2C8E11003C2F4C /* TextifyApp.app */,
+				95984F7D32242D5099D8770D /* HistoryDetailView.swift */,
+				A7C0C9BB7AB93DDDC9290338 /* HistoryView.swift */,
+				6652D5957E1D249573D36276 /* HistoryViewModel.swift */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		1EE8523E964D90A0282E82E2 /* TextifyKitTests */ = {
+			isa = PBXGroup;
+			children = (
+				F82E6F6E43E844BE537E9E2D /* TextifyKitTests.swift */,
+				315CF6FE46A65397E3D8126C /* Mocks */,
+				7A9F01ECC1EAF691594013A2 /* Models */,
+				8E35872316B4FC38BCC0E58C /* Services */,
+			);
+			path = TextifyKitTests;
+			sourceTree = "<group>";
+		};
+		315CF6FE46A65397E3D8126C /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				7511E6A9281D3893E49F8C8A /* MockImageProcessor.swift */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
+		43B5844FFA2DF6FA8BACA40A /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				9892ABEECFBFCE9534FF2F12 /* Components */,
+				46BE2BEAAEAF4BBB3413C729 /* Theme */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		454A39D9A7EDFBE101AD08A2 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				ECCEC7109426FBA9644E36C2 /* CharacterMapper.swift */,
+				0AC08B5CB686E3ACBD9D8C99 /* ImageProcessor.swift */,
+				BCF77F80F5AEE31ADE1A7E47 /* TextArtGenerator.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		46BE2BEAAEAF4BBB3413C729 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				23A653692EEE63985F6BB94C /* AppTheme.swift */,
+				8FA632D72624784A9F472646 /* ThemeEnvironment.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		51EA5151ADAD3BD0ACFA825E /* Result */ = {
+			isa = PBXGroup;
+			children = (
+				032DE58270DAA402580D11DC /* ResultView.swift */,
+				6F4DA3B614FE970BD989BB7A /* ResultViewModel.swift */,
+			);
+			path = Result;
+			sourceTree = "<group>";
+		};
+		5D94914A314F3977C4923155 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				3AB88DF11DEF221EE682B18B /* TextifyApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		647C4EEF5B4FCF24D8A88518 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				2855231387C1F837FFC76C48 /* .gitkeep */,
+				5D94914A314F3977C4923155 /* App */,
+			);
+			name = Sources;
+			path = TextifyApp/Sources;
+			sourceTree = "<group>";
+		};
+		66125CB1BD3A0BC7E38741F1 /* TextifyUI */ = {
+			isa = PBXGroup;
+			children = (
+				2F013CD8D68F092F1A89C2D6 /* TextifyUI.docc */,
+				C4DBAD51AA7583D72F0DC4CF /* TextifyUI.swift */,
+				CD92A59AE9848875D755653B /* App */,
+				DCBEE52AE6F6CDA585D86B84 /* Features */,
+				F9F7166E5B2559964F588F50 /* Models */,
+				90D55320CCF89CD3C1B6373E /* Services */,
+				43B5844FFA2DF6FA8BACA40A /* Shared */,
+				CCC5A378B375951855418CA7 /* Utilities */,
+			);
+			path = TextifyUI;
+			sourceTree = "<group>";
+		};
+		79937B3FE11E1243DB1E5C46 /* Textify */ = {
+			isa = PBXGroup;
+			children = (
+				BA1505D01B0A2D28BDBE35F2 /* GenerationTaskManager.swift */,
+				71FCF956230FAF838125AD48 /* TextifyView.swift */,
+				2626B013FF9449C6B3EC7FA9 /* TextifyViewModel.swift */,
+				CDA2C5E5D2EB70504A444D12 /* Components */,
+			);
+			path = Textify;
+			sourceTree = "<group>";
+		};
+		7A9F01ECC1EAF691594013A2 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				EFE02C1FBE95E8ECE405A847 /* CharacterPaletteTests.swift */,
+				8581F73EC6CB9C6ADF126196 /* GrayscalePixelBufferTests.swift */,
+				99172A2DB743BD7B94F60D79 /* ProcessingOptionsTests.swift */,
+				D82F547E0BE712E189DC5AB2 /* TextArtTests.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		88B2BFA06E42E0ACAF61F665 /* TextInput */ = {
+			isa = PBXGroup;
+			children = (
+				AFDBB778A6F1FC44E421D08D /* TextInputView.swift */,
+				5C41FA05B2A6C107259785C4 /* TextInputViewModel.swift */,
+			);
+			path = TextInput;
+			sourceTree = "<group>";
+		};
+		8E35872316B4FC38BCC0E58C /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				5B03DB97AE00943CF3E5F1CA /* CharacterMapperTests.swift */,
+				D9F3B63DD864D082AB8C8F7C /* ImageProcessorTests.swift */,
+				CF901B6477DBFC3DA418F984 /* TextArtGeneratorTests.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		90D55320CCF89CD3C1B6373E /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				531C2362A1851484ACB88E79 /* AppearanceService.swift */,
+				1AD1DA18B6504D4D4EB0002B /* ClipboardService.swift */,
+				7B26CFE93C07DFA0E34C4CE6 /* FileImportService.swift */,
+				7FAC5722EA04EC5B1BF2C27E /* HapticsService.swift */,
+				C683A0217CAA60CB0A14357F /* HistoryService.swift */,
+				F00CDD46C7D1D1C241CB86E5 /* ImageExportService.swift */,
+				7860E1D75D0BB8D59B674DFA /* ImageValidationService.swift */,
+				3C3466B68372B0726AC55BF2 /* PhotoLibraryService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		9892ABEECFBFCE9534FF2F12 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				267E213001462A77C75DADF6 /* AnimatedGradient.swift */,
+				8418CFDBD506DDF9C4172F05 /* ControlBottomSheet.swift */,
+				517BE47F884F74094A5A64DF /* ErrorBanner.swift */,
+				F17A0C97DB20ECBFD4E67768 /* FloatingToolbar.swift */,
+				0FD65EBEF36830EE68978596 /* GlassCard.swift */,
+				476FC664EF185E25718CF186 /* HistoryCard.swift */,
+				2C9653FDB8A4B5F834C3A1A0 /* LoadingButton.swift */,
+				8FC04FDD03C9DD7E7047C945 /* PreviewPanel.swift */,
+				FDC92BF75C34F1A95C11FE7D /* RetryView.swift */,
+				1C913FCC10DDE0AB8D638C22 /* TypingEffectText.swift */,
+				398025D82E0221B402436EFF /* ValueSlider.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		A48D7561CBE3810883CE4CFD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F55A54C000F76F3A9FD25ABD /* TextifyApp.app */,
+				8B7C8078A590BF227C0871E3 /* TextifyKit.framework */,
+				570501EC17F9701FA3F44EBA /* TextifyKitTests.xctest */,
+				8995EBF35368AAAD879961C5 /* TextifyUI.framework */,
+				48525068E5BE1F36D2F8CDD8 /* TextifyUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		BE58056CB834D68506D00CE0 /* ImageSelection */ = {
+			isa = PBXGroup;
+			children = (
+				BC98DBAE3B78FDB36AB9767B /* ImageSelectionView.swift */,
+				037F833E794BC31A28C88F71 /* ImageSelectionViewModel.swift */,
+			);
+			path = ImageSelection;
+			sourceTree = "<group>";
+		};
+		BF1CFAD7684F380A0F955AFB /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				09E2EBCA4AE223C0FFD125A2 /* SettingsView.swift */,
+				951821478EF7B16A0F4F01E3 /* SettingsViewModel.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		C2FE7BACD2FC75C28B99A5DA /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E880957812DBA10478FE4894 /* CharacterPalette.swift */,
+				7A49C201C4100042832BABCA /* GrayscalePixelBuffer.swift */,
+				78966946F283B4418F2D3DE6 /* ProcessingOptions.swift */,
+				2B8A3F0F8A2FF448FE145F2E /* TextArt.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		CCC5A378B375951855418CA7 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				2F42553B585316DD18D63C39 /* ThrottleDebounce.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		CD92A59AE9848875D755653B /* App */ = {
+			isa = PBXGroup;
+			children = (
+				186E7EBBE057CA88D8267C2C /* AppDependencies.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		CDA2C5E5D2EB70504A444D12 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				FF7D167E46B5B6F70BD689CA /* FocusModeOverlay.swift */,
+				4F8E43D4026B00DC2C4B7845 /* VisualPalettePicker.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		D39A1E43F6B13ED0E5BF8520 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				DFCEE51FE69C0904E8CA8ECD /* ImageProcessing.swift */,
+				A7EF064B38F26E6C561BCE41 /* TextArtGenerating.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		DCBEE52AE6F6CDA585D86B84 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				FBBA583C936D8DE5CFE87F6B /* Generation */,
+				1D5E6D50FBE26C73F588A43B /* History */,
+				FF617E57E3DC0F668636FE8E /* Home */,
+				BE58056CB834D68506D00CE0 /* ImageSelection */,
+				E94EB2E73872F7362205937F /* Main */,
+				51EA5151ADAD3BD0ACFA825E /* Result */,
+				BF1CFAD7684F380A0F955AFB /* Settings */,
+				79937B3FE11E1243DB1E5C46 /* Textify */,
+				88B2BFA06E42E0ACAF61F665 /* TextInput */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		E94EB2E73872F7362205937F /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				3657598BAB8E3A19A2E35AE4 /* MainView.swift */,
+				6137DCC41D0B9BD0512C58A0 /* MainViewModel.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		EB137426A7FB961A45DC2425 /* TextifyKit */ = {
+			isa = PBXGroup;
+			children = (
+				FBB2D0E392705A6C92FF31E5 /* TextifyKit.docc */,
+				98BB9A0CAB97366194306FC1 /* TextifyKit.swift */,
+				C2FE7BACD2FC75C28B99A5DA /* Models */,
+				D39A1E43F6B13ED0E5BF8520 /* Protocols */,
+				454A39D9A7EDFBE101AD08A2 /* Services */,
+			);
+			path = TextifyKit;
+			sourceTree = "<group>";
+		};
+		F0F8CC6044F995C1092434E9 /* TextifyUITests */ = {
+			isa = PBXGroup;
+			children = (
+				1E020444B0D87351993A0B4F /* TextifyUITests.swift */,
+				CCCFBE2DA8D99E61C84AE5D8 /* TextifyViewModelTests.swift */,
+			);
+			path = TextifyUITests;
+			sourceTree = "<group>";
+		};
+		F9F7166E5B2559964F588F50 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A63692C1F45C0AADF3365E8C /* AppError.swift */,
+				45375506F126815B50817CDF /* HistoryEntry.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		FBBA583C936D8DE5CFE87F6B /* Generation */ = {
+			isa = PBXGroup;
+			children = (
+				E5BBC14D029EF5A445BBC7D5 /* GenerationView.swift */,
+				8C4E36A13C80B3EB989C200C /* GenerationViewModel.swift */,
+			);
+			path = Generation;
+			sourceTree = "<group>";
+		};
+		FF617E57E3DC0F668636FE8E /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				CAD708F413DED86563214381 /* HomeView.swift */,
+				9DA7B778217364FE86B92774 /* HomeViewModel.swift */,
+			);
+			path = Home;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		25C1A9D3518875BEF98239C8 /* TextifyUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA2670ECDEC9A8DEB9EBA43C /* Build configuration list for PBXNativeTarget "TextifyUI" */;
+			buildPhases = (
+				524846FE1E71B197ECA86473 /* Sources */,
+				F6E13DE429F6CA40889DA5EE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9B77325F4D9CE3F8DB5A7AC1 /* PBXTargetDependency */,
+			);
+			name = TextifyUI;
+			packageProductDependencies = (
+			);
+			productName = TextifyUI;
+			productReference = 8995EBF35368AAAD879961C5 /* TextifyUI.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		736CBF1FFD93DE16FC46F733 /* TextifyKit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CFF35BACEBDB119BD7F0D3E8 /* Build configuration list for PBXNativeTarget "TextifyKit" */;
+			buildPhases = (
+				6D67F4D02B7BBDC9AD30AC3F /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TextifyKit;
+			packageProductDependencies = (
+			);
+			productName = TextifyKit;
+			productReference = 8B7C8078A590BF227C0871E3 /* TextifyKit.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A0E4E0FA207DED1367BFB4DB /* TextifyKitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 72C963456FA26F74B6FA2C2C /* Build configuration list for PBXNativeTarget "TextifyKitTests" */;
+			buildPhases = (
+				E6ABC1263E0D57ED80423C61 /* Sources */,
+				8FC32D02CBF7734835E9FD58 /* Frameworks */,
+				296D2F0D15EDD1AAB8926D7C /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AFB022FC4D52963F6465A240 /* PBXTargetDependency */,
+				3CB17FB2CEACFE0E5397BAA5 /* PBXTargetDependency */,
+			);
+			name = TextifyKitTests;
+			packageProductDependencies = (
+			);
+			productName = TextifyKitTests;
+			productReference = 570501EC17F9701FA3F44EBA /* TextifyKitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		D132E6FDD546297D79366213 /* TextifyUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4015A79EB9560AA8602D8F76 /* Build configuration list for PBXNativeTarget "TextifyUITests" */;
+			buildPhases = (
+				D49E4870452979182DFF82F3 /* Sources */,
+				10C6A0F4DDFC40EEAF7E1E44 /* Frameworks */,
+				0CF00A73252BD603C0DE297C /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FB5F578E7E974F8597C84AB0 /* PBXTargetDependency */,
+				A30D8D6A71B97416C105FBB9 /* PBXTargetDependency */,
+				7E1599AEB5DA6516C673A807 /* PBXTargetDependency */,
+			);
+			name = TextifyUITests;
+			packageProductDependencies = (
+			);
+			productName = TextifyUITests;
+			productReference = 48525068E5BE1F36D2F8CDD8 /* TextifyUITests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		F00FF3ED897215B573D20C1E /* TextifyApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F66748131DD2E9BA356B2C69 /* Build configuration list for PBXNativeTarget "TextifyApp" */;
 			buildPhases = (
 				6B0520CD2C5459095A546EB2 /* Sources */,
 				000FB0C25DDD21AD952242D7 /* Frameworks */,
+				47B5FE401C29747EDB439A6C /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				7474FB7F2F2C8DD0003C2F4C /* Sources */,
-				7474FB862F2C8DF5003C2F4C /* Resources */,
+				33A74A98603E4AD79D7DB481 /* PBXTargetDependency */,
+				EFFB4FACD9201CA76F0BB1A6 /* PBXTargetDependency */,
 			);
 			name = TextifyApp;
 			packageProductDependencies = (
-				9DED8BD0A018C9CD61278DC2 /* TextifyKit */,
-				BBBB11112222333344445555 /* TextifyUI */,
 			);
 			productName = TextifyApp;
-			productReference = 7474FB872F2C8E11003C2F4C /* TextifyApp.app */;
+			productReference = F55A54C000F76F3A9FD25ABD /* TextifyApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -85,9 +752,10 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 0215FB9C97D973C051D143C2 /* Build configuration list for PBXProject "TextifyApp" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -96,28 +764,172 @@
 			);
 			mainGroup = 12FB0F96AE0C62BF7D8E76AD;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				F6B5DA696EF3AFB7429E6941 /* XCLocalSwiftPackageReference "../TextifyKit" */,
-				DDDD11112222333344445555 /* XCLocalSwiftPackageReference "../TextifyUI" */,
-			);
-			productRefGroup = 7474FB882F2C8E11003C2F4C /* Products */;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A48D7561CBE3810883CE4CFD /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				F00FF3ED897215B573D20C1E /* TextifyApp */,
+				736CBF1FFD93DE16FC46F733 /* TextifyKit */,
+				A0E4E0FA207DED1367BFB4DB /* TextifyKitTests */,
+				25C1A9D3518875BEF98239C8 /* TextifyUI */,
+				D132E6FDD546297D79366213 /* TextifyUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		524846FE1E71B197ECA86473 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3B0BFD0B5A150F70CD37E382 /* AnimatedGradient.swift in Sources */,
+				432406853AF77211AE52FBF9 /* AppDependencies.swift in Sources */,
+				7ABDE1943CBD754BA5663C5A /* AppError.swift in Sources */,
+				BCD3A168AF83743D9787EFD0 /* AppTheme.swift in Sources */,
+				C3E3D1155BB01D5DCB0DFB93 /* AppearanceService.swift in Sources */,
+				7F62C559099C37E2E8A24EBB /* ClipboardService.swift in Sources */,
+				F3A8C9749B29830B43804F60 /* ControlBottomSheet.swift in Sources */,
+				A74FE85B97ADE8A2A0C74614 /* ErrorBanner.swift in Sources */,
+				02003EDBBAB51566BAEF95E0 /* FileImportService.swift in Sources */,
+				E051EDEB0F05C18F1C54B64C /* FloatingToolbar.swift in Sources */,
+				413A8DDCD4A849389D86CC19 /* FocusModeOverlay.swift in Sources */,
+				9CEC3816FD417E07F9C7A1C4 /* GenerationTaskManager.swift in Sources */,
+				7926C6B6222143E5A585C824 /* GenerationView.swift in Sources */,
+				69BF6201AE06DBB801B80242 /* GenerationViewModel.swift in Sources */,
+				3E3E07C0351A059E52CDBCDA /* GlassCard.swift in Sources */,
+				D69C7B082FFD33F5F3CF7603 /* HapticsService.swift in Sources */,
+				E36D66E383A5EFAE8D6CDC33 /* HistoryCard.swift in Sources */,
+				65C930A64368CC2C3EDF9CED /* HistoryDetailView.swift in Sources */,
+				C03F13B1A9E50FA446080E53 /* HistoryEntry.swift in Sources */,
+				4BFB86FB0422CC75C2E1DD52 /* HistoryService.swift in Sources */,
+				A035210EF481995FB46FA8CE /* HistoryView.swift in Sources */,
+				0FD12B29C13791199C56CE50 /* HistoryViewModel.swift in Sources */,
+				397B3A171A8D9F07468400AD /* HomeView.swift in Sources */,
+				C418C0A1F54EAD17E578D84F /* HomeViewModel.swift in Sources */,
+				FB4DBB2EB89DD207E7724F70 /* ImageExportService.swift in Sources */,
+				06F0ECB0041ADE591D9B111E /* ImageSelectionView.swift in Sources */,
+				BEBA7C371A3925365CC7366B /* ImageSelectionViewModel.swift in Sources */,
+				B31860FFEE6B2B0EB2ED2461 /* ImageValidationService.swift in Sources */,
+				D432B09CA311680D55F4D2CD /* LoadingButton.swift in Sources */,
+				B420347575D926102EB18F27 /* MainView.swift in Sources */,
+				53FF1EF872EE01FA730FB5ED /* MainViewModel.swift in Sources */,
+				3B98A71744DF1D3D5708BF27 /* PhotoLibraryService.swift in Sources */,
+				202103AD19153AF21BBD3608 /* PreviewPanel.swift in Sources */,
+				0FC11AB1AA2A4D63830C389F /* ResultView.swift in Sources */,
+				9F8416FABAF74F00AD347779 /* ResultViewModel.swift in Sources */,
+				6CF94FE61BB2C2EE5680FE4F /* RetryView.swift in Sources */,
+				84A1604EEEC19F0438E2C24B /* SettingsView.swift in Sources */,
+				98ED36C9F7C31B0B11E75C36 /* SettingsViewModel.swift in Sources */,
+				BD443CE22FBD038C104584AC /* TextInputView.swift in Sources */,
+				FD8AE36977FB8A8BD7BF7B70 /* TextInputViewModel.swift in Sources */,
+				E2DB7199B2D7D25CFF87FBE3 /* TextifyUI.docc in Sources */,
+				0142D7ADB2AEDA3417BA4CE0 /* TextifyUI.swift in Sources */,
+				6B19ADD97B0034EF9F559687 /* TextifyView.swift in Sources */,
+				19A4BBBE187D0A0944E2AC61 /* TextifyViewModel.swift in Sources */,
+				ECF881A36140EF9BEE337F80 /* ThemeEnvironment.swift in Sources */,
+				3EFFC758FEACED8358303B4E /* ThrottleDebounce.swift in Sources */,
+				F40627CFDE592EE3DA8B7412 /* TypingEffectText.swift in Sources */,
+				EB1A1541A0BB01AE0C7C9985 /* ValueSlider.swift in Sources */,
+				24FE6C9441EA12BE07CC1FE4 /* VisualPalettePicker.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6B0520CD2C5459095A546EB2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7DC6A3FB93165138F53A58F0 /* TextifyApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D67F4D02B7BBDC9AD30AC3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6775AF535A771C7C9135C01 /* CharacterMapper.swift in Sources */,
+				E3481EE3C3CB9FD436A1FD3E /* CharacterPalette.swift in Sources */,
+				E8289B2D2EFBAF4636ECA9CA /* GrayscalePixelBuffer.swift in Sources */,
+				88006A2876393EF9CFF69DAF /* ImageProcessing.swift in Sources */,
+				46BF582D0BF63E99EF651325 /* ImageProcessor.swift in Sources */,
+				D887E337B6C226620C33FDEA /* ProcessingOptions.swift in Sources */,
+				1AA667BDE502380C35762571 /* TextArt.swift in Sources */,
+				82B344CDD5057A5F75C0AEA0 /* TextArtGenerating.swift in Sources */,
+				F36364B4DB351C782A73A76A /* TextArtGenerator.swift in Sources */,
+				55D84479AE747AC3FE59107D /* TextifyKit.docc in Sources */,
+				0A43D0F6EA92DF5C15A0963F /* TextifyKit.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D49E4870452979182DFF82F3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				59BA2270492583A74BBFB3E3 /* TextifyUITests.swift in Sources */,
+				0342897DA4F692861F6644FC /* TextifyViewModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E6ABC1263E0D57ED80423C61 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B532E2C4A4153522D53D477 /* CharacterMapperTests.swift in Sources */,
+				098BB84915FDE085112BE7AF /* CharacterPaletteTests.swift in Sources */,
+				9383B5FD5DB0C6CFBB30E8C6 /* GrayscalePixelBufferTests.swift in Sources */,
+				EA0B911E9867DFE6AA3CCC43 /* ImageProcessorTests.swift in Sources */,
+				710FFE88A2EEE469C1AF4820 /* MockImageProcessor.swift in Sources */,
+				5193F3AAC5B61A4177A81D58 /* ProcessingOptionsTests.swift in Sources */,
+				526F47E6CA35D3EDFCBF3B5A /* TextArtGeneratorTests.swift in Sources */,
+				15FB4DB34A4B273762DE253D /* TextArtTests.swift in Sources */,
+				C592CD5F79E154B778F434B9 /* TextifyKitTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		33A74A98603E4AD79D7DB481 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 736CBF1FFD93DE16FC46F733 /* TextifyKit */;
+			targetProxy = 7E84787A941025BBCD20065D /* PBXContainerItemProxy */;
+		};
+		3CB17FB2CEACFE0E5397BAA5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F00FF3ED897215B573D20C1E /* TextifyApp */;
+			targetProxy = 119C19B2D96CD2D448C93FDF /* PBXContainerItemProxy */;
+		};
+		7E1599AEB5DA6516C673A807 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F00FF3ED897215B573D20C1E /* TextifyApp */;
+			targetProxy = 825FC817D8B0FE3B3169DF3D /* PBXContainerItemProxy */;
+		};
+		9B77325F4D9CE3F8DB5A7AC1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 736CBF1FFD93DE16FC46F733 /* TextifyKit */;
+			targetProxy = 405D8BFE5F60890C6EE02B4D /* PBXContainerItemProxy */;
+		};
+		A30D8D6A71B97416C105FBB9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 736CBF1FFD93DE16FC46F733 /* TextifyKit */;
+			targetProxy = 1090CB97BD48479B060CF9DA /* PBXContainerItemProxy */;
+		};
+		AFB022FC4D52963F6465A240 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 736CBF1FFD93DE16FC46F733 /* TextifyKit */;
+			targetProxy = 741F6613F3480C6A6892B561 /* PBXContainerItemProxy */;
+		};
+		EFFB4FACD9201CA76F0BB1A6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 25C1A9D3518875BEF98239C8 /* TextifyUI */;
+			targetProxy = 01647ED4378E0C18534486EC /* PBXContainerItemProxy */;
+		};
+		FB5F578E7E974F8597C84AB0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 25C1A9D3518875BEF98239C8 /* TextifyUI */;
+			targetProxy = 529F3D091A77CF3EF1B1B4CF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		192CBB47377FE3020CC067E4 /* Release */ = {
@@ -126,7 +938,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = HY47J4787Q;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TextifyApp/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -193,7 +1004,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -251,7 +1062,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -262,13 +1073,155 @@
 			};
 			name = Release;
 		};
+		1DF2B8545BD1AA78EC328B62 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oozoofrog.ios.TextifyUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TextifyApp.app/TextifyApp";
+			};
+			name = Release;
+		};
+		3B21443C2D74EF17239F83FB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oozoofrog.ios.TextifyKitTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TextifyApp.app/TextifyApp";
+			};
+			name = Debug;
+		};
+		3B89B1BFE919D1DD05B8CDF3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oozoofrog.ios.TextifyKit;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		B47919C1C6D61AFEC0E031DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oozoofrog.ios.TextifyKit;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		B7E581D2FC73B4D06FB70302 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oozoofrog.ios.TextifyUI;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		D8A0AD7772567DE145142930 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oozoofrog.ios.TextifyUI;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		EABB0C8B05DDE5FA94C802C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oozoofrog.ios.TextifyKitTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TextifyApp.app/TextifyApp";
+			};
+			name = Release;
+		};
 		EF9E580F7362FB162C8BDB6D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = HY47J4787Q;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TextifyApp/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -280,6 +1233,23 @@
 				SDKROOT = iphoneos;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F1EE328D55277B8E6B41FC8E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.oozoofrog.ios.TextifyUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TextifyApp.app/TextifyApp";
 			};
 			name = Debug;
 		};
@@ -295,6 +1265,42 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
+		4015A79EB9560AA8602D8F76 /* Build configuration list for PBXNativeTarget "TextifyUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F1EE328D55277B8E6B41FC8E /* Debug */,
+				1DF2B8545BD1AA78EC328B62 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		72C963456FA26F74B6FA2C2C /* Build configuration list for PBXNativeTarget "TextifyKitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3B21443C2D74EF17239F83FB /* Debug */,
+				EABB0C8B05DDE5FA94C802C3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CFF35BACEBDB119BD7F0D3E8 /* Build configuration list for PBXNativeTarget "TextifyKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3B89B1BFE919D1DD05B8CDF3 /* Debug */,
+				B47919C1C6D61AFEC0E031DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DA2670ECDEC9A8DEB9EBA43C /* Build configuration list for PBXNativeTarget "TextifyUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8A0AD7772567DE145142930 /* Debug */,
+				B7E581D2FC73B4D06FB70302 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		F66748131DD2E9BA356B2C69 /* Build configuration list for PBXNativeTarget "TextifyApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -305,28 +1311,6 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		DDDD11112222333344445555 /* XCLocalSwiftPackageReference "../TextifyUI" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../TextifyUI;
-		};
-		F6B5DA696EF3AFB7429E6941 /* XCLocalSwiftPackageReference "../TextifyKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../TextifyKit;
-		};
-/* End XCLocalSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		9DED8BD0A018C9CD61278DC2 /* TextifyKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = TextifyKit;
-		};
-		BBBB11112222333344445555 /* TextifyUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = TextifyUI;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1C742621DE6B48C4B51B2390 /* Project object */;
 }

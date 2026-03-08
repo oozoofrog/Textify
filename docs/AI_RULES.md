@@ -13,7 +13,7 @@ Agents must read this file before making changes.
 - UI framework: SwiftUI
 - Architecture style: MVVM with Repository pattern
 - Minimum iOS version: iOS 17
-- Package manager: Swift Package Manager
+- Module structure: Xcode framework targets (`TextifyKit`, `TextifyUI`)
 - Testing framework: XCTest
 - Lint/format tools: SwiftLint, SwiftFormat
 - Harness profile: advanced

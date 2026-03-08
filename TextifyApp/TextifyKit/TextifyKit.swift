@@ -1,0 +1,4 @@
+// TextifyKit - Core library for ASCII text art generation
+// 
+// This framework provides platform-agnostic functionality for converting
+// images to ASCII/text art representations.

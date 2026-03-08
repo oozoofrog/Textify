@@ -76,6 +76,7 @@ public final class TextifyViewModel {
     private let taskManager = GenerationTaskManager()
     private let widthThrottler = Throttler(interval: .milliseconds(50))
     private let finalDebouncer = Debouncer(delay: .milliseconds(200))
+    private var generationRequestID = 0
 
     public init(image: CGImage, generator: any TextArtGenerating) {
         self.image = image
@@ -107,7 +108,7 @@ public final class TextifyViewModel {
         let width = outputWidth
         let invert = invertBrightness
 
-        await taskManager.startGeneration(priority: .utility) { [weak self] in
+        taskManager.startGeneration(priority: .utility) { [weak self] in
             guard let self else { return }
             do {
                 let palette = CharacterPalette(characters: characters)
@@ -121,6 +122,8 @@ public final class TextifyViewModel {
                     palette: palette,
                     options: options
                 )
+                try Task.checkCancellation()
+
                 await MainActor.run {
                     self.textArt = result
                 }
@@ -141,6 +144,9 @@ public final class TextifyViewModel {
     }
 
     public func generate() async {
+        generationRequestID += 1
+        let requestID = generationRequestID
+
         isGenerating = true
         errorMessage = nil
 
@@ -148,7 +154,7 @@ public final class TextifyViewModel {
         let width = outputWidth
         let invert = invertBrightness
 
-        await taskManager.startGeneration(priority: .userInitiated) { [weak self] in
+        let task = taskManager.startGeneration(priority: .userInitiated) { [weak self] in
             guard let self else { return }
             do {
                 let palette = CharacterPalette(characters: characters)
@@ -164,7 +170,10 @@ public final class TextifyViewModel {
                     options: options
                 )
 
+                try Task.checkCancellation()
+
                 await MainActor.run {
+                    guard requestID == self.generationRequestID else { return }
                     self.textArt = result
                     self.isGenerating = false
                     // Reset animation flag after generation completes
@@ -172,15 +181,19 @@ public final class TextifyViewModel {
                 }
             } catch is CancellationError {
                 await MainActor.run {
+                    guard requestID == self.generationRequestID else { return }
                     self.isGenerating = false
                 }
             } catch {
                 await MainActor.run {
+                    guard requestID == self.generationRequestID else { return }
                     self.errorMessage = "변환 실패: \(error.localizedDescription)"
                     self.isGenerating = false
                 }
             }
         }
+
+        await task.value
     }
 
     public func generateWithAnimation() async {
