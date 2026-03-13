@@ -7,6 +7,7 @@ public struct TextifyView: View {
     @State var viewModel: TextifyViewModel
     @Environment(AppDependencies.self) private var dependencies
 
+    @State private var comparisonMode: ComparisonMode = .split
     @State private var showOptions = false
     @State private var showFocusMode = false
     @State private var showHistory = false
@@ -89,35 +90,94 @@ public struct TextifyView: View {
 
     private var sourcePreviewSection: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("원본")
-                .font(.headline)
+            HStack(alignment: .center) {
+                Text("비교 미리보기")
+                    .font(.headline)
 
-            HStack(spacing: 16) {
-                Image(decorative: viewModel.image, scale: 1.0)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 104, height: 104)
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                Spacer()
 
-                VStack(alignment: .leading, spacing: 8) {
-                    Label("자동 생성 준비 완료", systemImage: "sparkles")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
-
-                    Text(viewModel.optionSummary)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Text("팔레트, 폭, 대비, 밝기 반전을 조정하면서 원하는 ASCII 감도를 찾으세요.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                Picker("비교 모드", selection: $comparisonMode) {
+                    ForEach(ComparisonMode.allCases) { mode in
+                        Text(mode.title).tag(mode)
+                    }
                 }
+                .pickerStyle(.segmented)
+                .frame(maxWidth: 220)
+            }
+
+            comparisonPreviewContent
+
+            VStack(alignment: .leading, spacing: 8) {
+                Label("자동 생성 준비 완료", systemImage: "sparkles")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+
+                Text(viewModel.optionSummary)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("원본과 ASCII 결과를 번갈아 보거나 나란히 비교하면서, 팔레트·폭·대비를 빠르게 조정하세요.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(18)
         .background(.background, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    @ViewBuilder
+    private var comparisonPreviewContent: some View {
+        switch comparisonMode {
+        case .original:
+            sourceImagePreviewCard(height: 220)
+        case .ascii:
+            asciiPreviewCard(height: 220)
+        case .split:
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    sourceImagePreviewCard(height: 200)
+                    asciiPreviewCard(height: 200)
+                }
+
+                VStack(spacing: 12) {
+                    sourceImagePreviewCard(height: 180)
+                    asciiPreviewCard(height: 180)
+                }
+            }
+        }
+    }
+
+    private func sourceImagePreviewCard(height: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("원본")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            Image(decorative: viewModel.image, scale: 1.0)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
+                .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func asciiPreviewCard(height: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("ASCII")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            PreviewPanel(
+                textArt: viewModel.textArt?.asString,
+                isLoading: viewModel.isGenerating
+            )
+            .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var resultSection: some View {
@@ -400,6 +460,25 @@ private struct WorkspaceActionButton: View {
         .buttonStyle(.plain)
         .disabled(isDisabled)
         .opacity(isDisabled ? 0.45 : 1)
+    }
+}
+
+private enum ComparisonMode: String, CaseIterable, Identifiable {
+    case original
+    case ascii
+    case split
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .original:
+            return "원본"
+        case .ascii:
+            return "ASCII"
+        case .split:
+            return "비교"
+        }
     }
 }
 
