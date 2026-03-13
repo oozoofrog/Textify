@@ -7,33 +7,31 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                // MARK: - Appearance Section
                 Section {
-                    Picker("Theme", selection: $viewModel.appearanceMode) {
+                    Picker("테마", selection: $viewModel.appearanceMode) {
                         ForEach(AppearanceMode.allCases, id: \.self) { mode in
                             Text(mode.displayName)
                                 .tag(mode)
                         }
                     }
                     .pickerStyle(.menu)
-                    .accessibilityLabel("Appearance mode")
-                    .accessibilityHint("Choose between system, light, or dark theme")
+                    .accessibilityLabel("외형 모드")
+                    .accessibilityHint("시스템, 라이트, 다크 중 하나를 선택합니다")
                 } header: {
-                    Text("Appearance")
+                    Text("외형")
                 } footer: {
-                    Text("Choose how the app looks")
+                    Text("앱의 전반적인 표시 모드를 설정합니다")
                 }
 
-                // MARK: - About Section
                 Section {
                     HStack {
-                        Text("Version")
+                        Text("버전")
                         Spacer()
                         Text(appVersion)
                             .foregroundStyle(.secondary)
                     }
                     .accessibilityElement(children: .combine)
-                    .accessibilityLabel("App version \(appVersion)")
+                    .accessibilityLabel("앱 버전 \(appVersion)")
 
                     if let githubURL = URL(string: "https://github.com/oozoofrog/Textify") {
                         Link(destination: githubURL) {
@@ -45,55 +43,76 @@ struct SettingsView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .accessibilityLabel("Open GitHub repository")
+                        .accessibilityLabel("GitHub 저장소 열기")
                     }
                 } header: {
-                    Text("About")
+                    Text("정보")
                 }
 
-                // MARK: - Data Section
                 Section {
                     Button(role: .destructive) {
                         viewModel.requestClearHistory()
                     } label: {
-                        Label("Clear History", systemImage: "trash")
+                        if viewModel.isClearingHistory {
+                            Label("히스토리 삭제 중…", systemImage: "hourglass")
+                        } else {
+                            Label("히스토리 전체 삭제", systemImage: "trash")
+                        }
                     }
-                    .accessibilityLabel("Clear history")
-                    .accessibilityHint("Removes all saved history items")
+                    .disabled(viewModel.isClearingHistory)
+                    .accessibilityLabel("히스토리 전체 삭제")
+                    .accessibilityHint("저장된 히스토리 항목을 모두 삭제합니다")
                 } header: {
-                    Text("Data")
+                    Text("데이터")
                 } footer: {
-                    Text("This will remove all saved history items")
+                    Text("이 작업은 되돌릴 수 없습니다")
                 }
             }
             .listStyle(.insetGrouped)
-            .navigationTitle("Settings")
+            .navigationTitle("설정")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                    Button("완료") {
                         dismiss()
                     }
                 }
             }
             .confirmationDialog(
-                "Clear History",
+                "히스토리를 삭제할까요?",
                 isPresented: $viewModel.showClearHistoryConfirmation,
                 titleVisibility: .visible
             ) {
-                Button("Clear History", role: .destructive) {
-                    viewModel.confirmClearHistory()
+                Button("전체 삭제", role: .destructive) {
+                    Task {
+                        await viewModel.confirmClearHistory()
+                    }
                 }
-                Button("Cancel", role: .cancel) {
+                Button("취소", role: .cancel) {
                     viewModel.cancelClearHistory()
                 }
             } message: {
-                Text("This will permanently delete all history items. This action cannot be undone.")
+                Text("저장된 히스토리 항목이 모두 삭제되며 복구할 수 없습니다.")
+            }
+            .alert(
+                "오류",
+                isPresented: Binding(
+                    get: { viewModel.errorMessage != nil },
+                    set: { isPresented in
+                        if !isPresented {
+                            viewModel.errorMessage = nil
+                        }
+                    }
+                )
+            ) {
+                Button("확인", role: .cancel) {
+                    viewModel.errorMessage = nil
+                }
+            } message: {
+                Text(viewModel.errorMessage ?? "")
             }
         }
     }
-
-    // MARK: - Private Helpers
 
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
@@ -102,12 +121,11 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - Previews
-
 #Preview("Settings View") {
     SettingsView(
         viewModel: SettingsViewModel(
-            appearanceService: AppearanceService()
+            appearanceService: AppearanceService(),
+            historyService: HistoryService()
         )
     )
 }

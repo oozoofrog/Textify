@@ -1,14 +1,15 @@
 import SwiftUI
 import TextifyUI
-import TextifyKit
 
 @main
 struct TextifyApp: App {
-    @State private var generator = TextArtGenerator()
+    @State private var dependencies = AppDependencies()
 
     var body: some Scene {
         WindowGroup {
-            MainView(viewModel: MainViewModel(generator: generator))
+            MainView(viewModel: dependencies.makeMainViewModel())
+                .environment(dependencies)
+                .preferredColorScheme(dependencies.appearanceService.currentMode.colorScheme)
         }
     }
 }

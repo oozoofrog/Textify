@@ -2,20 +2,21 @@ import SwiftUI
 
 struct HistoryView: View {
     @State var viewModel: HistoryViewModel
+    @Environment(AppDependencies.self) private var dependencies
     @State private var selectedEntry: HistoryEntry?
 
     var body: some View {
         NavigationStack {
             Group {
                 if viewModel.isLoading {
-                    ProgressView("Loading history...")
+                    ProgressView("히스토리를 불러오는 중…")
                 } else if viewModel.entries.isEmpty {
                     emptyStateView
                 } else {
                     historyListView
                 }
             }
-            .navigationTitle("History")
+            .navigationTitle("최근 작업")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -23,26 +24,26 @@ struct HistoryView: View {
                         Button(role: .destructive) {
                             viewModel.showDeleteConfirmation = true
                         } label: {
-                            Label("Clear All", systemImage: "trash")
+                            Label("전체 삭제", systemImage: "trash")
                         }
                     }
                 }
             }
             .navigationDestination(item: $selectedEntry) { entry in
-                HistoryDetailView(entry: entry)
+                HistoryDetailView(viewModel: dependencies.makeHistoryDetailViewModel(entry: entry))
             }
             .task {
                 await viewModel.loadHistory()
             }
-            .alert("Clear All History", isPresented: $viewModel.showDeleteConfirmation) {
-                Button("Cancel", role: .cancel) { }
-                Button("Clear All", role: .destructive) {
+            .alert("히스토리 전체 삭제", isPresented: $viewModel.showDeleteConfirmation) {
+                Button("취소", role: .cancel) { }
+                Button("전체 삭제", role: .destructive) {
                     Task {
                         await viewModel.clearAll()
                     }
                 }
             } message: {
-                Text("This will permanently delete all history entries. This action cannot be undone.")
+                Text("저장된 히스토리 항목이 모두 삭제되며 복구할 수 없습니다.")
             }
         }
         .overlay {
@@ -60,11 +61,11 @@ struct HistoryView: View {
                 .font(.system(size: 80))
                 .foregroundStyle(.secondary)
 
-            Text("No History Yet")
+            Text("아직 저장된 결과가 없어요")
                 .font(AppTheme.titleFont)
                 .foregroundStyle(.primary)
 
-            Text("Your text art creations will appear here")
+            Text("생성된 텍스트 아트를 복사하거나 저장하면 최근 작업에 남습니다.")
                 .font(AppTheme.bodyFont)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -101,9 +102,9 @@ struct HistoryView: View {
             historyService: PreviewHistoryService()
         )
     )
+    .environment(AppDependencies())
 }
 
-// Preview helper
 private actor PreviewHistoryService: HistoryServiceProtocol {
     func add(_ entry: HistoryEntry) async throws {}
     func delete(id: UUID) async throws {}

@@ -5,6 +5,11 @@ import UIKit
 import AppKit
 #endif
 
+/// Protocol for clipboard operations.
+public protocol ClipboardServiceProtocol: Sendable {
+    func copy(text: String) throws
+}
+
 /// Errors that can occur during clipboard operations
 public enum ClipboardError: Error, LocalizedError {
     case copyFailed
@@ -21,7 +26,7 @@ public enum ClipboardError: Error, LocalizedError {
 }
 
 /// Service for clipboard operations
-public final class ClipboardService: Sendable {
+public final class ClipboardService: ClipboardServiceProtocol, Sendable {
 
     public init() {}
 

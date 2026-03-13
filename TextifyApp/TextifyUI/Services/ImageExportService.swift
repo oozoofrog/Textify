@@ -5,6 +5,12 @@ import TextifyKit
 import UIKit
 #endif
 
+/// Protocol for image export operations.
+public protocol ImageExportServiceProtocol: Sendable {
+    func exportAsImage(textArt: TextArt) async throws -> URL
+    func saveToPhotos(textArt: TextArt) async throws
+}
+
 /// Errors that can occur during image export operations
 public enum ImageExportError: Error, LocalizedError {
     case renderingFailed
@@ -24,7 +30,7 @@ public enum ImageExportError: Error, LocalizedError {
 }
 
 /// Service for exporting text art as images
-public final class ImageExportService: Sendable {
+public final class ImageExportService: ImageExportServiceProtocol, Sendable {
 
     public init() {}
 
@@ -57,7 +63,39 @@ public final class ImageExportService: Sendable {
     #if canImport(UIKit)
     @MainActor
     private func saveImageToPhotos(_ image: UIImage) async throws {
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+        let saver = PhotoLibrarySaveOperation()
+        try await saver.save(image)
+    }
+
+    @MainActor
+    private final class PhotoLibrarySaveOperation: NSObject {
+        private var continuation: CheckedContinuation<Void, Error>?
+
+        func save(_ image: UIImage) async throws {
+            try await withCheckedThrowingContinuation { continuation in
+                self.continuation = continuation
+                UIImageWriteToSavedPhotosAlbum(
+                    image,
+                    self,
+                    #selector(handleSaveResult(_:didFinishSavingWithError:contextInfo:)),
+                    nil
+                )
+            }
+        }
+
+        @objc
+        private func handleSaveResult(
+            _ image: UIImage,
+            didFinishSavingWithError error: Error?,
+            contextInfo: UnsafeMutableRawPointer?
+        ) {
+            if let error {
+                continuation?.resume(throwing: error)
+            } else {
+                continuation?.resume(returning: ())
+            }
+            continuation = nil
+        }
     }
     #endif
 
@@ -66,7 +104,6 @@ public final class ImageExportService: Sendable {
     private func renderToImage(textArt: TextArt) throws -> URL {
         let text = textArt.asString
 
-        // Configure text attributes
         let font = UIFont.monospacedSystemFont(ofSize: 10, weight: .regular)
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
@@ -74,28 +111,21 @@ public final class ImageExportService: Sendable {
             .backgroundColor: UIColor.black
         ]
 
-        // Calculate size
         let attributedString = NSAttributedString(string: text, attributes: attributes)
         let size = attributedString.size()
 
-        // Add padding
         let paddedSize = CGSize(
             width: size.width + 20,
             height: size.height + 20
         )
 
-        // Render to image
         let renderer = UIGraphicsImageRenderer(size: paddedSize)
         let image = renderer.image { context in
-            // Fill background
             UIColor.black.setFill()
             context.fill(CGRect(origin: .zero, size: paddedSize))
-
-            // Draw text
             attributedString.draw(at: CGPoint(x: 10, y: 10))
         }
 
-        // Save to temporary file
         guard let data = image.pngData() else {
             throw ImageExportError.renderingFailed
         }

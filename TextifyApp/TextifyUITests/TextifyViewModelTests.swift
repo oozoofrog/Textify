@@ -1,15 +1,29 @@
 import Testing
+import Foundation
 import CoreGraphics
 import UIKit
 @testable import TextifyUI
 @testable import TextifyKit
 
-// MARK: - Mock Generator for testing
-
-/// Actor-based mock implementation of TextArtGenerating for testing
 actor MockTextArtGenerator: TextArtGenerating {
     private(set) var generateCallCount = 0
     private(set) var lastGenerateTime: ContinuousClock.Instant?
+    private let result: TextArt
+    private let delay: Duration
+
+    init(
+        result: TextArt = TextArt(
+            rows: ["@#", "*+"],
+            width: 2,
+            height: 2,
+            sourceCharacters: "@#*+",
+            createdAt: Date()
+        ),
+        delay: Duration = .milliseconds(50)
+    ) {
+        self.result = result
+        self.delay = delay
+    }
 
     func generate(
         from image: CGImage,
@@ -18,29 +32,116 @@ actor MockTextArtGenerator: TextArtGenerating {
     ) async throws -> TextArt {
         generateCallCount += 1
         lastGenerateTime = ContinuousClock.now
-
-        // Simulate some processing time
-        try await Task.sleep(for: .milliseconds(50))
-
-        return TextArt(
-            rows: ["@#", "*+"],  // [String] not [[String]]
-            width: 2,
-            height: 2,
-            sourceCharacters: String(palette.characters),
-            createdAt: Date()
-        )
-    }
-
-    func reset() {
-        generateCallCount = 0
-        lastGenerateTime = nil
+        try await Task.sleep(for: delay)
+        return result
     }
 }
 
-// MARK: - Test Helpers
+actor CapturingTextArtGenerator: TextArtGenerating {
+    private(set) var generateCallCount = 0
+    private(set) var lastPalette: CharacterPalette?
+    private(set) var lastOptions: ProcessingOptions?
+    private let result: TextArt
+
+    init(
+        result: TextArt = TextArt(
+            rows: ["@#", "*+"],
+            width: 2,
+            height: 2,
+            sourceCharacters: "@#*+",
+            createdAt: Date()
+        )
+    ) {
+        self.result = result
+    }
+
+    func generate(
+        from image: CGImage,
+        palette: CharacterPalette,
+        options: ProcessingOptions
+    ) async throws -> TextArt {
+        generateCallCount += 1
+        lastPalette = palette
+        lastOptions = options
+        return result
+    }
+}
+
+actor ErrorThrowingGenerator: TextArtGenerating {
+    func generate(
+        from image: CGImage,
+        palette: CharacterPalette,
+        options: ProcessingOptions
+    ) async throws -> TextArt {
+        throw TextArtGenerationError.generationFailed("Test error")
+    }
+}
+
+final class MockClipboardService: ClipboardServiceProtocol, @unchecked Sendable {
+    private(set) var copiedTexts: [String] = []
+
+    func copy(text: String) throws {
+        copiedTexts.append(text)
+    }
+}
+
+actor MockImageExportService: ImageExportServiceProtocol {
+    private(set) var exportCallCount = 0
+    private(set) var saveCallCount = 0
+
+    func exportAsImage(textArt: TextArt) async throws -> URL {
+        exportCallCount += 1
+        return FileManager.default.temporaryDirectory.appendingPathComponent("mock.png")
+    }
+
+    func saveToPhotos(textArt: TextArt) async throws {
+        saveCallCount += 1
+    }
+}
+
+actor MockHistoryService: HistoryServiceProtocol {
+    private(set) var addedEntries: [HistoryEntry] = []
+    private(set) var clearCallCount = 0
+
+    func add(_ entry: HistoryEntry) async throws {
+        addedEntries.append(entry)
+    }
+
+    func delete(id: UUID) async throws {
+        addedEntries.removeAll { $0.id == id }
+    }
+
+    func clear() async throws {
+        clearCallCount += 1
+        addedEntries.removeAll()
+    }
+
+    func list() async throws -> [HistoryEntry] {
+        addedEntries
+    }
+}
+
+@MainActor
+final class MockHapticsService: HapticsServiceProtocol {
+    private(set) var successCount = 0
+    private(set) var errorCount = 0
+
+    func impact(style: HapticImpactStyle) {}
+    func selection() {}
+
+    func notification(type: HapticNotificationType) {
+        switch type {
+        case .success:
+            successCount += 1
+        case .warning:
+            break
+        case .error:
+            errorCount += 1
+        }
+    }
+}
 
 extension TextifyViewModelTests {
-    /// Creates a simple test image
     static func createTestImage() -> CGImage {
         let size = CGSize(width: 10, height: 10)
         let colorSpace = CGColorSpaceCreateDeviceRGB()
@@ -57,31 +158,48 @@ extension TextifyViewModelTests {
         }
         context.setFillColor(UIColor.white.cgColor)
         context.fill(CGRect(origin: .zero, size: size))
-        return context.makeImage()!
+        guard let image = context.makeImage() else {
+            fatalError("Failed to create test image")
+        }
+        return image
+    }
+
+    @MainActor
+    static func makeViewModel(
+        generator: any TextArtGenerating,
+        clipboard: MockClipboardService = MockClipboardService(),
+        export: MockImageExportService = MockImageExportService(),
+        history: MockHistoryService = MockHistoryService(),
+        haptics: MockHapticsService = MockHapticsService(),
+        feedbackResetDelay: Duration = .milliseconds(100)
+    ) -> TextifyViewModel {
+        TextifyViewModel(
+            image: createTestImage(),
+            generator: generator,
+            clipboardService: clipboard,
+            exportService: export,
+            historyService: history,
+            hapticsService: haptics,
+            feedbackResetDelay: feedbackResetDelay
+        )
     }
 }
 
-// MARK: - ViewModel Tests
-
-@Suite("TextifyViewModel Performance Tests")
+@Suite("TextifyViewModel Tests")
 struct TextifyViewModelTests {
 
     @Test("generateFinal uses debouncing - rapid calls result in single generation")
     @MainActor
     func testGenerateFinalIsDebounced() async throws {
         let mockGenerator = MockTextArtGenerator()
-        let image = Self.createTestImage()
-        let viewModel = TextifyViewModel(image: image, generator: mockGenerator)
+        let viewModel = Self.makeViewModel(generator: mockGenerator)
 
-        // Call generateFinal rapidly 3 times
         viewModel.generateFinal()
         viewModel.generateFinal()
         viewModel.generateFinal()
 
-        // Wait for debounce delay (200ms) + buffer
         try await Task.sleep(for: .milliseconds(350))
 
-        // Should only have called generate once due to debouncing
         #expect(await mockGenerator.generateCallCount == 1)
     }
 
@@ -89,28 +207,21 @@ struct TextifyViewModelTests {
     @MainActor
     func testPreviousGenerationCancelled() async throws {
         let mockGenerator = MockTextArtGenerator()
-        let image = Self.createTestImage()
-        let viewModel = TextifyViewModel(image: image, generator: mockGenerator)
+        let viewModel = Self.makeViewModel(generator: mockGenerator)
 
-        // Start first generation
         let task1 = Task {
             await viewModel.generate()
         }
 
-        // Give it a moment to start
         try await Task.sleep(for: .milliseconds(10))
 
-        // Start second generation (should cancel first)
         let task2 = Task {
             await viewModel.generate()
         }
 
-        // Wait for both to complete
         await task1.value
         await task2.value
 
-        // Second generation should have completed
-        // At least 2 calls should have been initiated
         #expect(await mockGenerator.generateCallCount >= 2)
         #expect(viewModel.textArt != nil)
     }
@@ -119,8 +230,7 @@ struct TextifyViewModelTests {
     @MainActor
     func testGenerateSetsIsGeneratingFlag() async throws {
         let mockGenerator = MockTextArtGenerator()
-        let image = Self.createTestImage()
-        let viewModel = TextifyViewModel(image: image, generator: mockGenerator)
+        let viewModel = Self.makeViewModel(generator: mockGenerator)
 
         #expect(viewModel.isGenerating == false)
 
@@ -128,14 +238,11 @@ struct TextifyViewModelTests {
             await viewModel.generate()
         }
 
-        // Should be generating while task runs
         try await Task.sleep(for: .milliseconds(10))
         #expect(viewModel.isGenerating == true)
 
-        // Wait for completion
         await task.value
 
-        // Should be done
         #expect(viewModel.isGenerating == false)
         #expect(viewModel.textArt != nil)
     }
@@ -143,10 +250,8 @@ struct TextifyViewModelTests {
     @Test("Error during generation sets error message")
     @MainActor
     func testErrorDuringGenerationSetsErrorMessage() async throws {
-        // Create a generator that throws an error
         let errorGenerator = ErrorThrowingGenerator()
-        let image = Self.createTestImage()
-        let viewModel = TextifyViewModel(image: image, generator: errorGenerator)
+        let viewModel = Self.makeViewModel(generator: errorGenerator)
 
         await viewModel.generate()
 
@@ -154,52 +259,81 @@ struct TextifyViewModelTests {
         #expect(viewModel.errorMessage != nil)
         #expect(viewModel.isGenerating == false)
     }
-}
 
-// MARK: - Error Generator for Testing
+    @Test("Copy action uses clipboard service and feedback state")
+    @MainActor
+    func testCopyActionUsesClipboardServiceAndFeedbackState() async throws {
+        let generator = MockTextArtGenerator()
+        let clipboard = MockClipboardService()
+        let viewModel = Self.makeViewModel(generator: generator, clipboard: clipboard)
+        viewModel.textArt = TextArt(
+            rows: ["@@", "##"],
+            width: 2,
+            height: 2,
+            sourceCharacters: "@#",
+            createdAt: Date()
+        )
 
-actor ErrorThrowingGenerator: TextArtGenerating {
-    func generate(
-        from image: CGImage,
-        palette: CharacterPalette,
-        options: ProcessingOptions
-    ) async throws -> TextArt {
-        throw TextArtGenerationError.generationFailed("Test error")
-    }
-}
+        viewModel.copyToClipboard()
 
-// MARK: - PaletteButton Tests
-
-/// Data model for PaletteButton state (to be implemented)
-struct PaletteButtonData: Equatable {
-    let preset: PalettePreset
-    let isSelected: Bool
-}
-
-@Suite("PaletteButton Tests")
-struct PaletteButtonTests {
-
-    @Test("PaletteButton with same preset and isSelected are equal")
-    func testPaletteButtonEquatable() {
-        let button1 = PaletteButtonData(preset: .standard, isSelected: true)
-        let button2 = PaletteButtonData(preset: .standard, isSelected: true)
-
-        #expect(button1 == button2)
+        #expect(clipboard.copiedTexts == ["@@\n##"])
+        #expect(viewModel.copied == true)
     }
 
-    @Test("PaletteButton with different isSelected are not equal")
-    func testPaletteButtonNotEqualDifferentSelected() {
-        let button1 = PaletteButtonData(preset: .standard, isSelected: true)
-        let button2 = PaletteButtonData(preset: .standard, isSelected: false)
+    @Test("Save action uses export service and feedback state")
+    @MainActor
+    func testSaveActionUsesExportServiceAndFeedbackState() async throws {
+        let generator = MockTextArtGenerator()
+        let export = MockImageExportService()
+        let viewModel = Self.makeViewModel(generator: generator, export: export)
+        viewModel.textArt = TextArt(
+            rows: ["@@", "##"],
+            width: 2,
+            height: 2,
+            sourceCharacters: "@#",
+            createdAt: Date()
+        )
 
-        #expect(button1 != button2)
+        await viewModel.saveAsImage()
+
+        #expect(await export.saveCallCount == 1)
+        #expect(viewModel.showSavedFeedback == true)
     }
 
-    @Test("PaletteButton with different preset are not equal")
-    func testPaletteButtonNotEqualDifferentPreset() {
-        let button1 = PaletteButtonData(preset: .standard, isSelected: true)
-        let button2 = PaletteButtonData(preset: .blocks, isSelected: true)
+    @Test("Copy action persists history once for identical output")
+    @MainActor
+    func testCopyActionPersistsHistoryOnceForIdenticalOutput() async throws {
+        let generator = MockTextArtGenerator()
+        let history = MockHistoryService()
+        let clipboard = MockClipboardService()
+        let viewModel = Self.makeViewModel(generator: generator, clipboard: clipboard, history: history)
 
-        #expect(button1 != button2)
+        await viewModel.generate()
+        viewModel.copyToClipboard()
+        viewModel.copyToClipboard()
+
+        try await Task.sleep(for: .milliseconds(20))
+
+        #expect(await history.addedEntries.count == 1)
+    }
+
+    @Test("Custom palette and contrast are forwarded to generator options")
+    @MainActor
+    func testCustomPaletteAndContrastAreForwarded() async throws {
+        let generator = CapturingTextArtGenerator()
+        let viewModel = Self.makeViewModel(generator: generator)
+
+        viewModel.selectPreset(.custom)
+        viewModel.updateCustomCharacters("##@@..\n##")
+        viewModel.contrastBoost = 1.7
+
+        await viewModel.generate()
+
+        let palette = await generator.lastPalette
+        let options = await generator.lastOptions
+
+        #expect(palette?.characters == Array("#@. "))
+        #expect(abs((options?.contrastBoost ?? -1) - 1.7) < 0.0001)
+        #expect(options?.outputWidth == viewModel.outputWidth)
     }
 }

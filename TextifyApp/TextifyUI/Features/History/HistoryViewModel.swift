@@ -22,7 +22,7 @@ public final class HistoryViewModel {
         do {
             entries = try await historyService.list()
         } catch {
-            self.error = .generation(underlying: error)
+            self.error = .history(underlying: error)
         }
 
         isLoading = false
@@ -33,7 +33,7 @@ public final class HistoryViewModel {
             try await historyService.delete(id: entry.id)
             entries.removeAll { $0.id == entry.id }
         } catch {
-            self.error = .generation(underlying: error)
+            self.error = .history(underlying: error)
         }
     }
 
@@ -43,7 +43,7 @@ public final class HistoryViewModel {
             entries.removeAll()
             showDeleteConfirmation = false
         } catch {
-            self.error = .generation(underlying: error)
+            self.error = .history(underlying: error)
         }
     }
 }

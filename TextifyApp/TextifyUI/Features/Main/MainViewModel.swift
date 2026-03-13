@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 import PhotosUI
 import CoreGraphics
-import TextifyKit
 
 /// 메인 화면 ViewModel
 @Observable
@@ -11,11 +10,10 @@ public final class MainViewModel {
     public var selectedImage: CGImage?
     public var isLoading = false
     public var errorMessage: String?
+    private let photoLibraryService: PhotoLibraryService
 
-    let generator: TextArtGenerator
-
-    public init(generator: TextArtGenerator) {
-        self.generator = generator
+    public init(photoLibraryService: PhotoLibraryService) {
+        self.photoLibraryService = photoLibraryService
     }
 
     public func loadImage(from item: PhotosPickerItem?) async {
@@ -25,18 +23,12 @@ public final class MainViewModel {
         errorMessage = nil
 
         do {
-            guard let data = try await item.loadTransferable(type: Data.self) else {
-                throw ImageError.loadFailed
-            }
-
-            guard let uiImage = UIImage(data: data),
-                  let cgImage = uiImage.cgImage else {
-                throw ImageError.invalidFormat
-            }
-
-            selectedImage = cgImage
+            selectedImage = try await photoLibraryService.loadImage(from: item)
+        } catch let error as PhotoLibraryError {
+            errorMessage = message(for: error)
+            selectedImage = nil
         } catch {
-            errorMessage = "이미지를 불러올 수 없습니다: \(error.localizedDescription)"
+            errorMessage = "이미지를 불러올 수 없습니다."
             selectedImage = nil
         }
 
@@ -47,18 +39,13 @@ public final class MainViewModel {
         selectedImage = nil
         errorMessage = nil
     }
-}
 
-enum ImageError: LocalizedError {
-    case loadFailed
-    case invalidFormat
-
-    var errorDescription: String? {
-        switch self {
+    private func message(for error: PhotoLibraryError) -> String {
+        switch error {
         case .loadFailed:
-            return "이미지를 불러오는데 실패했습니다"
-        case .invalidFormat:
-            return "지원하지 않는 이미지 형식입니다"
+            return "사진을 불러오지 못했습니다."
+        case .invalidImageData, .cgImageCreationFailed:
+            return "선택한 이미지를 처리할 수 없습니다."
         }
     }
 }

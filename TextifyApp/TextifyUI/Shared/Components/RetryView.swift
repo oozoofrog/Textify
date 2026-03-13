@@ -43,13 +43,13 @@ struct RetryView: View {
             // Action buttons
             VStack(spacing: 16) {
                 LoadingButton(
-                    title: "Try Again",
+                    title: "다시 시도",
                     isLoading: false,
                     action: onRetry
                 )
 
                 if let onCancel = onCancel {
-                    Button("Cancel", action: onCancel)
+                    Button("취소", action: onCancel)
                         .font(AppTheme.headlineFont)
                         .foregroundStyle(.secondary)
                 }
@@ -60,7 +60,7 @@ struct RetryView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppTheme.background)
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Error occurred")
+        .accessibilityLabel("오류가 발생했습니다")
         .accessibilityValue(error.localizedDescription)
     }
 
@@ -85,6 +85,8 @@ struct RetryView: View {
             return "exclamationmark.triangle"
         case .export:
             return "externaldrive.badge.exclamationmark"
+        case .history:
+            return "clock.arrow.circlepath"
         case .clipboard:
             return "doc.on.clipboard"
         case .fileAccess:

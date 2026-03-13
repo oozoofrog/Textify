@@ -8,11 +8,7 @@ import TextifyKit
 @MainActor
 @Observable
 public final class AppDependencies {
-    // MARK: - TextifyKit Services
-
     private let textArtGenerator: TextArtGenerator
-
-    // MARK: - App Services
 
     public let photoLibraryService: PhotoLibraryService
     public let fileImportService: FileImportService
@@ -23,10 +19,7 @@ public final class AppDependencies {
     public let hapticsService: HapticsService
 
     public init() {
-        // TextifyKit services
         self.textArtGenerator = TextArtGenerator()
-
-        // Platform services
         self.photoLibraryService = PhotoLibraryService()
         self.fileImportService = FileImportService()
         self.clipboardService = ClipboardService()
@@ -36,7 +29,9 @@ public final class AppDependencies {
         self.hapticsService = HapticsService.shared
     }
 
-    // MARK: - ViewModel Factories
+    public func makeMainViewModel() -> MainViewModel {
+        MainViewModel(photoLibraryService: photoLibraryService)
+    }
 
     public func makeHomeViewModel() -> HomeViewModel {
         HomeViewModel()
@@ -52,6 +47,25 @@ public final class AppDependencies {
 
     public func makeGenerationViewModel() -> GenerationViewModel {
         GenerationViewModel(generator: textArtGenerator)
+    }
+
+    public func makeTextifyViewModel(image: CGImage) -> TextifyViewModel {
+        TextifyViewModel(
+            image: image,
+            generator: textArtGenerator,
+            clipboardService: clipboardService,
+            exportService: imageExportService,
+            historyService: historyService,
+            hapticsService: hapticsService
+        )
+    }
+
+    public func makeHistoryDetailViewModel(entry: HistoryEntry) -> HistoryDetailViewModel {
+        HistoryDetailViewModel(
+            entry: entry,
+            clipboardService: clipboardService,
+            exportService: imageExportService
+        )
     }
 
     public func makeResultViewModel(
@@ -76,7 +90,10 @@ public final class AppDependencies {
     }
 
     public func makeSettingsViewModel() -> SettingsViewModel {
-        SettingsViewModel(appearanceService: appearanceService)
+        SettingsViewModel(
+            appearanceService: appearanceService,
+            historyService: historyService
+        )
     }
 
     public func makeHistoryViewModel() -> HistoryViewModel {

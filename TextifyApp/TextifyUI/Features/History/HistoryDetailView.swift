@@ -1,49 +1,63 @@
 import SwiftUI
-import UIKit
 
 struct HistoryDetailView: View {
-    let entry: HistoryEntry
-
-    @State private var showShareSheet = false
-    @State private var showCopyConfirmation = false
-    @State private var renderedImage: UIImage?
+    @State var viewModel: HistoryDetailViewModel
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                // Thumbnail
                 thumbnailSection
-
-                // Text art display
                 textArtSection
-
-                // Metadata
                 metadataSection
-
-                // Actions
                 actionsSection
             }
             .padding()
         }
         .background(AppTheme.background)
-        .navigationTitle("Detail")
+        .navigationTitle("상세 보기")
         .navigationBarTitleDisplayMode(.inline)
         .overlay(alignment: .top) {
-            if showCopyConfirmation {
+            if viewModel.showCopyConfirmation {
                 CopyConfirmationBanner()
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .sheet(isPresented: $showShareSheet) {
-            if let image = renderedImage {
-                ShareSheet(items: [image])
+        .sheet(
+            isPresented: Binding(
+                get: { viewModel.shareURL != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        viewModel.shareURL = nil
+                    }
+                }
+            )
+        ) {
+            if let url = viewModel.shareURL {
+                ShareSheet(items: [url])
             }
+        }
+        .alert(
+            "오류",
+            isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        viewModel.errorMessage = nil
+                    }
+                }
+            )
+        ) {
+            Button("확인", role: .cancel) {
+                viewModel.errorMessage = nil
+            }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
         }
     }
 
     private var thumbnailSection: some View {
         Group {
-            if let uiImage = UIImage(data: entry.thumbnailData) {
+            if let uiImage = UIImage(data: viewModel.entry.thumbnailData) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFit()
@@ -60,35 +74,35 @@ struct HistoryDetailView: View {
 
     private var textArtSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Text Art")
+            Text("텍스트 아트")
                 .font(AppTheme.headlineFont)
                 .foregroundStyle(.primary)
 
             ScrollView(.horizontal, showsIndicators: true) {
-                Text(entry.textArtRows.joined(separator: "\n"))
+                Text(viewModel.textArtString)
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(AppTheme.textArtForeground)
                     .padding()
                     .background(AppTheme.textArtBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
-            .accessibilityLabel("Text art output")
-            .accessibilityValue(entry.textArtRows.joined(separator: "\n"))
+            .accessibilityLabel("텍스트 아트 결과")
+            .accessibilityValue(viewModel.textArtString)
         }
     }
 
     private var metadataSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Details")
+            Text("세부 정보")
                 .font(AppTheme.headlineFont)
                 .foregroundStyle(.primary)
 
-            MetadataRow(label: "Created", value: entry.createdAt.formatted(date: .long, time: .shortened))
-            MetadataRow(label: "Dimensions", value: "\(entry.width)×\(entry.height)")
-            MetadataRow(label: "Output Width", value: "\(entry.outputWidth)")
-            MetadataRow(label: "Characters", value: entry.sourceCharacters)
-            MetadataRow(label: "Inverted", value: entry.invertBrightness ? "Yes" : "No")
-            MetadataRow(label: "Contrast", value: String(format: "%.1f", entry.contrastBoost))
+            MetadataRow(label: "생성 시각", value: viewModel.entry.createdAt.formatted(date: .long, time: .shortened))
+            MetadataRow(label: "크기", value: "\(viewModel.entry.width)×\(viewModel.entry.height)")
+            MetadataRow(label: "출력 폭", value: "\(viewModel.entry.outputWidth)")
+            MetadataRow(label: "문자 팔레트", value: viewModel.entry.sourceCharacters)
+            MetadataRow(label: "밝기 반전", value: viewModel.entry.invertBrightness ? "켜짐" : "꺼짐")
+            MetadataRow(label: "대비", value: String(format: "%.1f", viewModel.entry.contrastBoost))
         }
         .padding()
         .background(AppTheme.secondaryBackground)
@@ -98,9 +112,9 @@ struct HistoryDetailView: View {
     private var actionsSection: some View {
         VStack(spacing: 12) {
             Button {
-                copyToClipboard()
+                viewModel.copyToClipboard()
             } label: {
-                Label("Copy Text Art", systemImage: "doc.on.doc")
+                Label("텍스트 복사", systemImage: "doc.on.doc")
                     .font(AppTheme.headlineFont)
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -108,12 +122,14 @@ struct HistoryDetailView: View {
                     .foregroundStyle(.primary)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
             }
-            .accessibilityHint("Copies the text art to clipboard")
+            .accessibilityHint("텍스트 아트를 클립보드로 복사합니다")
 
             Button {
-                saveAsImage()
+                Task {
+                    await viewModel.prepareShareImage()
+                }
             } label: {
-                Label("Save as Image", systemImage: "square.and.arrow.down")
+                Label(viewModel.isPreparingShare ? "공유 준비 중…" : "이미지로 공유", systemImage: "square.and.arrow.up")
                     .font(AppTheme.headlineFont)
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -121,44 +137,11 @@ struct HistoryDetailView: View {
                     .foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadius))
             }
-            .accessibilityHint("Saves the text art as an image")
-        }
-    }
-
-    private func copyToClipboard() {
-        let textArt = entry.textArtRows.joined(separator: "\n")
-        UIPasteboard.general.string = textArt
-
-        withAnimation(AppTheme.springAnimation) {
-            showCopyConfirmation = true
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            withAnimation(AppTheme.springAnimation) {
-                showCopyConfirmation = false
-            }
-        }
-    }
-
-    private func saveAsImage() {
-        // Render text art to image
-        let textArt = entry.textArtRows.joined(separator: "\n")
-        let renderer = ImageRenderer(
-            content: Text(textArt)
-                .font(.system(size: 10, design: .monospaced))
-                .foregroundStyle(AppTheme.textArtForeground)
-                .padding()
-                .background(AppTheme.textArtBackground)
-        )
-
-        if let image = renderer.uiImage {
-            renderedImage = image
-            showShareSheet = true
+            .disabled(viewModel.isPreparingShare)
+            .accessibilityHint("텍스트 아트를 이미지 형태로 공유합니다")
         }
     }
 }
-
-// MARK: - Supporting Views
 
 private struct MetadataRow: View {
     let label: String
@@ -185,7 +168,7 @@ private struct CopyConfirmationBanner: View {
             Image(systemName: "checkmark.circle.fill")
                 .foregroundStyle(.green)
 
-            Text("Copied to clipboard")
+            Text("클립보드에 복사했어요")
                 .font(AppTheme.bodyFont)
                 .foregroundStyle(.primary)
         }
@@ -210,23 +193,27 @@ private struct ShareSheet: UIViewControllerRepresentable {
 #Preview {
     NavigationStack {
         HistoryDetailView(
-            entry: HistoryEntry(
-                id: UUID(),
-                thumbnailData: Data(),
-                textArtRows: [
-                    "@@@@@@@@@@",
-                    "@@      @@",
-                    "@@  ##  @@",
-                    "@@      @@",
-                    "@@@@@@@@@@"
-                ],
-                width: 100,
-                height: 50,
-                sourceCharacters: "@#",
-                createdAt: Date(),
-                outputWidth: 80,
-                invertBrightness: false,
-                contrastBoost: 1.2
+            viewModel: HistoryDetailViewModel(
+                entry: HistoryEntry(
+                    id: UUID(),
+                    thumbnailData: Data(),
+                    textArtRows: [
+                        "@@@@@@@@@@",
+                        "@@      @@",
+                        "@@  ##  @@",
+                        "@@      @@",
+                        "@@@@@@@@@@"
+                    ],
+                    width: 100,
+                    height: 50,
+                    sourceCharacters: "@#",
+                    createdAt: Date(),
+                    outputWidth: 80,
+                    invertBrightness: false,
+                    contrastBoost: 1.2
+                ),
+                clipboardService: ClipboardService(),
+                exportService: ImageExportService()
             )
         )
     }

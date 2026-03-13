@@ -7,6 +7,7 @@ import Observation
 @MainActor
 public final class SettingsViewModel {
     private let appearanceService: AppearanceServiceProtocol
+    private let historyService: any HistoryServiceProtocol
 
     /// The current appearance mode
     public var appearanceMode: AppearanceMode {
@@ -14,27 +15,36 @@ public final class SettingsViewModel {
         set { appearanceService.setMode(newValue) }
     }
 
-    /// Whether to show the clear history confirmation dialog
     public var showClearHistoryConfirmation = false
+    public var isClearingHistory = false
+    public var errorMessage: String?
 
-    /// Initializes the settings view model
-    /// - Parameter appearanceService: Service for managing appearance settings
-    public init(appearanceService: AppearanceServiceProtocol) {
+    public init(
+        appearanceService: AppearanceServiceProtocol,
+        historyService: any HistoryServiceProtocol
+    ) {
         self.appearanceService = appearanceService
+        self.historyService = historyService
     }
 
-    /// Shows the clear history confirmation dialog
     public func requestClearHistory() {
         showClearHistoryConfirmation = true
     }
 
-    /// Clears the app history
-    public func confirmClearHistory() {
-        // TODO: Implement history clearing when HistoryService is available
-        showClearHistoryConfirmation = false
+    public func confirmClearHistory() async {
+        isClearingHistory = true
+        errorMessage = nil
+
+        do {
+            try await historyService.clear()
+            showClearHistoryConfirmation = false
+        } catch {
+            errorMessage = "히스토리를 삭제하지 못했습니다."
+        }
+
+        isClearingHistory = false
     }
 
-    /// Cancels the clear history operation
     public func cancelClearHistory() {
         showClearHistoryConfirmation = false
     }

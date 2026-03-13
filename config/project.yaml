@@ -2,7 +2,7 @@ project_name: Textify
 optional_watchos_line: ""
 ui_framework: SwiftUI
 architecture_style: MVVM with Repository pattern
-min_ios_version: iOS 17
+min_ios_version: iOS 26
 package_manager: Swift Package Manager
 test_framework: XCTest
 lint_tools: SwiftLint, SwiftFormat

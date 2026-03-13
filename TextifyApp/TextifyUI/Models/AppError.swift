@@ -4,6 +4,7 @@ public enum AppError: LocalizedError, Sendable {
     case imageLoad(underlying: Error?)
     case generation(underlying: Error?)
     case export(underlying: Error?)
+    case history(underlying: Error?)
     case clipboard
     case fileAccess
     case timeout
@@ -21,6 +22,11 @@ public enum AppError: LocalizedError, Sendable {
                 return "텍스트 아트 생성 실패: \(error.localizedDescription)"
             }
             return "텍스트 아트를 생성할 수 없습니다"
+        case .history(let underlying):
+            if let error = underlying {
+                return "히스토리 처리 실패: \(error.localizedDescription)"
+            }
+            return "히스토리를 불러오거나 저장할 수 없습니다"
         case .export(let underlying):
             if let error = underlying {
                 return "내보내기 실패: \(error.localizedDescription)"
@@ -43,6 +49,8 @@ public enum AppError: LocalizedError, Sendable {
             return "다른 이미지를 선택해보세요. 지원되는 형식: PNG, JPEG, HEIC"
         case .generation:
             return "설정을 조정하거나 다시 시도해보세요"
+        case .history:
+            return "잠시 후 다시 시도해보세요"
         case .export:
             return "저장 위치를 확인하고 다시 시도해보세요"
         case .clipboard:
@@ -58,7 +66,7 @@ public enum AppError: LocalizedError, Sendable {
 
     public var isRetryable: Bool {
         switch self {
-        case .imageLoad, .generation, .export, .clipboard, .timeout:
+        case .imageLoad, .generation, .export, .history, .clipboard, .timeout:
             return true
         case .fileAccess, .validation:
             return false
