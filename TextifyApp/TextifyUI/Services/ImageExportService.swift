@@ -12,10 +12,12 @@ public protocol ImageExportServiceProtocol: Sendable {
 }
 
 /// Errors that can occur during image export operations
-public enum ImageExportError: Error, LocalizedError {
+public enum ImageExportError: Error, LocalizedError, Equatable {
     case renderingFailed
     case saveFailed
     case platformNotSupported
+    case permissionDenied
+    case permissionRestricted
 
     public var errorDescription: String? {
         switch self {
@@ -25,14 +27,23 @@ public enum ImageExportError: Error, LocalizedError {
             return "Failed to save the exported image"
         case .platformNotSupported:
             return "Image export is not supported on this platform"
+        case .permissionDenied:
+            return "Photo library access is denied"
+        case .permissionRestricted:
+            return "Photo library access is restricted"
         }
     }
 }
 
 /// Service for exporting text art as images
 public final class ImageExportService: ImageExportServiceProtocol, Sendable {
+    private let saveAuthorizationService: PhotoLibrarySaveAuthorizationService
 
-    public init() {}
+    public init(
+        saveAuthorizationService: PhotoLibrarySaveAuthorizationService = PhotoLibrarySaveAuthorizationService()
+    ) {
+        self.saveAuthorizationService = saveAuthorizationService
+    }
 
     /// Exports text art as a PNG image
     /// - Parameter textArt: The text art to export
@@ -49,6 +60,7 @@ public final class ImageExportService: ImageExportServiceProtocol, Sendable {
     /// - Parameter textArt: The text art to save
     public func saveToPhotos(textArt: TextArt) async throws {
         #if canImport(UIKit)
+        try await saveAuthorizationService.ensureAuthorized()
         let url = try await renderToImage(textArt: textArt)
         let data = try Data(contentsOf: url)
         guard let image = UIImage(data: data) else {

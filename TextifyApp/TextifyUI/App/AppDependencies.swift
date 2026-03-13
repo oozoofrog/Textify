@@ -11,6 +11,7 @@ public final class AppDependencies {
     private let textArtGenerator: TextArtGenerator
 
     public let photoLibraryService: PhotoLibraryService
+    public let photoLibraryAuthorizationService: PhotoLibraryAuthorizationService
     public let clipboardService: ClipboardService
     public let imageExportService: ImageExportService
     public let appearanceService: AppearanceService
@@ -21,8 +22,13 @@ public final class AppDependencies {
     public init() {
         self.textArtGenerator = TextArtGenerator()
         self.photoLibraryService = PhotoLibraryService()
+        self.photoLibraryAuthorizationService = PhotoLibraryAuthorizationService()
         self.clipboardService = ClipboardService()
-        self.imageExportService = ImageExportService()
+        self.imageExportService = ImageExportService(
+            saveAuthorizationService: PhotoLibrarySaveAuthorizationService(
+                authorizer: photoLibraryAuthorizationService
+            )
+        )
         self.appearanceService = AppearanceService()
         self.historyService = HistoryService()
         self.textArtHistoryRecorder = TextArtHistoryRecorder(historyService: historyService)
@@ -55,7 +61,8 @@ public final class AppDependencies {
     public func makeSettingsViewModel() -> SettingsViewModel {
         SettingsViewModel(
             appearanceService: appearanceService,
-            historyService: historyService
+            historyService: historyService,
+            photoLibrarySaveAuthorizer: photoLibraryAuthorizationService
         )
     }
 

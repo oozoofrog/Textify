@@ -9,9 +9,9 @@ public enum AppearanceMode: String, Codable, Sendable, CaseIterable {
 
     public var displayName: String {
         switch self {
-        case .system: return "System"
-        case .light: return "Light"
-        case .dark: return "Dark"
+        case .system: return "시스템"
+        case .light: return "라이트"
+        case .dark: return "다크"
         }
     }
 

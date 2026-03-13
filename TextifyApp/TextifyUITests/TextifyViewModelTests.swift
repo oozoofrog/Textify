@@ -99,6 +99,22 @@ actor MockImageExportService: ImageExportServiceProtocol {
     }
 }
 
+actor FailingImageExportService: ImageExportServiceProtocol {
+    private let error: Error
+
+    init(error: Error) {
+        self.error = error
+    }
+
+    func exportAsImage(textArt: TextArt) async throws -> URL {
+        throw error
+    }
+
+    func saveToPhotos(textArt: TextArt) async throws {
+        throw error
+    }
+}
+
 actor MockHistoryService: HistoryServiceProtocol {
     private(set) var addedEntries: [HistoryEntry] = []
     private(set) var clearCallCount = 0
@@ -343,5 +359,59 @@ struct TextifyViewModelTests {
         #expect(palette?.characters == Array("#@. "))
         #expect(abs((options?.contrastBoost ?? -1) - 1.7) < 0.0001)
         #expect(options?.outputWidth == viewModel.outputWidth)
+    }
+
+    @Test("Save permission denied exposes settings recovery action")
+    @MainActor
+    func testSavePermissionDeniedExposesSettingsRecoveryAction() async throws {
+        let generator = MockTextArtGenerator()
+        let export = FailingImageExportService(error: ImageExportError.permissionDenied)
+        let viewModel = TextifyViewModel(
+            image: Self.createTestImage(),
+            generator: generator,
+            clipboardService: MockClipboardService(),
+            exportService: export,
+            historyRecorder: MockHistoryRecorder(),
+            hapticsService: MockHapticsService()
+        )
+        viewModel.textArt = TextArt(
+            rows: ["@@", "##"],
+            width: 2,
+            height: 2,
+            sourceCharacters: "@#",
+            createdAt: Date()
+        )
+
+        await viewModel.saveAsImage()
+
+        #expect(viewModel.errorMessage == "사진 보관함 접근이 거부되어 저장할 수 없습니다. 설정에서 사진 접근을 허용해 주세요.")
+        #expect(viewModel.errorAction == .openSettings)
+    }
+
+    @Test("Save permission restricted shows non-settings error")
+    @MainActor
+    func testSavePermissionRestrictedShowsInlineError() async throws {
+        let generator = MockTextArtGenerator()
+        let export = FailingImageExportService(error: ImageExportError.permissionRestricted)
+        let viewModel = TextifyViewModel(
+            image: Self.createTestImage(),
+            generator: generator,
+            clipboardService: MockClipboardService(),
+            exportService: export,
+            historyRecorder: MockHistoryRecorder(),
+            hapticsService: MockHapticsService()
+        )
+        viewModel.textArt = TextArt(
+            rows: ["@@", "##"],
+            width: 2,
+            height: 2,
+            sourceCharacters: "@#",
+            createdAt: Date()
+        )
+
+        await viewModel.saveAsImage()
+
+        #expect(viewModel.errorMessage == "이 기기에서는 사진 보관함 저장이 제한되어 있습니다.")
+        #expect(viewModel.errorAction == nil)
     }
 }

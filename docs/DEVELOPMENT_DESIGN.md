@@ -40,6 +40,7 @@ Textify는 **오프라인 ASCII 텍스트 아트 생성 앱**이며, 이번 단�
 ### 2.3 Service / Repository 경계
 이번 단계의 핵심 서비스:
 - `PhotoLibraryService`
+- `PhotoLibrarySaveAuthorizationService`
 - `ClipboardService`
 - `ImageExportService`
 - `HistoryService`
@@ -76,6 +77,7 @@ Textify는 **오프라인 ASCII 텍스트 아트 생성 앱**이며, 이번 단�
   - `AppDependencies`
     - `TextArtGenerator`
     - `PhotoLibraryService`
+    - `PhotoLibraryAuthorizationService`
     - `ClipboardService`
     - `ImageExportService`
     - `HistoryService`
@@ -160,11 +162,13 @@ Textify는 **오프라인 ASCII 텍스트 아트 생성 앱**이며, 이번 단�
 
 ### 역할
 - 외형 모드 변경
+- 사진 저장 권한 상태 표시 및 설정 복귀 후 재확인
 - 히스토리 삭제
 
 ### 의존성
 - `AppearanceServiceProtocol`
 - `HistoryServiceProtocol`
+- `PhotoLibrarySaveAuthorizing`
 
 ---
 
@@ -177,8 +181,10 @@ Textify는 **오프라인 ASCII 텍스트 아트 생성 앱**이며, 이번 단�
 ### 5.2 추가 테스트
 - 복사 액션이 클립보드 서비스 호출 및 피드백 상태 반영
 - 저장 액션이 export 서비스 호출 및 피드백 상태 반영
+- 저장 권한 거부/제한 상태가 올바른 안내 메시지로 매핑
 - 성공한 생성 결과가 중복 없이 히스토리에 저장
 - 설정의 히스토리 삭제 동작
+- 설정 화면의 사진 저장 권한 상태 갱신
 
 ### 5.3 테스트 원칙
 - Swift Testing 사용
@@ -212,6 +218,7 @@ Textify는 **오프라인 ASCII 텍스트 아트 생성 앱**이며, 이번 단�
 - 생성 성공/실패
 - 옵션 변경 반영
 - 복사/저장 피드백
+- 저장 권한 거부/제한 상태 안내
 - 히스토리 추가/삭제/전체 삭제
 
 ---
@@ -224,4 +231,3 @@ Textify는 **오프라인 ASCII 텍스트 아트 생성 앱**이며, 이번 단�
 - `TextifyKit` 알고리즘 자체 대개편
 
 이번 단계는 **제품 정의와 핵심 UX를 다시 잠그고, 현행 코어 위에서 안전하게 MVP를 다듬는 것**에 집중한다.
-

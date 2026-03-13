@@ -49,6 +49,7 @@
 		8F63EDE337643ABA300D321C /* HistoryDetailViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7415076EA20200C09E33DB68 /* HistoryDetailViewModelTests.swift */; };
 		9383B5FD5DB0C6CFBB30E8C6 /* GrayscalePixelBufferTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8581F73EC6CB9C6ADF126196 /* GrayscalePixelBufferTests.swift */; };
 		93B3C79B9A50571C2D06D32F /* TextifyKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7C8078A590BF227C0871E3 /* TextifyKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9653505DE93CE063EFD014DC /* PhotoLibrarySaveAuthorizationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E511AFAB36A6034E47CC0F7 /* PhotoLibrarySaveAuthorizationServiceTests.swift */; };
 		98ED36C9F7C31B0B11E75C36 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 951821478EF7B16A0F4F01E3 /* SettingsViewModel.swift */; };
 		9B1CEDFBA2690CA519E0DC8F /* TextifyUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8995EBF35368AAAD879961C5 /* TextifyUI.framework */; };
 		9CEC3816FD417E07F9C7A1C4 /* GenerationTaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1505D01B0A2D28BDBE35F2 /* GenerationTaskManager.swift */; };
@@ -65,6 +66,7 @@
 		C592CD5F79E154B778F434B9 /* TextifyKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82E6F6E43E844BE537E9E2D /* TextifyKitTests.swift */; };
 		C5D98EDD440C512509697C40 /* TextifyUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8995EBF35368AAAD879961C5 /* TextifyUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C6775AF535A771C7C9135C01 /* CharacterMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEC7109426FBA9644E36C2 /* CharacterMapper.swift */; };
+		CCB86218AA9CAFFAC5E09351 /* PhotoLibrarySaveAuthorizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5559274068B2F0FD73FD6206 /* PhotoLibrarySaveAuthorizationService.swift */; };
 		D432B09CA311680D55F4D2CD /* LoadingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9653FDB8A4B5F834C3A1A0 /* LoadingButton.swift */; };
 		D4ADFF8AF92F9A6CEA83BF73 /* TextifyKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7C8078A590BF227C0871E3 /* TextifyKit.framework */; };
 		D69C7B082FFD33F5F3CF7603 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FAC5722EA04EC5B1BF2C27E /* HapticsService.swift */; };
@@ -171,6 +173,7 @@
 /* Begin PBXFileReference section */
 		09E2EBCA4AE223C0FFD125A2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0AC08B5CB686E3ACBD9D8C99 /* ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
+		0E511AFAB36A6034E47CC0F7 /* PhotoLibrarySaveAuthorizationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibrarySaveAuthorizationServiceTests.swift; sourceTree = "<group>"; };
 		0FD65EBEF36830EE68978596 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
 		186E7EBBE057CA88D8267C2C /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
 		1AD1DA18B6504D4D4EB0002B /* ClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardService.swift; sourceTree = "<group>"; };
@@ -195,6 +198,7 @@
 		4F8E43D4026B00DC2C4B7845 /* VisualPalettePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualPalettePicker.swift; sourceTree = "<group>"; };
 		517BE47F884F74094A5A64DF /* ErrorBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorBanner.swift; sourceTree = "<group>"; };
 		531C2362A1851484ACB88E79 /* AppearanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceService.swift; sourceTree = "<group>"; };
+		5559274068B2F0FD73FD6206 /* PhotoLibrarySaveAuthorizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibrarySaveAuthorizationService.swift; sourceTree = "<group>"; };
 		570501EC17F9701FA3F44EBA /* TextifyKitTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TextifyKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B03DB97AE00943CF3E5F1CA /* CharacterMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterMapperTests.swift; sourceTree = "<group>"; };
 		5B134CD45B93EB6A3E62158C /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelTests.swift; sourceTree = "<group>"; };
@@ -437,6 +441,7 @@
 				7FAC5722EA04EC5B1BF2C27E /* HapticsService.swift */,
 				C683A0217CAA60CB0A14357F /* HistoryService.swift */,
 				F00CDD46C7D1D1C241CB86E5 /* ImageExportService.swift */,
+				5559274068B2F0FD73FD6206 /* PhotoLibrarySaveAuthorizationService.swift */,
 				3C3466B68372B0726AC55BF2 /* PhotoLibraryService.swift */,
 				B301C13120E2813A47C1ABB9 /* TextArtHistoryRecorder.swift */,
 			);
@@ -575,6 +580,7 @@
 			isa = PBXGroup;
 			children = (
 				7415076EA20200C09E33DB68 /* HistoryDetailViewModelTests.swift */,
+				0E511AFAB36A6034E47CC0F7 /* PhotoLibrarySaveAuthorizationServiceTests.swift */,
 				5B134CD45B93EB6A3E62158C /* SettingsViewModelTests.swift */,
 				C852E60D3D02B93D5C491735 /* TextArtHistoryRecorderTests.swift */,
 				1E020444B0D87351993A0B4F /* TextifyUITests.swift */,
@@ -770,6 +776,7 @@
 				D432B09CA311680D55F4D2CD /* LoadingButton.swift in Sources */,
 				B420347575D926102EB18F27 /* MainView.swift in Sources */,
 				53FF1EF872EE01FA730FB5ED /* MainViewModel.swift in Sources */,
+				CCB86218AA9CAFFAC5E09351 /* PhotoLibrarySaveAuthorizationService.swift in Sources */,
 				3B98A71744DF1D3D5708BF27 /* PhotoLibraryService.swift in Sources */,
 				202103AD19153AF21BBD3608 /* PreviewPanel.swift in Sources */,
 				6CF94FE61BB2C2EE5680FE4F /* RetryView.swift in Sources */,
@@ -819,6 +826,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8F63EDE337643ABA300D321C /* HistoryDetailViewModelTests.swift in Sources */,
+				9653505DE93CE063EFD014DC /* PhotoLibrarySaveAuthorizationServiceTests.swift in Sources */,
 				F5FBF13B89AEF748AEC25144 /* SettingsViewModelTests.swift in Sources */,
 				18FBA6EFD22C579E0A9403F2 /* TextArtHistoryRecorderTests.swift in Sources */,
 				59BA2270492583A74BBFB3E3 /* TextifyUITests.swift in Sources */,

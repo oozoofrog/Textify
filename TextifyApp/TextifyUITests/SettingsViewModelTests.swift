@@ -32,6 +32,18 @@ final class AppearanceServiceFake: AppearanceServiceProtocol {
     }
 }
 
+struct PhotoLibrarySaveAuthorizerFake: PhotoLibrarySaveAuthorizing {
+    let status: PhotoLibrarySaveAuthorizationStatus
+
+    func currentStatus() -> PhotoLibrarySaveAuthorizationStatus {
+        status
+    }
+
+    func requestAuthorization() async -> PhotoLibrarySaveAuthorizationStatus {
+        status
+    }
+}
+
 @Suite("SettingsViewModel Tests")
 struct SettingsViewModelTests {
 
@@ -42,7 +54,8 @@ struct SettingsViewModelTests {
         let appearance = AppearanceServiceFake()
         let viewModel = SettingsViewModel(
             appearanceService: appearance,
-            historyService: history
+            historyService: history,
+            photoLibrarySaveAuthorizer: PhotoLibrarySaveAuthorizerFake(status: .authorized)
         )
 
         viewModel.requestClearHistory()
@@ -61,12 +74,32 @@ struct SettingsViewModelTests {
         let appearance = AppearanceServiceFake()
         let viewModel = SettingsViewModel(
             appearanceService: appearance,
-            historyService: history
+            historyService: history,
+            photoLibrarySaveAuthorizer: PhotoLibrarySaveAuthorizerFake(status: .authorized)
         )
 
         viewModel.requestClearHistory()
         await viewModel.confirmClearHistory()
 
         #expect(viewModel.errorMessage != nil)
+    }
+
+    @Test("Refresh photo save permission exposes denied guidance")
+    @MainActor
+    func testRefreshPhotoSavePermissionDenied() async throws {
+        let history = SettingsHistoryServiceMock()
+        let appearance = AppearanceServiceFake()
+        let viewModel = SettingsViewModel(
+            appearanceService: appearance,
+            historyService: history,
+            photoLibrarySaveAuthorizer: PhotoLibrarySaveAuthorizerFake(status: .denied)
+        )
+
+        await viewModel.refreshPhotoSavePermission()
+
+        #expect(viewModel.photoSaveAuthorizationStatus == .denied)
+        #expect(viewModel.photoPermissionTitle == "거부됨")
+        #expect(viewModel.recommendsOpeningSettings == true)
+        #expect(viewModel.photoPermissionGuidance.contains("설정"))
     }
 }

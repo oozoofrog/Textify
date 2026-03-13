@@ -78,6 +78,10 @@ public enum PalettePreset: String, CaseIterable, Sendable {
     }
 }
 
+public enum TextifyErrorAction: Sendable, Equatable {
+    case openSettings
+}
+
 /// 텍스티파이 화면 ViewModel
 @Observable
 @MainActor
@@ -96,6 +100,7 @@ public final class TextifyViewModel {
     public var isGenerating = false
     public var isSavingImage = false
     public var errorMessage: String?
+    public var errorAction: TextifyErrorAction?
     public var copied = false
     public var showSavedFeedback = false
     public var shouldAnimateNextResult = false
@@ -214,6 +219,11 @@ public final class TextifyViewModel {
         taskManager.cancel()
     }
 
+    public func dismissError() {
+        errorMessage = nil
+        errorAction = nil
+    }
+
     public func generateFinal() {
         Task {
             await finalDebouncer.debounce { [weak self] in
@@ -227,7 +237,7 @@ public final class TextifyViewModel {
         let requestID = generationRequestID
 
         isGenerating = true
-        errorMessage = nil
+        dismissError()
 
         let characters = resolvedCharacters
         let width = outputWidth
@@ -268,7 +278,7 @@ public final class TextifyViewModel {
             } catch {
                 await MainActor.run {
                     guard requestID == self.generationRequestID else { return }
-                    self.errorMessage = "변환에 실패했습니다. 다시 시도해 주세요."
+                    self.presentError("변환에 실패했습니다. 다시 시도해 주세요.")
                     self.isGenerating = false
                 }
                 logger.error("Text art generation failed: \(String(describing: error), privacy: .public)")
@@ -295,7 +305,7 @@ public final class TextifyViewModel {
             }
             resetCopiedFeedback()
         } catch {
-            errorMessage = "결과를 복사하지 못했습니다."
+            presentError("결과를 복사하지 못했습니다.")
             hapticsService.notification(type: .error)
             logger.error("Copy to clipboard failed: \(String(describing: error), privacy: .public)")
         }
@@ -305,7 +315,7 @@ public final class TextifyViewModel {
         guard let textArt else { return }
 
         isSavingImage = true
-        errorMessage = nil
+        dismissError()
 
         do {
             try await exportService.saveToPhotos(textArt: textArt)
@@ -314,7 +324,8 @@ public final class TextifyViewModel {
             hapticsService.notification(type: .success)
             resetSavedFeedback()
         } catch {
-            errorMessage = "이미지 저장에 실패했습니다."
+            let presentation = saveErrorPresentation(for: error)
+            presentError(presentation.message, action: presentation.action)
             hapticsService.notification(type: .error)
             logger.error("Save image failed: \(String(describing: error), privacy: .public)")
         }
@@ -371,7 +382,7 @@ public final class TextifyViewModel {
 
                 await MainActor.run {
                     self.textArt = result
-                    self.errorMessage = nil
+                    self.dismissError()
                 }
             } catch is CancellationError {
                 // Ignore stale previews.
@@ -427,6 +438,28 @@ public final class TextifyViewModel {
             await MainActor.run {
                 self.showSavedFeedback = false
             }
+        }
+    }
+
+    private func presentError(_ message: String, action: TextifyErrorAction? = nil) {
+        errorMessage = message
+        errorAction = action
+    }
+
+    private func saveErrorPresentation(for error: Error) -> (message: String, action: TextifyErrorAction?) {
+        guard let exportError = error as? ImageExportError else {
+            return ("이미지 저장에 실패했습니다.", nil)
+        }
+
+        switch exportError {
+        case .permissionDenied:
+            return ("사진 보관함 접근이 거부되어 저장할 수 없습니다. 설정에서 사진 접근을 허용해 주세요.", .openSettings)
+        case .permissionRestricted:
+            return ("이 기기에서는 사진 보관함 저장이 제한되어 있습니다.", nil)
+        case .renderingFailed:
+            return ("저장용 이미지를 만드는 데 실패했습니다.", nil)
+        case .saveFailed, .platformNotSupported:
+            return ("이미지 저장에 실패했습니다.", nil)
         }
     }
 }

@@ -1,8 +1,13 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct SettingsView: View {
     @State var viewModel: SettingsViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationStack {
@@ -34,19 +39,51 @@ struct SettingsView: View {
                     .accessibilityLabel("앱 버전 \(appVersion)")
 
                     if let githubURL = URL(string: "https://github.com/oozoofrog/Textify") {
-                        Link(destination: githubURL) {
-                            HStack {
-                                Label("GitHub", systemImage: "link")
-                                Spacer()
-                                Image(systemName: "arrow.up.forward")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
+                        linkRow(
+                            title: "GitHub",
+                            systemImage: "link",
+                            url: githubURL
+                        )
                         .accessibilityLabel("GitHub 저장소 열기")
+                    }
+
+                    if let feedbackURL = URL(string: "https://github.com/oozoofrog/Textify/issues") {
+                        linkRow(
+                            title: "피드백 및 문제 제보",
+                            systemImage: "bubble.left.and.exclamationmark.bubble.right",
+                            url: feedbackURL
+                        )
                     }
                 } header: {
                     Text("정보")
+                }
+
+                Section {
+                    LabeledContent("사진 저장 권한", value: viewModel.photoPermissionTitle)
+                        .accessibilityElement(children: .combine)
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("선택한 사진은 서버로 업로드하지 않고 기기 안에서 변환합니다.", systemImage: "lock.shield")
+                        Label("이미지 저장은 사용자가 저장 버튼을 눌렀을 때만 사진 앱에 기록합니다.", systemImage: "photo.on.rectangle")
+                        Label(viewModel.photoPermissionGuidance, systemImage: "gearshape.2")
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+                    .padding(.vertical, 4)
+
+                    Button {
+                        openAppSettings()
+                    } label: {
+                        Label(
+                            viewModel.recommendsOpeningSettings ? "설정에서 권한 변경" : "앱 설정 열기",
+                            systemImage: "gear"
+                        )
+                    }
+                    .accessibilityHint("iPhone 설정에서 Textify 권한을 조정합니다")
+                } header: {
+                    Text("개인정보 및 권한")
+                } footer: {
+                    Text("Textify는 사진 접근과 저장 외에 별도의 계정이나 서버 연결을 요구하지 않습니다.")
                 }
 
                 Section {
@@ -71,6 +108,15 @@ struct SettingsView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("설정")
             .navigationBarTitleDisplayMode(.inline)
+            .task {
+                await viewModel.refreshPhotoSavePermission()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                guard newPhase == .active else { return }
+                Task {
+                    await viewModel.refreshPhotoSavePermission()
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("완료") {
@@ -119,13 +165,34 @@ struct SettingsView: View {
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
         return "\(version) (\(build))"
     }
+
+    @ViewBuilder
+    private func linkRow(title: String, systemImage: String, url: URL) -> some View {
+        Link(destination: url) {
+            HStack {
+                Label(title, systemImage: systemImage)
+                Spacer()
+                Image(systemName: "arrow.up.forward")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func openAppSettings() {
+        #if canImport(UIKit)
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        openURL(url)
+        #endif
+    }
 }
 
 #Preview("Settings View") {
     SettingsView(
         viewModel: SettingsViewModel(
             appearanceService: AppearanceService(),
-            historyService: HistoryService()
+            historyService: HistoryService(),
+            photoLibrarySaveAuthorizer: PhotoLibraryAuthorizationService()
         )
     )
 }

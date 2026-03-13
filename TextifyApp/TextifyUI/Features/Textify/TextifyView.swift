@@ -1,11 +1,15 @@
 import SwiftUI
 import CoreGraphics
 import TextifyKit
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// 텍스티파이 화면 - 결과 중심 작업공간
 public struct TextifyView: View {
     @State var viewModel: TextifyViewModel
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(\.openURL) private var openURL
 
     @State private var comparisonMode: ComparisonMode = .split
     @State private var comparisonReveal: CGFloat = 0.5
@@ -87,6 +91,30 @@ public struct TextifyView: View {
         .onDisappear {
             viewModel.cancelGeneration()
         }
+        .alert(
+            "오류",
+            isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        viewModel.dismissError()
+                    }
+                }
+            )
+        ) {
+            if viewModel.errorAction == .openSettings {
+                Button("설정 열기") {
+                    openAppSettings()
+                    viewModel.dismissError()
+                }
+            }
+
+            Button("확인", role: .cancel) {
+                viewModel.dismissError()
+            }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
     }
 
     private var sourcePreviewSection: some View {
@@ -121,6 +149,11 @@ public struct TextifyView: View {
                 Text("원본과 ASCII 결과를 번갈아 보거나 슬라이더로 비교하면서, 팔레트·폭·대비를 빠르게 조정하세요.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("저장은 사용자가 요청할 때만 사진 앱에 기록됩니다.")
+                    .font(.footnote)
+                    .foregroundStyle(.tertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -579,6 +612,13 @@ public struct TextifyView: View {
                 }
             }
         }
+    }
+
+    private func openAppSettings() {
+        #if canImport(UIKit)
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        openURL(url)
+        #endif
     }
 }
 

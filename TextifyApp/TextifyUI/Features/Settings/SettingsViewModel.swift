@@ -8,6 +8,7 @@ import Observation
 public final class SettingsViewModel {
     private let appearanceService: AppearanceServiceProtocol
     private let historyService: any HistoryServiceProtocol
+    private let photoLibrarySaveAuthorizer: any PhotoLibrarySaveAuthorizing
 
     /// The current appearance mode
     public var appearanceMode: AppearanceMode {
@@ -15,16 +16,19 @@ public final class SettingsViewModel {
         set { appearanceService.setMode(newValue) }
     }
 
+    public private(set) var photoSaveAuthorizationStatus: PhotoLibrarySaveAuthorizationStatus = .notDetermined
     public var showClearHistoryConfirmation = false
     public var isClearingHistory = false
     public var errorMessage: String?
 
     public init(
         appearanceService: AppearanceServiceProtocol,
-        historyService: any HistoryServiceProtocol
+        historyService: any HistoryServiceProtocol,
+        photoLibrarySaveAuthorizer: any PhotoLibrarySaveAuthorizing
     ) {
         self.appearanceService = appearanceService
         self.historyService = historyService
+        self.photoLibrarySaveAuthorizer = photoLibrarySaveAuthorizer
     }
 
     public func requestClearHistory() {
@@ -47,5 +51,21 @@ public final class SettingsViewModel {
 
     public func cancelClearHistory() {
         showClearHistoryConfirmation = false
+    }
+
+    public func refreshPhotoSavePermission() async {
+        photoSaveAuthorizationStatus = photoLibrarySaveAuthorizer.currentStatus()
+    }
+
+    public var photoPermissionTitle: String {
+        photoSaveAuthorizationStatus.displayName
+    }
+
+    public var photoPermissionGuidance: String {
+        photoSaveAuthorizationStatus.guidance
+    }
+
+    public var recommendsOpeningSettings: Bool {
+        photoSaveAuthorizationStatus.recommendsOpeningSettings
     }
 }

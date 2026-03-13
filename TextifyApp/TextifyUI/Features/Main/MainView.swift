@@ -129,17 +129,23 @@ public struct MainView: View {
             selection: $selectedPhotoItem,
             matching: .images
         ) {
-            HStack(spacing: 12) {
-                if isLoading {
-                    ProgressView()
-                        .tint(.white)
-                } else {
-                    Image(systemName: "photo.fill")
-                        .font(.title3)
+            VStack(spacing: 8) {
+                HStack(spacing: 12) {
+                    if isLoading {
+                        ProgressView()
+                            .tint(.white)
+                    } else {
+                        Image(systemName: "photo.fill")
+                            .font(.title3)
+                    }
+
+                    Text(isLoading ? "이미지 불러오는 중…" : "사진 선택하고 시작하기")
+                        .font(.title3.weight(.bold))
                 }
 
-                Text(isLoading ? "이미지 불러오는 중…" : "사진 선택하고 시작하기")
-                    .font(.title3.weight(.bold))
+                Text("선택한 사진은 기기 안에서만 처리됩니다.")
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.88))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 18)
