@@ -8,6 +8,7 @@ public struct TextifyView: View {
     @Environment(AppDependencies.self) private var dependencies
 
     @State private var comparisonMode: ComparisonMode = .split
+    @State private var comparisonReveal: CGFloat = 0.5
     @State private var showOptions = false
     @State private var showFocusMode = false
     @State private var showHistory = false
@@ -117,7 +118,7 @@ public struct TextifyView: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Text("원본과 ASCII 결과를 번갈아 보거나 나란히 비교하면서, 팔레트·폭·대비를 빠르게 조정하세요.")
+                Text("원본과 ASCII 결과를 번갈아 보거나 슬라이더로 비교하면서, 팔레트·폭·대비를 빠르게 조정하세요.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -135,17 +136,7 @@ public struct TextifyView: View {
         case .ascii:
             asciiPreviewCard(height: 220)
         case .split:
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    sourceImagePreviewCard(height: 200)
-                    asciiPreviewCard(height: 200)
-                }
-
-                VStack(spacing: 12) {
-                    sourceImagePreviewCard(height: 180)
-                    asciiPreviewCard(height: 180)
-                }
-            }
+            comparisonSliderCard(height: 240)
         }
     }
 
@@ -178,6 +169,155 @@ public struct TextifyView: View {
             .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func comparisonSliderCard(height: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("슬라이더 비교")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("\(Int((comparisonReveal * 100).rounded()))%")
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
+
+            GeometryReader { proxy in
+                let width = proxy.size.width
+                let height = proxy.size.height
+                let revealX = width * comparisonReveal
+
+                ZStack(alignment: .leading) {
+                    comparisonSourceLayer(height: height)
+
+                    comparisonASCIILayer(height: height)
+                        .frame(width: max(revealX, 0), alignment: .leading)
+                        .clipped()
+
+                    comparisonSliderDivider(x: revealX, height: height)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(.white.opacity(0.16), lineWidth: 1)
+                )
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { value in
+                            let nextValue = value.location.x / max(width, 1)
+                            comparisonReveal = min(max(nextValue, 0), 1)
+                        }
+                )
+            }
+            .frame(height: height)
+
+            HStack(spacing: 12) {
+                Text("원본")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Slider(
+                    value: Binding(
+                        get: { Double(comparisonReveal) },
+                        set: { comparisonReveal = CGFloat($0) }
+                    ),
+                    in: 0...1
+                )
+
+                Text("ASCII")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Text("미리보기 위를 좌우로 드래그하거나 슬라이더를 움직여 차이를 확인하세요.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func comparisonSourceLayer(height: CGFloat) -> some View {
+        ZStack(alignment: .topLeading) {
+            Color.black.opacity(0.04)
+
+            Image(decorative: viewModel.image, scale: 1.0)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(maxWidth: .infinity, maxHeight: height)
+                .clipped()
+
+            comparisonCornerBadge(title: "원본", trailing: false)
+        }
+    }
+
+    private func comparisonASCIILayer(height: CGFloat) -> some View {
+        ZStack(alignment: .topLeading) {
+            AppTheme.textArtBackground
+
+            if viewModel.isGenerating && viewModel.textArt == nil {
+                VStack(spacing: 8) {
+                    ProgressView()
+                        .tint(AppTheme.textArtForeground)
+                    Text("생성 중…")
+                        .font(.caption.monospaced())
+                        .foregroundStyle(AppTheme.textArtForeground.opacity(0.85))
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let textArt = viewModel.textArt?.asString, !textArt.isEmpty {
+                Text(textArt)
+                    .font(.system(size: 4, design: .monospaced))
+                    .foregroundStyle(AppTheme.textArtForeground)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .padding(12)
+                    .clipped()
+            } else {
+                VStack(spacing: 8) {
+                    Image(systemName: "text.below.photo")
+                        .font(.title2)
+                        .foregroundStyle(AppTheme.textArtForeground.opacity(0.6))
+                    Text("결과 대기 중")
+                        .font(.caption.monospaced())
+                        .foregroundStyle(AppTheme.textArtForeground.opacity(0.75))
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+
+            comparisonCornerBadge(title: "ASCII", trailing: true)
+        }
+    }
+
+    private func comparisonSliderDivider(x: CGFloat, height: CGFloat) -> some View {
+        ZStack {
+            Rectangle()
+                .fill(.white.opacity(0.95))
+                .frame(width: 2, height: height)
+
+            Circle()
+                .fill(.ultraThinMaterial)
+                .frame(width: 34, height: 34)
+                .overlay {
+                    Image(systemName: "arrow.left.and.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.primary)
+                }
+                .shadow(color: .black.opacity(0.18), radius: 10, x: 0, y: 4)
+        }
+        .offset(x: x - 17)
+        .frame(maxHeight: .infinity, alignment: .center)
+    }
+
+    private func comparisonCornerBadge(title: String, trailing: Bool) -> some View {
+        HStack {
+            if trailing { Spacer() }
+            Text(title)
+                .font(.caption2.weight(.bold))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(.ultraThinMaterial, in: Capsule())
+            if !trailing { Spacer() }
+        }
+        .padding(10)
     }
 
     private var resultSection: some View {
