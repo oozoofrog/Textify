@@ -17,6 +17,7 @@
 		0FC11AB1AA2A4D63830C389F /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 032DE58270DAA402580D11DC /* ResultView.swift */; };
 		0FD12B29C13791199C56CE50 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6652D5957E1D249573D36276 /* HistoryViewModel.swift */; };
 		15FB4DB34A4B273762DE253D /* TextArtTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82F547E0BE712E189DC5AB2 /* TextArtTests.swift */; };
+		18FBA6EFD22C579E0A9403F2 /* TextArtHistoryRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C852E60D3D02B93D5C491735 /* TextArtHistoryRecorderTests.swift */; };
 		19A4BBBE187D0A0944E2AC61 /* TextifyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2626B013FF9449C6B3EC7FA9 /* TextifyViewModel.swift */; };
 		1AA667BDE502380C35762571 /* TextArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A3F0F8A2FF448FE145F2E /* TextArt.swift */; };
 		1B77023C500C81BB309B98EE /* TextifyKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7C8078A590BF227C0871E3 /* TextifyKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -29,6 +30,7 @@
 		3B98A71744DF1D3D5708BF27 /* PhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3466B68372B0726AC55BF2 /* PhotoLibraryService.swift */; };
 		3E3E07C0351A059E52CDBCDA /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD65EBEF36830EE68978596 /* GlassCard.swift */; };
 		3EFFC758FEACED8358303B4E /* ThrottleDebounce.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F42553B585316DD18D63C39 /* ThrottleDebounce.swift */; };
+		40512D3A3D009E038136138A /* TextArtHistoryRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B301C13120E2813A47C1ABB9 /* TextArtHistoryRecorder.swift */; };
 		413A8DDCD4A849389D86CC19 /* FocusModeOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7D167E46B5B6F70BD689CA /* FocusModeOverlay.swift */; };
 		432406853AF77211AE52FBF9 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186E7EBBE057CA88D8267C2C /* AppDependencies.swift */; };
 		46BF582D0BF63E99EF651325 /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC08B5CB686E3ACBD9D8C99 /* ImageProcessor.swift */; };
@@ -238,11 +240,13 @@
 		A7C0C9BB7AB93DDDC9290338 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		A7EF064B38F26E6C561BCE41 /* TextArtGenerating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArtGenerating.swift; sourceTree = "<group>"; };
 		AFDBB778A6F1FC44E421D08D /* TextInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputView.swift; sourceTree = "<group>"; };
+		B301C13120E2813A47C1ABB9 /* TextArtHistoryRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArtHistoryRecorder.swift; sourceTree = "<group>"; };
 		BA1505D01B0A2D28BDBE35F2 /* GenerationTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationTaskManager.swift; sourceTree = "<group>"; };
 		BC98DBAE3B78FDB36AB9767B /* ImageSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSelectionView.swift; sourceTree = "<group>"; };
 		BCF77F80F5AEE31ADE1A7E47 /* TextArtGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArtGenerator.swift; sourceTree = "<group>"; };
 		C4DBAD51AA7583D72F0DC4CF /* TextifyUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextifyUI.swift; sourceTree = "<group>"; };
 		C683A0217CAA60CB0A14357F /* HistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryService.swift; sourceTree = "<group>"; };
+		C852E60D3D02B93D5C491735 /* TextArtHistoryRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArtHistoryRecorderTests.swift; sourceTree = "<group>"; };
 		CAD708F413DED86563214381 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		CCCFBE2DA8D99E61C84AE5D8 /* TextifyViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextifyViewModelTests.swift; sourceTree = "<group>"; };
 		CF901B6477DBFC3DA418F984 /* TextArtGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArtGeneratorTests.swift; sourceTree = "<group>"; };
@@ -464,6 +468,7 @@
 				F00CDD46C7D1D1C241CB86E5 /* ImageExportService.swift */,
 				7860E1D75D0BB8D59B674DFA /* ImageValidationService.swift */,
 				3C3466B68372B0726AC55BF2 /* PhotoLibraryService.swift */,
+				B301C13120E2813A47C1ABB9 /* TextArtHistoryRecorder.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -603,6 +608,7 @@
 			children = (
 				7415076EA20200C09E33DB68 /* HistoryDetailViewModelTests.swift */,
 				5B134CD45B93EB6A3E62158C /* SettingsViewModelTests.swift */,
+				C852E60D3D02B93D5C491735 /* TextArtHistoryRecorderTests.swift */,
 				1E020444B0D87351993A0B4F /* TextifyUITests.swift */,
 				CCCFBE2DA8D99E61C84AE5D8 /* TextifyViewModelTests.swift */,
 			);
@@ -815,6 +821,7 @@
 				6CF94FE61BB2C2EE5680FE4F /* RetryView.swift in Sources */,
 				84A1604EEEC19F0438E2C24B /* SettingsView.swift in Sources */,
 				98ED36C9F7C31B0B11E75C36 /* SettingsViewModel.swift in Sources */,
+				40512D3A3D009E038136138A /* TextArtHistoryRecorder.swift in Sources */,
 				BD443CE22FBD038C104584AC /* TextInputView.swift in Sources */,
 				FD8AE36977FB8A8BD7BF7B70 /* TextInputViewModel.swift in Sources */,
 				E2DB7199B2D7D25CFF87FBE3 /* TextifyUI.docc in Sources */,
@@ -861,6 +868,7 @@
 			files = (
 				8F63EDE337643ABA300D321C /* HistoryDetailViewModelTests.swift in Sources */,
 				F5FBF13B89AEF748AEC25144 /* SettingsViewModelTests.swift in Sources */,
+				18FBA6EFD22C579E0A9403F2 /* TextArtHistoryRecorderTests.swift in Sources */,
 				59BA2270492583A74BBFB3E3 /* TextifyUITests.swift in Sources */,
 				0342897DA4F692861F6644FC /* TextifyViewModelTests.swift in Sources */,
 			);

@@ -16,6 +16,7 @@ public final class AppDependencies {
     public let imageExportService: ImageExportService
     public let appearanceService: AppearanceService
     public let historyService: HistoryService
+    public let textArtHistoryRecorder: TextArtHistoryRecorder
     public let hapticsService: HapticsService
 
     public init() {
@@ -26,6 +27,7 @@ public final class AppDependencies {
         self.imageExportService = ImageExportService()
         self.appearanceService = AppearanceService()
         self.historyService = HistoryService()
+        self.textArtHistoryRecorder = TextArtHistoryRecorder(historyService: historyService)
         self.hapticsService = HapticsService.shared
     }
 
@@ -55,7 +57,7 @@ public final class AppDependencies {
             generator: textArtGenerator,
             clipboardService: clipboardService,
             exportService: imageExportService,
-            historyService: historyService,
+            historyRecorder: textArtHistoryRecorder,
             hapticsService: hapticsService
         )
     }
@@ -80,7 +82,7 @@ public final class AppDependencies {
             textArt: textArt,
             clipboardService: clipboardService,
             exportService: imageExportService,
-            historyService: historyService,
+            historyRecorder: textArtHistoryRecorder,
             sourceImage: sourceImage,
             sourceCharacters: sourceCharacters,
             outputWidth: outputWidth,

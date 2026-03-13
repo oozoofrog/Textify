@@ -121,6 +121,14 @@ actor MockHistoryService: HistoryServiceProtocol {
     }
 }
 
+actor MockHistoryRecorder: TextArtHistoryRecording {
+    private(set) var recordedRequests: [TextArtHistoryRecordRequest] = []
+
+    func record(_ request: TextArtHistoryRecordRequest) async throws {
+        recordedRequests.append(request)
+    }
+}
+
 @MainActor
 final class MockHapticsService: HapticsServiceProtocol {
     private(set) var successCount = 0
@@ -169,7 +177,7 @@ extension TextifyViewModelTests {
         generator: any TextArtGenerating,
         clipboard: MockClipboardService = MockClipboardService(),
         export: MockImageExportService = MockImageExportService(),
-        history: MockHistoryService = MockHistoryService(),
+        historyRecorder: MockHistoryRecorder = MockHistoryRecorder(),
         haptics: MockHapticsService = MockHapticsService(),
         feedbackResetDelay: Duration = .milliseconds(100)
     ) -> TextifyViewModel {
@@ -178,7 +186,7 @@ extension TextifyViewModelTests {
             generator: generator,
             clipboardService: clipboard,
             exportService: export,
-            historyService: history,
+            historyRecorder: historyRecorder,
             hapticsService: haptics,
             feedbackResetDelay: feedbackResetDelay
         )
@@ -304,9 +312,9 @@ struct TextifyViewModelTests {
     @MainActor
     func testCopyActionPersistsHistoryOnceForIdenticalOutput() async throws {
         let generator = MockTextArtGenerator()
-        let history = MockHistoryService()
+        let historyRecorder = MockHistoryRecorder()
         let clipboard = MockClipboardService()
-        let viewModel = Self.makeViewModel(generator: generator, clipboard: clipboard, history: history)
+        let viewModel = Self.makeViewModel(generator: generator, clipboard: clipboard, historyRecorder: historyRecorder)
 
         await viewModel.generate()
         viewModel.copyToClipboard()
@@ -314,7 +322,7 @@ struct TextifyViewModelTests {
 
         try await Task.sleep(for: .milliseconds(20))
 
-        #expect(await history.addedEntries.count == 1)
+        #expect(await historyRecorder.recordedRequests.count == 1)
     }
 
     @Test("Custom palette and contrast are forwarded to generator options")

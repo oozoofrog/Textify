@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 import CoreGraphics
-import ImageIO
 import OSLog
 import TextifyKit
 
@@ -88,7 +87,7 @@ public final class TextifyViewModel {
     private let generator: any TextArtGenerating
     private let clipboardService: any ClipboardServiceProtocol
     private let exportService: any ImageExportServiceProtocol
-    private let historyService: any HistoryServiceProtocol
+    private let historyRecorder: any TextArtHistoryRecording
     private let hapticsService: any HapticsServiceProtocol
     private let feedbackResetDelay: Duration
     private let logger = Logger(subsystem: "com.textify.app", category: "TextifyViewModel")
@@ -119,7 +118,7 @@ public final class TextifyViewModel {
         generator: any TextArtGenerating,
         clipboardService: any ClipboardServiceProtocol,
         exportService: any ImageExportServiceProtocol,
-        historyService: any HistoryServiceProtocol,
+        historyRecorder: any TextArtHistoryRecording,
         hapticsService: any HapticsServiceProtocol,
         feedbackResetDelay: Duration = .seconds(2)
     ) {
@@ -127,7 +126,7 @@ public final class TextifyViewModel {
         self.generator = generator
         self.clipboardService = clipboardService
         self.exportService = exportService
-        self.historyService = historyService
+        self.historyRecorder = historyRecorder
         self.hapticsService = hapticsService
         self.feedbackResetDelay = feedbackResetDelay
     }
@@ -388,36 +387,29 @@ public final class TextifyViewModel {
     }
 
     private func persistHistoryIfNeeded(for textArt: TextArt) async {
-        let sourceCharacters = String(resolvedCharacters)
-        let signature = Self.historySignature(
-            for: textArt,
-            sourceCharacters: sourceCharacters,
-            outputWidth: outputWidth,
-            invertBrightness: invertBrightness,
-            contrastBoost: contrastBoost
-        )
+        let request = makeHistoryRecordRequest(for: textArt)
+        let signature = request.deduplicationKey
 
         guard signature != lastPersistedSignature else { return }
         lastPersistedSignature = signature
 
         do {
-            let thumbnailData = try Self.createThumbnail(from: image)
-            let entry = HistoryEntry(
-                thumbnailData: thumbnailData,
-                textArtRows: textArt.rows,
-                width: textArt.width,
-                height: textArt.height,
-                sourceCharacters: sourceCharacters,
-                outputWidth: outputWidth,
-                invertBrightness: invertBrightness,
-                contrastBoost: contrastBoost
-            )
-
-            try await historyService.add(entry)
+            try await historyRecorder.record(request)
         } catch {
             lastPersistedSignature = nil
             logger.error("History persistence failed: \(String(describing: error), privacy: .public)")
         }
+    }
+
+    private func makeHistoryRecordRequest(for textArt: TextArt) -> TextArtHistoryRecordRequest {
+        TextArtHistoryRecordRequest(
+            sourceImage: image,
+            textArt: textArt,
+            sourceCharacters: String(resolvedCharacters),
+            outputWidth: outputWidth,
+            invertBrightness: invertBrightness,
+            contrastBoost: contrastBoost
+        )
     }
 
     private func resetCopiedFeedback() {
@@ -436,61 +428,5 @@ public final class TextifyViewModel {
                 self.showSavedFeedback = false
             }
         }
-    }
-
-    private static func historySignature(
-        for textArt: TextArt,
-        sourceCharacters: String,
-        outputWidth: Int,
-        invertBrightness: Bool,
-        contrastBoost: Float
-    ) -> String {
-        [
-            textArt.asString,
-            sourceCharacters,
-            String(outputWidth),
-            String(invertBrightness),
-            String(contrastBoost)
-        ].joined(separator: "|")
-    }
-
-    private static func createThumbnail(from image: CGImage) throws -> Data {
-        let maxSize: CGFloat = 200
-        let width = CGFloat(image.width)
-        let height = CGFloat(image.height)
-        let scale = min(maxSize / width, maxSize / height)
-        let newWidth = max(1, Int(width * scale))
-        let newHeight = max(1, Int(height * scale))
-
-        guard let context = CGContext(
-            data: nil,
-            width: newWidth,
-            height: newHeight,
-            bitsPerComponent: 8,
-            bytesPerRow: 0,
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        ) else {
-            throw HistoryError.saveFailed(NSError(domain: "TextifyViewModel", code: -1))
-        }
-
-        context.interpolationQuality = .high
-        context.draw(image, in: CGRect(x: 0, y: 0, width: CGFloat(newWidth), height: CGFloat(newHeight)))
-
-        guard let thumbnail = context.makeImage() else {
-            throw HistoryError.saveFailed(NSError(domain: "TextifyViewModel", code: -2))
-        }
-
-        let data = NSMutableData()
-        guard let destination = CGImageDestinationCreateWithData(data, "public.jpeg" as CFString, 1, nil) else {
-            throw HistoryError.saveFailed(NSError(domain: "TextifyViewModel", code: -3))
-        }
-
-        CGImageDestinationAddImage(destination, thumbnail, [kCGImageDestinationLossyCompressionQuality: 0.8] as CFDictionary)
-        guard CGImageDestinationFinalize(destination) else {
-            throw HistoryError.saveFailed(NSError(domain: "TextifyViewModel", code: -4))
-        }
-
-        return data as Data
     }
 }

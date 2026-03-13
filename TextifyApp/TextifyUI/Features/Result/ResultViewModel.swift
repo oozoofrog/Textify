@@ -7,9 +7,9 @@ import TextifyKit
 @MainActor
 public final class ResultViewModel {
     public let textArt: TextArt
-    private let clipboardService: ClipboardService
-    private let exportService: ImageExportService
-    private let historyService: HistoryService
+    private let clipboardService: any ClipboardServiceProtocol
+    private let exportService: any ImageExportServiceProtocol
+    private let historyRecorder: any TextArtHistoryRecording
     private let sourceImage: CGImage?
     private let sourceCharacters: String
     private let outputWidth: Int
@@ -24,9 +24,9 @@ public final class ResultViewModel {
 
     public init(
         textArt: TextArt,
-        clipboardService: ClipboardService,
-        exportService: ImageExportService,
-        historyService: HistoryService,
+        clipboardService: any ClipboardServiceProtocol,
+        exportService: any ImageExportServiceProtocol,
+        historyRecorder: any TextArtHistoryRecording,
         sourceImage: CGImage? = nil,
         sourceCharacters: String = "",
         outputWidth: Int = 80,
@@ -36,7 +36,7 @@ public final class ResultViewModel {
         self.textArt = textArt
         self.clipboardService = clipboardService
         self.exportService = exportService
-        self.historyService = historyService
+        self.historyRecorder = historyRecorder
         self.sourceImage = sourceImage
         self.sourceCharacters = sourceCharacters
         self.outputWidth = outputWidth
@@ -105,65 +105,18 @@ public final class ResultViewModel {
         guard let sourceImage = sourceImage else { return }
 
         do {
-            // Create thumbnail from source image
-            let thumbnailData = try await createThumbnail(from: sourceImage)
-
-            let entry = HistoryEntry(
-                thumbnailData: thumbnailData,
-                textArtRows: textArt.rows,
-                width: textArt.width,
-                height: textArt.height,
+            let request = TextArtHistoryRecordRequest(
+                sourceImage: sourceImage,
+                textArt: textArt,
                 sourceCharacters: sourceCharacters,
                 outputWidth: outputWidth,
                 invertBrightness: invertBrightness,
                 contrastBoost: contrastBoost
             )
-
-            try await historyService.add(entry)
+            try await historyRecorder.record(request)
         } catch {
             // Silently fail - history is not critical
             print("Failed to save to history: \(error)")
         }
-    }
-
-    private func createThumbnail(from image: CGImage) async throws -> Data {
-        let maxSize: CGFloat = 200
-        let width = CGFloat(image.width)
-        let height = CGFloat(image.height)
-        let scale = min(maxSize / width, maxSize / height)
-        let newWidth = Int(width * scale)
-        let newHeight = Int(height * scale)
-
-        guard let context = CGContext(
-            data: nil,
-            width: newWidth,
-            height: newHeight,
-            bitsPerComponent: 8,
-            bytesPerRow: 0,
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        ) else {
-            throw NSError(domain: "ResultViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create thumbnail context"])
-        }
-
-        context.interpolationQuality = .high
-        context.draw(image, in: CGRect(x: 0, y: 0, width: newWidth, height: newHeight))
-
-        guard let thumbnail = context.makeImage() else {
-            throw NSError(domain: "ResultViewModel", code: -2, userInfo: [NSLocalizedDescriptionKey: "Failed to create thumbnail image"])
-        }
-
-        // Convert to JPEG data
-        let data = NSMutableData()
-        guard let destination = CGImageDestinationCreateWithData(data, "public.jpeg" as CFString, 1, nil) else {
-            throw NSError(domain: "ResultViewModel", code: -3, userInfo: [NSLocalizedDescriptionKey: "Failed to create image destination"])
-        }
-
-        CGImageDestinationAddImage(destination, thumbnail, [kCGImageDestinationLossyCompressionQuality: 0.8] as CFDictionary)
-        guard CGImageDestinationFinalize(destination) else {
-            throw NSError(domain: "ResultViewModel", code: -4, userInfo: [NSLocalizedDescriptionKey: "Failed to finalize thumbnail"])
-        }
-
-        return data as Data
     }
 }
