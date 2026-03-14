@@ -6,6 +6,10 @@ PROFILE ?= intermediate
 RELEASE_TAG ?=
 RELEASE_ARCHIVE ?=
 FORMULA_OUTPUT ?=
+XCODEBUILD ?= xcodebuild
+IOS_PROJECT_DIR ?= TextifyApp
+IOS_PROJECT ?= TextifyApp.xcodeproj
+IOS_SIM_DESTINATION ?= platform=iOS Simulator,name=iPhone 17
 
 install-swiftnest:
 	@test -n "$(TARGET)" || (echo "TARGET is required"; exit 1)
@@ -44,3 +48,31 @@ render-homebrew-formula:
 		--tag "$(RELEASE_TAG)" \
 		--archive "$(RELEASE_ARCHIVE)" \
 		--output "$(FORMULA_OUTPUT)"
+
+build-kit:
+	cd $(IOS_PROJECT_DIR) && \
+	$(XCODEBUILD) -project $(IOS_PROJECT) \
+		-scheme TextifyKit \
+		-destination '$(IOS_SIM_DESTINATION)' \
+		build
+
+build-ui:
+	cd $(IOS_PROJECT_DIR) && \
+	$(XCODEBUILD) -project $(IOS_PROJECT) \
+		-scheme TextifyUI \
+		-destination '$(IOS_SIM_DESTINATION)' \
+		build
+
+build-app:
+	cd $(IOS_PROJECT_DIR) && \
+	$(XCODEBUILD) -project $(IOS_PROJECT) \
+		-scheme TextifyApp \
+		-destination '$(IOS_SIM_DESTINATION)' \
+		build
+
+test-app:
+	cd $(IOS_PROJECT_DIR) && \
+	$(XCODEBUILD) -project $(IOS_PROJECT) \
+		-scheme TextifyApp \
+		-destination '$(IOS_SIM_DESTINATION)' \
+		test

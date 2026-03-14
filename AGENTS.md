@@ -41,8 +41,8 @@ You are working in the Textify codebase scaffolded by SwiftNest.
 - `permissions`: Use when device authorization states are part of the task. Read `.swiftnest/workflows/permissions.md`.
 
 ## Build and Test Commands
-- Build: not configured; inspect the repository build entrypoint first
-- Test: not configured; inspect the repository test entrypoint first
+- Build: `make build-app` (framework-only 확인은 `make build-kit`, `make build-ui`)
+- Test: `make test-app`
 
 ## Feature Development Expectations
 - Keep user-visible behavior, generated docs, and verification guidance aligned.
