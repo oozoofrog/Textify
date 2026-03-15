@@ -84,6 +84,7 @@
 		F3A8C9749B29830B43804F60 /* ControlBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8418CFDBD506DDF9C4172F05 /* ControlBottomSheet.swift */; };
 		F40627CFDE592EE3DA8B7412 /* TypingEffectText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C913FCC10DDE0AB8D638C22 /* TypingEffectText.swift */; };
 		F5FBF13B89AEF748AEC25144 /* SettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B134CD45B93EB6A3E62158C /* SettingsViewModelTests.swift */; };
+		F6A1B2C3D4E5067890ABCDEF /* PhotoLibraryServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607A8B9C0D1E2 /* PhotoLibraryServiceTests.swift */; };
 		FB4DBB2EB89DD207E7724F70 /* ImageExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00CDD46C7D1D1C241CB86E5 /* ImageExportService.swift */; };
 /* End PBXBuildFile section */
 
@@ -174,6 +175,7 @@
 		09E2EBCA4AE223C0FFD125A2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0AC08B5CB686E3ACBD9D8C99 /* ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
 		0E511AFAB36A6034E47CC0F7 /* PhotoLibrarySaveAuthorizationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibrarySaveAuthorizationServiceTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F607A8B9C0D1E2 /* PhotoLibraryServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryServiceTests.swift; sourceTree = "<group>"; };
 		0FD65EBEF36830EE68978596 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
 		186E7EBBE057CA88D8267C2C /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
 		1AD1DA18B6504D4D4EB0002B /* ClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardService.swift; sourceTree = "<group>"; };
@@ -581,6 +583,7 @@
 			children = (
 				7415076EA20200C09E33DB68 /* HistoryDetailViewModelTests.swift */,
 				0E511AFAB36A6034E47CC0F7 /* PhotoLibrarySaveAuthorizationServiceTests.swift */,
+				A1B2C3D4E5F607A8B9C0D1E2 /* PhotoLibraryServiceTests.swift */,
 				5B134CD45B93EB6A3E62158C /* SettingsViewModelTests.swift */,
 				C852E60D3D02B93D5C491735 /* TextArtHistoryRecorderTests.swift */,
 				1E020444B0D87351993A0B4F /* TextifyUITests.swift */,
@@ -825,6 +828,7 @@
 			files = (
 				8F63EDE337643ABA300D321C /* HistoryDetailViewModelTests.swift in Sources */,
 				9653505DE93CE063EFD014DC /* PhotoLibrarySaveAuthorizationServiceTests.swift in Sources */,
+				F6A1B2C3D4E5067890ABCDEF /* PhotoLibraryServiceTests.swift in Sources */,
 				F5FBF13B89AEF748AEC25144 /* SettingsViewModelTests.swift in Sources */,
 				18FBA6EFD22C579E0A9403F2 /* TextArtHistoryRecorderTests.swift in Sources */,
 				59BA2270492583A74BBFB3E3 /* TextifyUITests.swift in Sources */,
