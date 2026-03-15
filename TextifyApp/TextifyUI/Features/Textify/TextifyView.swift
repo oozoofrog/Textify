@@ -549,7 +549,10 @@ public struct TextifyView: View {
                         Slider(
                             value: viewModel.outputWidthBinding,
                             in: 30...150,
-                            step: 10
+                            step: 10,
+                            onEditingChanged: { isEditing in
+                                viewModel.handleOutputWidthEditingChanged(isEditing)
+                            }
                         )
 
                         Text("값이 커질수록 디테일은 늘고 문자열 길이도 길어집니다.")

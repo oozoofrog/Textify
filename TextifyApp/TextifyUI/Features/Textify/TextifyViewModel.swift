@@ -166,10 +166,7 @@ public final class TextifyViewModel {
         Binding(
             get: { Double(self.outputWidth) },
             set: { newValue in
-                self.outputWidth = Int(newValue)
-                Task {
-                    await self.throttledGenerate()
-                }
+                self.handleOutputWidthValueChange(newValue)
             }
         )
     }
@@ -219,6 +216,14 @@ public final class TextifyViewModel {
         taskManager.cancel()
     }
 
+    func handleOutputWidthEditingChanged(_ isEditing: Bool) {
+        guard !isEditing else { return }
+
+        Task {
+            await self.commitOutputWidthChange()
+        }
+    }
+
     public func dismissError() {
         errorMessage = nil
         errorAction = nil
@@ -233,11 +238,7 @@ public final class TextifyViewModel {
     }
 
     public func generate() async {
-        generationRequestID += 1
-        let requestID = generationRequestID
-
-        isGenerating = true
-        dismissError()
+        let requestID = beginGenerationRequest(isFinal: true)
 
         let characters = resolvedCharacters
         let width = outputWidth
@@ -312,7 +313,7 @@ public final class TextifyViewModel {
     }
 
     public func saveAsImage() async {
-        guard let textArt else { return }
+        guard let textArt, !isSavingImage else { return }
 
         isSavingImage = true
         dismissError()
@@ -324,8 +325,11 @@ public final class TextifyViewModel {
             hapticsService.notification(type: .success)
             resetSavedFeedback()
         } catch {
-            let presentation = saveErrorPresentation(for: error)
-            presentError(presentation.message, action: presentation.action)
+            let presentation = makeImageExportPresentation(for: error, context: .save)
+            presentError(
+                presentation.message,
+                action: presentation.suggestsOpeningSettings ? .openSettings : nil
+            )
             hapticsService.notification(type: .error)
             logger.error("Save image failed: \(String(describing: error), privacy: .public)")
         }
@@ -349,6 +353,34 @@ public final class TextifyViewModel {
         selectedPreset.resolvedCharacters(customInput: customCharacters)
     }
 
+    private func handleOutputWidthValueChange(_ newValue: Double) {
+        outputWidth = Int(newValue)
+
+        Task {
+            await finalDebouncer.cancel()
+            await self.throttledGenerate()
+        }
+    }
+
+    private func commitOutputWidthChange() async {
+        await finalDebouncer.cancel()
+        await widthThrottler.reset()
+        await generate()
+    }
+
+    private func beginGenerationRequest(isFinal: Bool) -> Int {
+        generationRequestID += 1
+
+        if isFinal {
+            isGenerating = true
+            dismissError()
+        } else {
+            isGenerating = false
+        }
+
+        return generationRequestID
+    }
+
     private func throttledGenerate() async {
         await widthThrottler.throttle { [weak self] in
             await self?.generatePreview()
@@ -356,6 +388,7 @@ public final class TextifyViewModel {
     }
 
     private func generatePreview() async {
+        let requestID = beginGenerationRequest(isFinal: false)
         let characters = resolvedCharacters
         let width = outputWidth
         let invert = invertBrightness
@@ -381,6 +414,7 @@ public final class TextifyViewModel {
                 try Task.checkCancellation()
 
                 await MainActor.run {
+                    guard requestID == self.generationRequestID else { return }
                     self.textArt = result
                     self.dismissError()
                 }
@@ -446,20 +480,4 @@ public final class TextifyViewModel {
         errorAction = action
     }
 
-    private func saveErrorPresentation(for error: Error) -> (message: String, action: TextifyErrorAction?) {
-        guard let exportError = error as? ImageExportError else {
-            return ("이미지 저장에 실패했습니다.", nil)
-        }
-
-        switch exportError {
-        case .permissionDenied:
-            return ("사진 보관함 접근이 거부되어 저장할 수 없습니다. 설정에서 사진 접근을 허용해 주세요.", .openSettings)
-        case .permissionRestricted:
-            return ("이 기기에서는 사진 보관함 저장이 제한되어 있습니다.", nil)
-        case .renderingFailed:
-            return ("저장용 이미지를 만드는 데 실패했습니다.", nil)
-        case .saveFailed, .platformNotSupported:
-            return ("이미지 저장에 실패했습니다.", nil)
-        }
-    }
 }
