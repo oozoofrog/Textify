@@ -225,8 +225,10 @@ public struct TextifyView: View {
                     comparisonSourceLayer(height: height)
 
                     comparisonASCIILayer(height: height)
-                        .frame(width: max(revealX, 0), alignment: .leading)
-                        .clipped()
+                        .mask(alignment: .leading) {
+                            Rectangle()
+                                .frame(width: max(revealX, 0))
+                        }
 
                     comparisonSliderDivider(x: revealX, height: height)
                 }
@@ -297,13 +299,22 @@ public struct TextifyView: View {
                         .foregroundStyle(AppTheme.textArtForeground.opacity(0.85))
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let textArt = viewModel.textArt?.asString, !textArt.isEmpty {
-                Text(textArt)
-                    .font(.system(size: 4, design: .monospaced))
-                    .foregroundStyle(AppTheme.textArtForeground)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .padding(12)
-                    .clipped()
+            } else if let textArt = viewModel.textArt, !textArt.asString.isEmpty {
+                GeometryReader { proxy in
+                    let cols = max(CGFloat(textArt.width), 1)
+                    let rows = max(CGFloat(textArt.height), 1)
+                    // SF Mono metrics: advance width ≈ 0.6×size, line height ≈ 1.2×size
+                    let fitW = proxy.size.width / (cols * 0.6)
+                    let fitH = proxy.size.height / (rows * 1.2)
+                    let fontSize = max(min(fitW, fitH), 0.5)
+
+                    Text(textArt.asString)
+                        .font(.system(size: fontSize, design: .monospaced))
+                        .foregroundStyle(AppTheme.textArtForeground)
+                        .fixedSize()
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .clipped()
+                }
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: "text.below.photo")
