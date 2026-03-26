@@ -20,8 +20,31 @@ actor HistoryDetailExportServiceMock: ImageExportServiceProtocol {
 }
 
 actor FailingHistoryDetailExportServiceMock: ImageExportServiceProtocol {
+    private let error: Error
+
+    init(error: Error = ImageExportError.saveFailed) {
+        self.error = error
+    }
+
     func exportAsImage(textArt: TextArt) async throws -> URL {
-        throw ImageExportError.saveFailed
+        throw error
+    }
+
+    func saveToPhotos(textArt: TextArt) async throws {}
+}
+
+actor SlowHistoryDetailExportServiceMock: ImageExportServiceProtocol {
+    private(set) var exportCallCount = 0
+    private let delay: Duration
+
+    init(delay: Duration = .milliseconds(150)) {
+        self.delay = delay
+    }
+
+    func exportAsImage(textArt: TextArt) async throws -> URL {
+        exportCallCount += 1
+        try await Task.sleep(for: delay)
+        return FileManager.default.temporaryDirectory.appendingPathComponent("history-detail-share.png")
     }
 
     func saveToPhotos(textArt: TextArt) async throws {}
@@ -96,7 +119,54 @@ struct HistoryDetailViewModelTests {
         await viewModel.prepareShareImage()
 
         #expect(viewModel.shareURL == nil)
-        #expect(viewModel.errorMessage == "이미지 공유 준비에 실패했습니다.")
+        #expect(viewModel.errorMessage == "공유용 이미지를 준비하지 못했습니다.")
+        #expect(viewModel.isPreparingShare == false)
+    }
+
+    @Test("Share preparation rendering failure uses the shared export presentation")
+    @MainActor
+    func testPrepareShareImageRenderingFailure() async throws {
+        let clipboard = MockClipboardService()
+        let export = FailingHistoryDetailExportServiceMock(error: ImageExportError.renderingFailed)
+        let viewModel = HistoryDetailViewModel(
+            entry: Self.makeEntry(),
+            clipboardService: clipboard,
+            exportService: export
+        )
+
+        await viewModel.prepareShareImage()
+
+        #expect(viewModel.shareURL == nil)
+        #expect(viewModel.errorMessage == "공유용 이미지를 만드는 데 실패했습니다.")
+        #expect(viewModel.isPreparingShare == false)
+    }
+
+    @Test("Share preparation ignores re-entrant requests while export is in flight")
+    @MainActor
+    func testPrepareShareImagePreventsReentry() async throws {
+        let clipboard = MockClipboardService()
+        let export = SlowHistoryDetailExportServiceMock()
+        let viewModel = HistoryDetailViewModel(
+            entry: Self.makeEntry(),
+            clipboardService: clipboard,
+            exportService: export
+        )
+
+        let firstTask = Task {
+            await viewModel.prepareShareImage()
+        }
+
+        try await Task.sleep(for: .milliseconds(20))
+
+        let secondTask = Task {
+            await viewModel.prepareShareImage()
+        }
+
+        await firstTask.value
+        await secondTask.value
+
+        #expect(await export.exportCallCount == 1)
+        #expect(viewModel.shareURL?.lastPathComponent == "history-detail-share.png")
         #expect(viewModel.isPreparingShare == false)
     }
 }
