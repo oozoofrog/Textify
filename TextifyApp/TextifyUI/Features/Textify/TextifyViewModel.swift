@@ -96,27 +96,32 @@ public final class TextifyViewModel {
     private let feedbackResetDelay: Duration
     private let logger = Logger(subsystem: "com.textify.app", category: "TextifyViewModel")
 
-    public var textArt: TextArt?
-    public var isGenerating = false
+    public var textArt: TextArt? { completedResult?.request.textArt }
+    public private(set) var isGenerating = false
+    public private(set) var canRetryGeneration = false
     public var isSavingImage = false
     public var errorMessage: String?
     public var errorAction: TextifyErrorAction?
     public var copied = false
     public var showSavedFeedback = false
-    public var shouldAnimateNextResult = false
 
     public var selectedPreset: PalettePreset = .standard
     public var customCharacters: String = "TEXTIFY@#*:."
     public var outputWidth: Int = 80
     public var invertBrightness: Bool = false
     public var contrastBoost: Float = 1.0
-    public var fontSize: CGFloat = 8
 
     private let taskManager = GenerationTaskManager()
-    private let widthThrottler = Throttler(interval: .milliseconds(50))
-    private let finalDebouncer = Debouncer(delay: .milliseconds(200))
     private var generationRequestID = 0
     private var lastPersistedSignature: String?
+    private var recordingSignatures: Set<String> = []
+    private var completedResult: CompletedResult?
+
+    private struct CompletedResult {
+        let request: TextArtHistoryRecordRequest
+        let options: ProcessingOptions
+        let preset: PalettePreset
+    }
 
     public init(
         image: CGImage,
@@ -137,20 +142,56 @@ public final class TextifyViewModel {
     }
 
     public var shareText: String {
-        textArt?.asString ?? ""
+        canExportResult ? (textArt?.asString ?? "") : ""
     }
 
     public var hasResult: Bool {
         textArt != nil
     }
 
+    public var canExportResult: Bool {
+        guard let completedResult, !isGenerating else { return false }
+        return completedResult.options == currentOptions
+            && completedResult.request.sourceCharacters == String(resolvedCharacters)
+    }
+
     public var optionSummary: String {
-        let invertLabel = invertBrightness ? "반전 On" : "반전 Off"
-        return "\(selectedPreset.name) · 폭 \(outputWidth) · 대비 \(contrastDisplayText) · \(invertLabel)"
+        guard let completedResult else { return isGenerating ? "생성 중…" : "결과 없음" }
+        let options = completedResult.options
+        let invertLabel = options.invertBrightness ? "반전 On" : "반전 Off"
+        let contrast = String(format: "%.1f", options.contrastBoost)
+        return "\(completedResult.preset.name) · 폭 \(options.outputWidth) · 대비 \(contrast) · \(invertLabel)"
     }
 
     public var contrastDisplayText: String {
         String(format: "%.1f", contrastBoost)
+    }
+
+    public var selectedStyle: TextArtStyle? {
+        TextArtStyle.allCases.first {
+            $0.palette == selectedPreset && $0.options == currentOptions
+        }
+    }
+
+    public var resultStatistics: String {
+        guard let textArt else { return "결과를 준비하고 있어요" }
+        let characters = textArt.rows.reduce(0) { $0 + $1.count }
+        return "\(textArt.width)자 × \(textArt.height)줄 · 총 \(characters.formatted())자"
+    }
+
+    public func applyStyle(_ style: TextArtStyle) {
+        selectedPreset = style.palette
+        let options = style.options
+        outputWidth = options.outputWidth
+        invertBrightness = options.invertBrightness
+        contrastBoost = options.contrastBoost
+        hapticsService.selection()
+        startGeneration()
+    }
+
+    public func resetOptions() {
+        customCharacters = "TEXTIFY@#*:."
+        applyStyle(.classic)
     }
 
     public func selectPreset(_ preset: PalettePreset) {
@@ -203,25 +244,16 @@ public final class TextifyViewModel {
         )
     }
 
-    public var fontSizeBinding: Binding<Double> {
-        Binding(
-            get: { Double(self.fontSize) },
-            set: { newValue in
-                self.fontSize = CGFloat(newValue)
-            }
-        )
-    }
-
     public func cancelGeneration() {
+        generationRequestID += 1
         taskManager.cancel()
+        isGenerating = false
+        canRetryGeneration = false
     }
 
     func handleOutputWidthEditingChanged(_ isEditing: Bool) {
         guard !isEditing else { return }
-
-        Task {
-            await self.commitOutputWidthChange()
-        }
+        startGeneration()
     }
 
     public func dismissError() {
@@ -230,79 +262,77 @@ public final class TextifyViewModel {
     }
 
     public func generateFinal() {
-        Task {
-            await finalDebouncer.debounce { [weak self] in
-                await self?.generate()
-            }
-        }
+        startGeneration(delay: .milliseconds(200))
     }
 
     public func generate() async {
-        let requestID = beginGenerationRequest(isFinal: true)
-
-        let characters = resolvedCharacters
-        let width = outputWidth
-        let invert = invertBrightness
-        let contrastBoost = self.contrastBoost
-        let image = self.image
-        let generator = self.generator
-        let logger = self.logger
-
-        let task = taskManager.startGeneration(priority: .userInitiated) { [weak self] in
-            guard let self else { return }
-            do {
-                let palette = CharacterPalette(characters: characters)
-                let options = ProcessingOptions(
-                    outputWidth: width,
-                    invertBrightness: invert,
-                    contrastBoost: contrastBoost
-                )
-
-                let result = try await generator.generate(
-                    from: image,
-                    palette: palette,
-                    options: options
-                )
-
-                try Task.checkCancellation()
-
-                await MainActor.run {
-                    guard requestID == self.generationRequestID else { return }
-                    self.textArt = result
-                    self.isGenerating = false
-                }
-            } catch is CancellationError {
-                await MainActor.run {
-                    guard requestID == self.generationRequestID else { return }
-                    self.isGenerating = false
-                }
-            } catch {
-                await MainActor.run {
-                    guard requestID == self.generationRequestID else { return }
-                    self.presentError("변환에 실패했습니다. 다시 시도해 주세요.")
-                    self.isGenerating = false
-                }
-                logger.error("Text art generation failed: \(String(describing: error), privacy: .public)")
-            }
+        guard !Task.isCancelled else { return }
+        let task = startGeneration()
+        await withTaskCancellationHandler {
+            await task.value
+        } onCancel: {
+            task.cancel()
         }
-
-        await task.value
     }
 
-    public func generateWithAnimation() async {
-        shouldAnimateNextResult = true
-        await generate()
+    @discardableResult
+    private func startGeneration(delay: Duration = .zero) -> Task<Void, Never> {
+        generationRequestID += 1
+        let requestID = generationRequestID
+        let options = currentOptions
+        let palette = CharacterPalette(characters: resolvedCharacters)
+        let preset = selectedPreset
+        isGenerating = true
+        canRetryGeneration = false
+        copied = false
+        showSavedFeedback = false
+        dismissError()
+
+        return taskManager.startGeneration { [weak self] in
+            do {
+                // The same owned task covers both the scheduled delay and conversion.
+                try await Task.sleep(for: delay)
+                try Task.checkCancellation()
+                guard let self else { return }
+                let result = try await self.generator.generate(
+                    from: self.image, palette: palette, options: options
+                )
+                try Task.checkCancellation()
+                guard requestID == self.generationRequestID else { return }
+                self.completedResult = CompletedResult(
+                    request: TextArtHistoryRecordRequest(
+                        sourceImage: self.image,
+                        textArt: result,
+                        sourceCharacters: String(palette.characters),
+                        outputWidth: options.outputWidth,
+                        invertBrightness: options.invertBrightness,
+                        contrastBoost: options.contrastBoost
+                    ),
+                    options: options,
+                    preset: preset
+                )
+                self.isGenerating = false
+            } catch {
+                guard let self, requestID == self.generationRequestID else { return }
+                self.isGenerating = false
+                guard !Task.isCancelled, !(error is CancellationError) else { return }
+                self.canRetryGeneration = true
+                self.presentError("변환에 실패했습니다. 다시 시도해 주세요.")
+                self.logger.error("Text art generation failed: \(String(describing: error), privacy: .private)")
+            }
+        }
     }
 
     public func copyToClipboard() {
-        guard let text = textArt?.asString else { return }
+        guard canExportResult, let request = completedResult?.request else { return }
+        let text = request.textArt.asString
 
         do {
             try clipboardService.copy(text: text)
             copied = true
             hapticsService.notification(type: .success)
             Task {
-                await self.persistHistoryIfNeededIfPossible()
+                await self.persistHistoryIfNeeded(request)
             }
             resetCopiedFeedback()
         } catch {
@@ -313,14 +343,14 @@ public final class TextifyViewModel {
     }
 
     public func saveAsImage() async {
-        guard let textArt, !isSavingImage else { return }
+        guard canExportResult, let request = completedResult?.request, !isSavingImage else { return }
 
         isSavingImage = true
         dismissError()
 
         do {
-            try await exportService.saveToPhotos(textArt: textArt)
-            await persistHistoryIfNeededIfPossible()
+            try await exportService.saveToPhotos(textArt: request.textArt)
+            await persistHistoryIfNeeded(request)
             showSavedFeedback = true
             hapticsService.notification(type: .success)
             resetSavedFeedback()
@@ -337,124 +367,38 @@ public final class TextifyViewModel {
         isSavingImage = false
     }
 
-    public func increaseFontSize() {
-        if fontSize < 20 {
-            fontSize += 2
-        }
-    }
-
-    public func decreaseFontSize() {
-        if fontSize > 4 {
-            fontSize -= 2
-        }
-    }
-
     private var resolvedCharacters: [Character] {
         selectedPreset.resolvedCharacters(customInput: customCharacters)
     }
 
-    private func handleOutputWidthValueChange(_ newValue: Double) {
-        outputWidth = Int(newValue)
-
-        Task {
-            await finalDebouncer.cancel()
-            await self.throttledGenerate()
-        }
-    }
-
-    private func commitOutputWidthChange() async {
-        await finalDebouncer.cancel()
-        await widthThrottler.reset()
-        await generate()
-    }
-
-    private func beginGenerationRequest(isFinal: Bool) -> Int {
-        generationRequestID += 1
-
-        if isFinal {
-            isGenerating = true
-            dismissError()
-        } else {
-            isGenerating = false
-        }
-
-        return generationRequestID
-    }
-
-    private func throttledGenerate() async {
-        await widthThrottler.throttle { [weak self] in
-            await self?.generatePreview()
-        }
-    }
-
-    private func generatePreview() async {
-        let requestID = beginGenerationRequest(isFinal: false)
-        let characters = resolvedCharacters
-        let width = outputWidth
-        let invert = invertBrightness
-        let contrastBoost = self.contrastBoost
-        let image = self.image
-        let generator = self.generator
-        let logger = self.logger
-
-        taskManager.startGeneration(priority: .utility) { [weak self] in
-            guard let self else { return }
-            do {
-                let palette = CharacterPalette(characters: characters)
-                let options = ProcessingOptions(
-                    outputWidth: width,
-                    invertBrightness: invert,
-                    contrastBoost: contrastBoost
-                )
-                let result = try await generator.generate(
-                    from: image,
-                    palette: palette,
-                    options: options
-                )
-                try Task.checkCancellation()
-
-                await MainActor.run {
-                    guard requestID == self.generationRequestID else { return }
-                    self.textArt = result
-                    self.dismissError()
-                }
-            } catch is CancellationError {
-                // Ignore stale previews.
-            } catch {
-                logger.error("Preview generation failed: \(String(describing: error), privacy: .public)")
-            }
-        }
-    }
-
-    private func persistHistoryIfNeededIfPossible() async {
-        guard let textArt else { return }
-        await persistHistoryIfNeeded(for: textArt)
-    }
-
-    private func persistHistoryIfNeeded(for textArt: TextArt) async {
-        let request = makeHistoryRecordRequest(for: textArt)
-        let signature = request.deduplicationKey
-
-        guard signature != lastPersistedSignature else { return }
-        lastPersistedSignature = signature
-
-        do {
-            try await historyRecorder.record(request)
-        } catch {
-            lastPersistedSignature = nil
-            logger.error("History persistence failed: \(String(describing: error), privacy: .public)")
-        }
-    }
-
-    private func makeHistoryRecordRequest(for textArt: TextArt) -> TextArtHistoryRecordRequest {
-        TextArtHistoryRecordRequest(
-            sourceImage: image,
-            textArt: textArt,
-            sourceCharacters: String(resolvedCharacters),
+    private var currentOptions: ProcessingOptions {
+        ProcessingOptions(
             outputWidth: outputWidth,
             invertBrightness: invertBrightness,
             contrastBoost: contrastBoost
         )
+    }
+
+    private func handleOutputWidthValueChange(_ newValue: Double) {
+        guard newValue.isFinite else { return }
+        outputWidth = Int(min(max(newValue, 10), 500))
+        // A trailing update also handles accessibility changes without an editing-end event.
+        startGeneration(delay: .milliseconds(50))
+    }
+
+    private func persistHistoryIfNeeded(_ request: TextArtHistoryRecordRequest) async {
+        let signature = request.deduplicationKey
+        guard signature != lastPersistedSignature,
+              recordingSignatures.insert(signature).inserted else { return }
+        defer { recordingSignatures.remove(signature) }
+
+        do {
+            try await historyRecorder.record(request)
+            lastPersistedSignature = signature
+        } catch {
+            presentError("결과는 내보냈지만 최근 작업에 기록하지 못했습니다. 복사 또는 저장을 다시 하면 기록을 재시도합니다.")
+            logger.error("History persistence failed: \(String(describing: error), privacy: .private)")
+        }
     }
 
     private func resetCopiedFeedback() {

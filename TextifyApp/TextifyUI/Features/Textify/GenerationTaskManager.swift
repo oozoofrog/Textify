@@ -12,7 +12,7 @@ public final class GenerationTaskManager {
     @discardableResult
     public func startGeneration(
         priority: TaskPriority = .userInitiated,
-        operation: @escaping @Sendable () async -> Void
+        operation: @escaping @MainActor @Sendable () async -> Void
     ) -> Task<Void, Never> {
         currentTask?.cancel()
         let taskID = UUID()

@@ -1,22 +1,19 @@
 import SwiftUI
 import CoreGraphics
 import TextifyKit
-#if canImport(UIKit)
 import UIKit
-#endif
 
-/// 텍스티파이 화면 - 결과 중심 작업공간
+/// A result-first studio with one canvas and directly accessible styles.
 public struct TextifyView: View {
     @State var viewModel: TextifyViewModel
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.openURL) private var openURL
-
-    @State private var comparisonMode: ComparisonMode = .split
-    @State private var comparisonReveal: CGFloat = 0.5
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var comparisonMode: ComparisonMode = .ascii
+    @State private var comparisonReveal: Double = 0.5
     @State private var showOptions = false
     @State private var showFocusMode = false
     @State private var showHistory = false
-    @State private var baseFontSize: CGFloat?
 
     public init(viewModel: TextifyViewModel) {
         self._viewModel = State(initialValue: viewModel)
@@ -24,695 +21,331 @@ public struct TextifyView: View {
 
     public var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                sourcePreviewSection
-                resultSection
+            VStack(alignment: .leading, spacing: 24) {
+                canvasSection
+                styleSection
+                resultInformation
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
-            .padding(.bottom, 120)
+            .frame(maxWidth: 800)
+            .padding(20)
+            .frame(maxWidth: .infinity)
         }
-        .background(Color(.systemGroupedBackground))
-        .navigationTitle("작업공간")
+        .background(AppTheme.studioBackground)
+        .tint(AppTheme.accent)
+        .navigationTitle("텍스트 스튜디오")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showHistory = true
-                } label: {
-                    Image(systemName: "clock.arrow.circlepath")
-                }
-                .accessibilityLabel("최근 작업")
-            }
-
-            ToolbarItem(placement: .topBarTrailing) {
-                ShareLink(item: viewModel.shareText) {
-                    Image(systemName: "square.and.arrow.up")
-                }
-                .disabled(!viewModel.hasResult)
-                .accessibilityLabel("공유")
+                Button("최근 작업", systemImage: "clock.arrow.circlepath") { showHistory = true }
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            actionBar
-        }
+        .safeAreaInset(edge: .bottom) { actionBar }
         .sheet(isPresented: $showOptions) {
-            optionsSheet
-                .presentationDetents([.medium, .large])
+            optionsSheet.presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $showHistory) {
-            HistoryView(viewModel: dependencies.makeHistoryViewModel())
-                .environment(dependencies)
+            HistoryView(viewModel: dependencies.makeHistoryViewModel()).environment(dependencies)
         }
-        .overlay(alignment: .top) {
-            VStack(spacing: 8) {
-                if viewModel.copied {
-                    FeedbackBadge(text: "결과를 복사했어요", systemImage: "checkmark.circle.fill")
-                }
-                if viewModel.showSavedFeedback {
-                    FeedbackBadge(text: "이미지로 저장했어요", systemImage: "photo.badge.checkmark")
-                }
-            }
-            .padding(.top, 12)
-        }
-        .overlay {
-            if showFocusMode, let textArt = viewModel.textArt {
-                FocusModeOverlay(
-                    textArt: textArt,
-                    fontSize: viewModel.fontSize,
-                    isActive: $showFocusMode
-                )
-                .transition(.opacity)
+        .fullScreenCover(isPresented: $showFocusMode) {
+            if let textArt = viewModel.textArt {
+                FocusModeOverlay(textArt: textArt, isActive: $showFocusMode)
             }
         }
         .task {
-            await viewModel.generateWithAnimation()
+            if !viewModel.canExportResult { await viewModel.generate() }
         }
-        .onDisappear {
-            viewModel.cancelGeneration()
-        }
-        .alert(
-            "오류",
-            isPresented: Binding(
-                get: { viewModel.errorMessage != nil },
-                set: { isPresented in
-                    if !isPresented {
-                        viewModel.dismissError()
-                    }
-                }
-            )
-        ) {
+        .onDisappear { viewModel.cancelGeneration() }
+        .alert("작업 안내", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.dismissError() } }
+        )) {
             if viewModel.errorAction == .openSettings {
-                Button("설정 열기") {
-                    openAppSettings()
-                    viewModel.dismissError()
-                }
+                Button("설정 열기") { openAppSettings(); viewModel.dismissError() }
             }
-
-            Button("확인", role: .cancel) {
-                viewModel.dismissError()
-            }
-        } message: {
-            Text(viewModel.errorMessage ?? "")
-        }
+            Button("확인", role: .cancel) { viewModel.dismissError() }
+        } message: { Text(viewModel.errorMessage ?? "") }
     }
 
-    private var sourcePreviewSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .center) {
-                Text("비교 미리보기")
-                    .font(.headline)
+    private var canvasSection: some View {
+        VStack(spacing: 14) {
+            Picker("미리보기", selection: $comparisonMode) {
+                ForEach(ComparisonMode.allCases) { Text($0.title).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .accessibilityIdentifier("preview-mode")
 
-                Spacer()
-
-                Picker("비교 모드", selection: $comparisonMode) {
-                    ForEach(ComparisonMode.allCases) { mode in
-                        Text(mode.title).tag(mode)
+            artworkCanvas
+                .frame(height: 320)
+                .background(AppTheme.canvasBackground, in: RoundedRectangle(cornerRadius: 22))
+                .overlay(alignment: .topLeading) {
+                    HStack(spacing: 6) {
+                        if viewModel.isGenerating { ProgressView().tint(AppTheme.canvasForeground) }
+                        Text(viewModel.isGenerating ? "옵션 반영 중" : "TEXT ART")
+                            .font(.system(.caption2, design: .monospaced).weight(.semibold))
+                    }
+                    .foregroundStyle(AppTheme.canvasForeground)
+                    .padding(12)
+                    .background(AppTheme.canvasBackground.opacity(0.92), in: Capsule())
+                    .padding(8)
+                }
+                .overlay(alignment: .bottomTrailing) {
+                    if viewModel.hasResult {
+                        Button { showFocusMode = true } label: {
+                            Label("확대", systemImage: "arrow.up.left.and.arrow.down.right")
+                                .font(.caption.weight(.semibold))
+                                .padding(10)
+                                .foregroundStyle(AppTheme.canvasForeground)
+                                .background(AppTheme.canvasBackground.opacity(0.9), in: Capsule())
+                        }
+                        .padding(12)
+                        .accessibilityIdentifier("expand-artwork")
                     }
                 }
-                .pickerStyle(.segmented)
-                .frame(maxWidth: 220)
+
+            if comparisonMode == .split {
+                HStack(spacing: 12) {
+                    Text("원본")
+                    Slider(value: $comparisonReveal, in: 0...1)
+                        .accessibilityLabel("텍스트 아트 비교 비율")
+                        .accessibilityValue("\(Int(comparisonReveal * 100))퍼센트")
+                    Text("텍스트")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
 
-            comparisonPreviewContent
-
-            VStack(alignment: .leading, spacing: 8) {
-                Label("자동 생성 준비 완료", systemImage: "sparkles")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
-
-                Text(viewModel.optionSummary)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Text("원본과 ASCII 결과를 번갈아 보거나 슬라이더로 비교하면서, 팔레트·폭·대비를 빠르게 조정하세요.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Text("저장은 사용자가 요청할 때만 사진 앱에 기록됩니다.")
-                    .font(.footnote)
-                    .foregroundStyle(.tertiary)
-                    .fixedSize(horizontal: false, vertical: true)
+            if viewModel.canRetryGeneration {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(viewModel.hasResult ? "옵션을 반영하지 못해 이전 결과를 표시하고 있어요." : "사진을 변환하지 못했어요.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Button("현재 옵션으로 다시 시도") { Task { await viewModel.generate() } }
+                        .buttonStyle(.bordered)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(18)
-        .background(.background, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
-    @ViewBuilder
-    private var comparisonPreviewContent: some View {
-        switch comparisonMode {
-        case .original:
-            sourceImagePreviewCard(height: 220)
-        case .ascii:
-            asciiPreviewCard(height: 220)
-        case .split:
-            comparisonSliderCard(height: 240)
+    private var artworkCanvas: some View {
+        GeometryReader { proxy in
+            let available = CGSize(width: max(proxy.size.width - 32, 1), height: max(proxy.size.height - 72, 1))
+            let ratio = CGFloat(viewModel.image.width) / CGFloat(max(viewModel.image.height, 1))
+            let width = min(available.width, available.height * ratio)
+            let height = width / ratio
+            ZStack {
+                if comparisonMode != .ascii {
+                    Image(decorative: viewModel.image, scale: 1)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: width, height: height)
+                        .accessibilityLabel("원본 이미지")
+                }
+                if comparisonMode != .original {
+                    Group {
+                        if let textArt = viewModel.textArt {
+                            FittedTextArt(textArt: textArt)
+                        } else {
+                            VStack(spacing: 12) {
+                                Image(systemName: viewModel.canRetryGeneration ? "exclamationmark.triangle" : "text.below.photo")
+                                    .font(.largeTitle)
+                                Text(viewModel.canRetryGeneration ? "다시 시도해 주세요" : "문자로 그리는 중…")
+                                    .font(.subheadline)
+                            }
+                            .foregroundStyle(AppTheme.canvasForeground)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                    }
+                    .frame(width: width, height: height)
+                    .background(AppTheme.canvasBackground)
+                    .mask(alignment: .leading) {
+                        Rectangle().frame(width: comparisonMode == .split ? width * comparisonReveal : width)
+                    }
+                }
+                if comparisonMode == .split {
+                    Rectangle()
+                        .fill(AppTheme.canvasForeground)
+                        .frame(width: 2, height: height)
+                        .offset(x: width * (comparisonReveal - 0.5))
+                        .accessibilityHidden(true)
+                }
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
         }
+        .clipShape(RoundedRectangle(cornerRadius: 22))
     }
 
-    private func sourceImagePreviewCard(height: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("원본")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            Image(decorative: viewModel.image, scale: 1.0)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
-                .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func asciiPreviewCard(height: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("ASCII")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            PreviewPanel(
-                textArt: viewModel.textArt?.asString,
-                isLoading: viewModel.isGenerating
-            )
-            .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func comparisonSliderCard(height: CGFloat) -> some View {
+    private var styleSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("슬라이더 비교")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                Text("분위기 고르기").font(.headline)
                 Spacer()
-                Text("\(Int((comparisonReveal * 100).rounded()))%")
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                Button("세부 조정", systemImage: "slider.horizontal.3") { showOptions = true }
+                    .font(.subheadline)
             }
-
-            GeometryReader { proxy in
-                let width = proxy.size.width
-                let height = proxy.size.height
-                let revealX = width * comparisonReveal
-
-                ZStack(alignment: .leading) {
-                    comparisonSourceLayer(height: height)
-
-                    comparisonASCIILayer(height: height)
-                        .mask(alignment: .leading) {
-                            Rectangle()
-                                .frame(width: max(revealX, 0))
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 280 : 140), spacing: 10)], spacing: 10) {
+                ForEach(TextArtStyle.allCases) { style in
+                    Button { viewModel.applyStyle(style) } label: {
+                        HStack(spacing: 8) {
+                            Text(style.characterPreview)
+                                .font(.system(.title3, design: .monospaced).weight(.semibold))
+                                .foregroundStyle(AppTheme.accent)
+                                .frame(width: 32)
+                                .minimumScaleFactor(0.8)
+                                .lineLimit(1)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(style.title).font(.subheadline.weight(.semibold))
+                                Text(style.subtitle).font(.caption2).foregroundStyle(.secondary)
+                            }
+                            Spacer(minLength: 0)
                         }
-
-                    comparisonSliderDivider(x: revealX, height: height)
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(.white.opacity(0.16), lineWidth: 1)
-                )
-                .contentShape(Rectangle())
-                .gesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { value in
-                            let nextValue = value.location.x / max(width, 1)
-                            comparisonReveal = min(max(nextValue, 0), 1)
+                        .padding(12)
+                        .frame(maxWidth: .infinity, minHeight: 54, alignment: .leading)
+                        .background(.background, in: RoundedRectangle(cornerRadius: 16))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(viewModel.selectedStyle == style ? AppTheme.accent : Color.clear, lineWidth: 1.5)
                         }
-                )
-            }
-            .frame(height: height)
-
-            HStack(spacing: 12) {
-                Text("원본")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                Slider(
-                    value: Binding(
-                        get: { Double(comparisonReveal) },
-                        set: { comparisonReveal = CGFloat($0) }
-                    ),
-                    in: 0...1
-                )
-
-                Text("ASCII")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Text("미리보기 위를 좌우로 드래그하거나 슬라이더를 움직여 차이를 확인하세요.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    private func comparisonSourceLayer(height: CGFloat) -> some View {
-        ZStack(alignment: .topLeading) {
-            Color.black.opacity(0.04)
-
-            Image(decorative: viewModel.image, scale: 1.0)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: height)
-                .clipped()
-
-            comparisonCornerBadge(title: "원본", trailing: false)
-        }
-    }
-
-    private func comparisonASCIILayer(height: CGFloat) -> some View {
-        ZStack(alignment: .topLeading) {
-            AppTheme.textArtBackground
-
-            if viewModel.isGenerating && viewModel.textArt == nil {
-                VStack(spacing: 8) {
-                    ProgressView()
-                        .tint(AppTheme.textArtForeground)
-                    Text("생성 중…")
-                        .font(.caption.monospaced())
-                        .foregroundStyle(AppTheme.textArtForeground.opacity(0.85))
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let textArt = viewModel.textArt, !textArt.asString.isEmpty {
-                GeometryReader { proxy in
-                    let cols = max(CGFloat(textArt.width), 1)
-                    let rows = max(CGFloat(textArt.height), 1)
-                    // SF Mono metrics: advance width ≈ 0.6×size, line height ≈ 1.2×size
-                    let fitW = proxy.size.width / (cols * 0.6)
-                    let fitH = proxy.size.height / (rows * 1.2)
-                    let fontSize = max(min(fitW, fitH), 0.5)
-
-                    Text(textArt.asString)
-                        .font(.system(size: fontSize, design: .monospaced))
-                        .foregroundStyle(AppTheme.textArtForeground)
-                        .fixedSize()
-                        .frame(width: proxy.size.width, height: proxy.size.height)
-                        .clipped()
-                }
-            } else {
-                VStack(spacing: 8) {
-                    Image(systemName: "text.below.photo")
-                        .font(.title2)
-                        .foregroundStyle(AppTheme.textArtForeground.opacity(0.6))
-                    Text("결과 대기 중")
-                        .font(.caption.monospaced())
-                        .foregroundStyle(AppTheme.textArtForeground.opacity(0.75))
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-
-            comparisonCornerBadge(title: "ASCII", trailing: true)
-        }
-    }
-
-    private func comparisonSliderDivider(x: CGFloat, height: CGFloat) -> some View {
-        ZStack {
-            Rectangle()
-                .fill(.white.opacity(0.95))
-                .frame(width: 2, height: height)
-
-            Circle()
-                .fill(.ultraThinMaterial)
-                .frame(width: 34, height: 34)
-                .overlay {
-                    Image(systemName: "arrow.left.and.right")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(.primary)
-                }
-                .shadow(color: .black.opacity(0.18), radius: 10, x: 0, y: 4)
-        }
-        .offset(x: x - 17)
-        .frame(maxHeight: .infinity, alignment: .center)
-    }
-
-    private func comparisonCornerBadge(title: String, trailing: Bool) -> some View {
-        HStack {
-            if trailing { Spacer() }
-            Text(title)
-                .font(.caption2.weight(.bold))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(.ultraThinMaterial, in: Capsule())
-            if !trailing { Spacer() }
-        }
-        .padding(10)
-    }
-
-    private var resultSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Text("결과")
-                    .font(.headline)
-                Spacer()
-                Text(viewModel.optionSummary)
-                    .font(.footnote.monospaced())
-                    .foregroundStyle(.secondary)
-            }
-
-            Group {
-                if viewModel.isGenerating && viewModel.textArt == nil {
-                    terminalLoadingView
-                } else if let textArt = viewModel.textArt {
-                    terminalResultView(textArt)
-                } else if let error = viewModel.errorMessage {
-                    ContentUnavailableView(
-                        "생성 실패",
-                        systemImage: "exclamationmark.triangle",
-                        description: Text(error)
-                    )
-                    .frame(maxWidth: .infinity, minHeight: 320)
-                    .overlay(alignment: .bottom) {
-                        Button("다시 시도") {
-                            Task {
-                                await viewModel.generateWithAnimation()
+                        .overlay(alignment: .topTrailing) {
+                            if viewModel.selectedStyle == style {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(AppTheme.accent)
+                                    .background(AppTheme.studioBackground, in: Circle())
+                                    .offset(x: 4, y: -4)
+                                    .accessibilityHidden(true)
                             }
                         }
-                        .buttonStyle(.borderedProminent)
-                        .padding(.bottom, 24)
                     }
-                } else {
-                    ContentUnavailableView(
-                        "결과를 준비 중이에요",
-                        systemImage: "text.below.photo",
-                        description: Text("곧 텍스트 아트가 여기에 표시됩니다.")
-                    )
-                    .frame(maxWidth: .infinity, minHeight: 320)
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(style.title), \(style.subtitle)")
+                    .accessibilityAddTraits(viewModel.selectedStyle == style ? .isSelected : [])
+                    .accessibilityIdentifier("style-\(style.rawValue)")
                 }
             }
-            .background(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(Color.black.opacity(0.96))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(Color.green.opacity(0.18), lineWidth: 1)
-            )
         }
     }
 
-    private var terminalLoadingView: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .tint(.green)
-            Text("사진을 문자열 패턴으로 변환하는 중…")
-                .font(.body.monospaced())
-                .foregroundStyle(.green.opacity(0.85))
-        }
-        .frame(maxWidth: .infinity, minHeight: 320)
-    }
-
-    private func terminalResultView(_ textArt: TextArt) -> some View {
-        ScrollView([.horizontal, .vertical]) {
-            TypingEffectText(
-                text: textArt.asString,
-                charactersPerSecond: 500,
-                shouldAnimate: viewModel.shouldAnimateNextResult
-            )
-            .font(.system(size: viewModel.fontSize, design: .monospaced))
-            .foregroundStyle(.green)
-            .textSelection(.enabled)
-            .padding(20)
-            .onChange(of: textArt.asString) { _, _ in
-                if viewModel.shouldAnimateNextResult {
-                    viewModel.shouldAnimateNextResult = false
-                }
+    private var resultInformation: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "text.alignleft")
+                Text(viewModel.resultStatistics)
+                    .font(.system(.caption, design: .monospaced))
             }
+            .foregroundStyle(.secondary)
+            Text(viewModel.optionSummary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text("붙여넣는 곳에서도 고정폭 글꼴을 쓰면 그림이 잘 유지돼요.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, minHeight: 320, alignment: .topLeading)
-        .contentShape(Rectangle())
-        .onTapGesture(count: 2) {
-            guard viewModel.hasResult else { return }
-            dependencies.hapticsService.impact(style: .medium)
-            withAnimation(.easeInOut(duration: 0.25)) {
-                showFocusMode = true
-            }
-        }
-        .gesture(
-            MagnificationGesture()
-                .onChanged { value in
-                    if baseFontSize == nil {
-                        baseFontSize = viewModel.fontSize
-                    }
-                    let newSize = (baseFontSize ?? viewModel.fontSize) * value
-                    viewModel.fontSize = min(max(newSize, 4), 20)
-                }
-                .onEnded { _ in
-                    baseFontSize = nil
-                }
-        )
     }
 
     private var actionBar: some View {
-        HStack(spacing: 10) {
-            WorkspaceActionButton(
-                title: viewModel.copied ? "복사됨" : "복사",
-                systemImage: viewModel.copied ? "checkmark.circle.fill" : "doc.on.doc",
-                isProminent: true,
-                isDisabled: !viewModel.hasResult
-            ) {
-                viewModel.copyToClipboard()
+        VStack(spacing: 8) {
+            if viewModel.copied || viewModel.showSavedFeedback {
+                Label(viewModel.copied ? "텍스트를 복사했어요" : "사진 앱에 저장했어요", systemImage: "checkmark.circle.fill")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(AppTheme.accent)
             }
-
-            ShareLink(item: viewModel.shareText) {
-                WorkspaceActionButtonLabel(
-                    title: "공유",
-                    systemImage: "square.and.arrow.up",
-                    isProminent: false
-                )
-            }
-            .disabled(!viewModel.hasResult)
-
-            WorkspaceActionButton(
-                title: viewModel.isSavingImage ? "저장 중" : "저장",
-                systemImage: viewModel.showSavedFeedback ? "photo.badge.checkmark" : "square.and.arrow.down",
-                isProminent: false,
-                isDisabled: !viewModel.hasResult || viewModel.isSavingImage
-            ) {
-                Task {
-                    await viewModel.saveAsImage()
+            HStack(spacing: 10) {
+                Button { viewModel.copyToClipboard() } label: {
+                    Label(viewModel.copied ? "복사됨" : "텍스트 복사", systemImage: viewModel.copied ? "checkmark" : "doc.on.doc")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .foregroundStyle(.white)
+                        .background(AppTheme.accent, in: RoundedRectangle(cornerRadius: 16))
                 }
-            }
-
-            WorkspaceActionButton(
-                title: "옵션",
-                systemImage: "slider.horizontal.3",
-                isProminent: false,
-                isDisabled: false
-            ) {
-                showOptions = true
+                .disabled(!viewModel.canExportResult)
+                .opacity(viewModel.canExportResult ? 1 : 0.45)
+                .accessibilityIdentifier("copy-artwork")
+                ShareLink(item: viewModel.shareText) {
+                    actionLabel("공유", systemImage: "square.and.arrow.up")
+                }
+                .disabled(!viewModel.canExportResult)
+                Button { Task { await viewModel.saveAsImage() } } label: {
+                    actionLabel(viewModel.isSavingImage ? "저장 중" : "이미지 저장", systemImage: "square.and.arrow.down")
+                }
+                .disabled(!viewModel.canExportResult || viewModel.isSavingImage)
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
         .padding(.vertical, 12)
-        .background(.ultraThinMaterial)
+        .background(.bar)
+    }
+
+    private func actionLabel(_ title: String, systemImage: String) -> some View {
+        VStack(spacing: 4) {
+            Image(systemName: systemImage)
+            Text(title).font(.caption2)
+        }
+        .frame(minWidth: 60, minHeight: 50)
     }
 
     private var optionsSheet: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("팔레트")
-                            .font(.headline)
-                        VisualPalettePicker(
-                            selectedPreset: $viewModel.selectedPreset,
-                            onSelect: { preset in
-                                viewModel.selectPreset(preset)
-                                viewModel.generateFinal()
-                            }
-                        )
+            Form {
+                Section("문자 팔레트") {
+                    VisualPalettePicker(selectedPreset: $viewModel.selectedPreset) { preset in
+                        viewModel.selectPreset(preset)
+                        viewModel.generateFinal()
                     }
-
+                    .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                    .listRowBackground(Color.clear)
                     if viewModel.selectedPreset.usesCustomInput {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("커스텀 문자")
-                                .font(.headline)
-
-                            TextField("예: @#*:. TEXTIFY", text: viewModel.customCharactersBinding, axis: .vertical)
-                                .textInputAutocapitalization(.never)
-                                .autocorrectionDisabled()
-                                .font(.system(.body, design: .monospaced))
-                                .padding(12)
-                                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-
-                            Text("중복 문자는 자동으로 정리되며, 최대 24자까지 입력할 수 있습니다.")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("출력 폭")
-                                .font(.headline)
-                            Spacer()
-                            Text("\(viewModel.outputWidth)")
-                                .font(.headline.monospaced())
-                                .foregroundStyle(.secondary)
-                        }
-
-                        Slider(
-                            value: viewModel.outputWidthBinding,
-                            in: 30...150,
-                            step: 10,
-                            onEditingChanged: { isEditing in
-                                viewModel.handleOutputWidthEditingChanged(isEditing)
-                            }
-                        )
-
-                        Text("값이 커질수록 디테일은 늘고 문자열 길이도 길어집니다.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("대비")
-                                .font(.headline)
-                            Spacer()
-                            Text(viewModel.contrastDisplayText)
-                                .font(.headline.monospaced())
-                                .foregroundStyle(.secondary)
-                        }
-
-                        Slider(value: viewModel.contrastBoostBinding, in: 0.0...2.0, step: 0.1)
-
-                        Text("값이 커질수록 어두움과 밝음의 차이가 더 강하게 반영됩니다.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        Toggle("밝기 반전", isOn: viewModel.invertBrightnessBinding)
-                            .font(.headline)
-
-                        Text("어두운 배경에서 더 잘 보이는 결과가 필요할 때 사용합니다.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("보기 크기")
-                                .font(.headline)
-                            Spacer()
-                            Text("\(Int(viewModel.fontSize.rounded()))")
-                                .font(.headline.monospaced())
-                                .foregroundStyle(.secondary)
-                        }
-
-                        Slider(value: viewModel.fontSizeBinding, in: 4...20, step: 1)
-
-                        Text("작업공간에서만 보이는 글자 크기입니다. 결과물 자체는 바뀌지 않습니다.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
+                        TextField("예: @#*:. TEXTIFY", text: viewModel.customCharactersBinding)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .font(.system(.body, design: .monospaced))
+                        Text("중복은 정리하고 공백을 더해요. 최대 24자까지 입력할 수 있어요.")
+                            .font(.footnote).foregroundStyle(.secondary)
                     }
                 }
-                .padding(20)
+                Section {
+                    LabeledContent("출력 폭", value: "\(viewModel.outputWidth)자")
+                    Slider(value: viewModel.outputWidthBinding, in: 30...150, step: 10,
+                           onEditingChanged: viewModel.handleOutputWidthEditingChanged)
+                        .accessibilityLabel("출력 폭")
+                    LabeledContent("대비", value: viewModel.contrastDisplayText)
+                    Slider(value: viewModel.contrastBoostBinding, in: 0...2, step: 0.1)
+                        .accessibilityLabel("대비")
+                    Toggle("밝기 반전", isOn: viewModel.invertBrightnessBinding)
+                } header: { Text("그림 조정") }
+                footer: { Text("폭이 좁으면 짧게 공유하기 좋고, 넓으면 디테일이 살아나요.") }
+                Section {
+                    Button("기본 설정으로 되돌리기", systemImage: "arrow.counterclockwise") {
+                        viewModel.resetOptions()
+                    }
+                }
             }
-            .navigationTitle("옵션")
+            .navigationTitle("세부 조정")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("완료") {
-                        showOptions = false
-                    }
+                    Button("완료") { showOptions = false }
                 }
             }
         }
+        .tint(AppTheme.accent)
     }
 
     private func openAppSettings() {
-        #if canImport(UIKit)
         guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
         openURL(url)
-        #endif
-    }
-}
-
-private struct WorkspaceActionButton: View {
-    let title: String
-    let systemImage: String
-    let isProminent: Bool
-    let isDisabled: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            WorkspaceActionButtonLabel(
-                title: title,
-                systemImage: systemImage,
-                isProminent: isProminent
-            )
-        }
-        .buttonStyle(.plain)
-        .disabled(isDisabled)
-        .opacity(isDisabled ? 0.45 : 1)
     }
 }
 
 private enum ComparisonMode: String, CaseIterable, Identifiable {
-    case original
-    case ascii
-    case split
-
-    var id: String { rawValue }
-
+    case ascii, original, split
+    var id: Self { self }
     var title: String {
         switch self {
-        case .original:
-            return "원본"
-        case .ascii:
-            return "ASCII"
-        case .split:
-            return "비교"
+        case .ascii: "텍스트 아트"
+        case .original: "원본"
+        case .split: "비교"
         }
-    }
-}
-
-private struct WorkspaceActionButtonLabel: View {
-    let title: String
-    let systemImage: String
-    let isProminent: Bool
-
-    var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: systemImage)
-                .font(.headline)
-            Text(title)
-                .font(.caption.weight(.semibold))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
-        .foregroundStyle(isProminent ? Color.white : Color.primary)
-        .background {
-            if isProminent {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.accentColor)
-            } else {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(.regularMaterial)
-            }
-        }
-    }
-}
-
-private struct FeedbackBadge: View {
-    let text: String
-    let systemImage: String
-
-    var body: some View {
-        Label(text, systemImage: systemImage)
-            .font(.subheadline.weight(.semibold))
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(.ultraThinMaterial, in: Capsule())
-            .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
     }
 }

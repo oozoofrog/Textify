@@ -97,9 +97,10 @@ Textify는 **오프라인 ASCII 텍스트 아트 생성 앱**이며, 이번 단�
 ## 4.1 MainView / MainViewModel
 
 ### 역할
-- 사진 선택 진입
+- 사진 선택 및 파일 이미지 가져오기 진입
 - 히스토리/설정 시트 오픈
-- 사진 로딩 완료 후 작업공간으로 이동
+- 사진/파일 로딩 완료 후 작업공간으로 이동
+- 최신 요청이 성공했을 때만 이동하며 취소/오래된 응답은 화면을 바꾸지 않음
 
 ### 상태
 - `selectedImage`
@@ -107,7 +108,7 @@ Textify는 **오프라인 ASCII 텍스트 아트 생성 앱**이며, 이번 단�
 - `errorMessage`
 
 ### 의존성
-- `PhotoLibraryService`
+- `PhotoLibraryLoading` (기본 구현: `PhotoLibraryService`)
 
 ---
 
@@ -116,7 +117,8 @@ Textify는 **오프라인 ASCII 텍스트 아트 생성 앱**이며, 이번 단�
 ### 역할
 - 초기 생성
 - 옵션 변경 반영
-- 복사/저장/공유/포커스 모드 지원
+- 복사/저장/공유/전체 보기 지원
+- 빠른 스타일 적용, 기본 설정 복원, 결과 통계 제공
 - 히스토리 저장 트리거
 
 ### 상태
@@ -128,7 +130,9 @@ Textify는 **오프라인 ASCII 텍스트 아트 생성 앱**이며, 이번 단�
 - `selectedPreset`
 - `outputWidth`
 - `invertBrightness`
-- `fontSize`
+- `selectedStyle` (실제 옵션에서 계산)
+- `resultStatistics`
+- `canRetryGeneration`
 
 ### 의존성
 - `TextArtGenerating`
@@ -140,9 +144,13 @@ Textify는 **오프라인 ASCII 텍스트 아트 생성 앱**이며, 이번 단�
 ### 동시성 규칙
 - `@MainActor` ViewModel 유지
 - 생성 요청은 `GenerationTaskManager`로 최신 요청만 유효하게 유지
-- 폭 변경은 throttle
-- 최종 재생성은 debounce
-- stale request 방지를 위해 request id 유지
+- 예약 지연과 실제 변환을 `GenerationTaskManager`가 소유하는 하나의 작업으로 관리
+- 폭 변경은 50ms, 나머지 옵션 변경은 200ms 동안 후속 입력을 모아 마지막 값을 생성
+- 폭 편집 종료 시 지연 없이 생성하며, 편집 종료 이벤트가 없는 접근성 입력도 마지막 값을 반영
+- 새 요청이나 화면 이탈 시 예약/실행 작업을 함께 취소하고 request id로 늦은 결과를 차단
+- 완료한 결과와 당시 옵션을 함께 보관하며 내보내기는 현재 옵션과 일치하는 결과에만 허용
+- 복사/저장 시작 시 히스토리 요청을 캡처하고, 비동기 완료 후에도 동일 요청을 기록
+- 히스토리 기록 실패는 내보내기 성공과 구분해 알리고 같은 결과의 재시도를 허용
 
 ---
 

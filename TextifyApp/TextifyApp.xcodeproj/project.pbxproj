@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F9AEBA9B43DAF86B51A72FA9 /* MainViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63764AA38186A2788273A7BC /* MainViewModelTests.swift */; };
+		180C9988481C13B2F2FEC425 /* TextArtStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA78CC40F94DE465A58F83DC /* TextArtStyle.swift */; };
 		0142D7ADB2AEDA3417BA4CE0 /* TextifyUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DBAD51AA7583D72F0DC4CF /* TextifyUI.swift */; };
 		0342897DA4F692861F6644FC /* TextifyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCFBE2DA8D99E61C84AE5D8 /* TextifyViewModelTests.swift */; };
 		098BB84915FDE085112BE7AF /* CharacterPaletteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE02C1FBE95E8ECE405A847 /* CharacterPaletteTests.swift */; };
@@ -25,7 +27,6 @@
 		3B0BFD0B5A150F70CD37E382 /* AnimatedGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267E213001462A77C75DADF6 /* AnimatedGradient.swift */; };
 		3B98A71744DF1D3D5708BF27 /* PhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3466B68372B0726AC55BF2 /* PhotoLibraryService.swift */; };
 		3E3E07C0351A059E52CDBCDA /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD65EBEF36830EE68978596 /* GlassCard.swift */; };
-		3EFFC758FEACED8358303B4E /* ThrottleDebounce.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F42553B585316DD18D63C39 /* ThrottleDebounce.swift */; };
 		40512D3A3D009E038136138A /* TextArtHistoryRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B301C13120E2813A47C1ABB9 /* TextArtHistoryRecorder.swift */; };
 		413A8DDCD4A849389D86CC19 /* FocusModeOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7D167E46B5B6F70BD689CA /* FocusModeOverlay.swift */; };
 		432406853AF77211AE52FBF9 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186E7EBBE057CA88D8267C2C /* AppDependencies.swift */; };
@@ -172,6 +173,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		63764AA38186A2788273A7BC /* MainViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModelTests.swift; sourceTree = "<group>"; };
+		AA78CC40F94DE465A58F83DC /* TextArtStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArtStyle.swift; sourceTree = "<group>"; };
 		09E2EBCA4AE223C0FFD125A2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0AC08B5CB686E3ACBD9D8C99 /* ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
 		0E511AFAB36A6034E47CC0F7 /* PhotoLibrarySaveAuthorizationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibrarySaveAuthorizationServiceTests.swift; sourceTree = "<group>"; };
@@ -188,7 +191,6 @@
 		2B8A3F0F8A2FF448FE145F2E /* TextArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextArt.swift; sourceTree = "<group>"; };
 		2C9653FDB8A4B5F834C3A1A0 /* LoadingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingButton.swift; sourceTree = "<group>"; };
 		2F013CD8D68F092F1A89C2D6 /* TextifyUI.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TextifyUI.docc; sourceTree = "<group>"; };
-		2F42553B585316DD18D63C39 /* ThrottleDebounce.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrottleDebounce.swift; sourceTree = "<group>"; };
 		308AB5F249119BA9A5A6D6C9 /* HistoryDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDetailViewModel.swift; sourceTree = "<group>"; };
 		3657598BAB8E3A19A2E35AE4 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		398025D82E0221B402436EFF /* ValueSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueSlider.swift; sourceTree = "<group>"; };
@@ -510,7 +512,6 @@
 		CCC5A378B375951855418CA7 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				2F42553B585316DD18D63C39 /* ThrottleDebounce.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -587,6 +588,7 @@
 				5B134CD45B93EB6A3E62158C /* SettingsViewModelTests.swift */,
 				C852E60D3D02B93D5C491735 /* TextArtHistoryRecorderTests.swift */,
 				1E020444B0D87351993A0B4F /* TextifyUITests.swift */,
+				63764AA38186A2788273A7BC /* MainViewModelTests.swift */,
 				CCCFBE2DA8D99E61C84AE5D8 /* TextifyViewModelTests.swift */,
 			);
 			path = TextifyUITests;
@@ -595,6 +597,7 @@
 		F9F7166E5B2559964F588F50 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				AA78CC40F94DE465A58F83DC /* TextArtStyle.swift */,
 				A63692C1F45C0AADF3365E8C /* AppError.swift */,
 				45375506F126815B50817CDF /* HistoryEntry.swift */,
 			);
@@ -787,9 +790,9 @@
 				E2DB7199B2D7D25CFF87FBE3 /* TextifyUI.docc in Sources */,
 				0142D7ADB2AEDA3417BA4CE0 /* TextifyUI.swift in Sources */,
 				6B19ADD97B0034EF9F559687 /* TextifyView.swift in Sources */,
+				180C9988481C13B2F2FEC425 /* TextArtStyle.swift in Sources */,
 				19A4BBBE187D0A0944E2AC61 /* TextifyViewModel.swift in Sources */,
 				ECF881A36140EF9BEE337F80 /* ThemeEnvironment.swift in Sources */,
-				3EFFC758FEACED8358303B4E /* ThrottleDebounce.swift in Sources */,
 				F40627CFDE592EE3DA8B7412 /* TypingEffectText.swift in Sources */,
 				EB1A1541A0BB01AE0C7C9985 /* ValueSlider.swift in Sources */,
 				24FE6C9441EA12BE07CC1FE4 /* VisualPalettePicker.swift in Sources */,
@@ -832,6 +835,7 @@
 				F5FBF13B89AEF748AEC25144 /* SettingsViewModelTests.swift in Sources */,
 				18FBA6EFD22C579E0A9403F2 /* TextArtHistoryRecorderTests.swift in Sources */,
 				59BA2270492583A74BBFB3E3 /* TextifyUITests.swift in Sources */,
+				F9AEBA9B43DAF86B51A72FA9 /* MainViewModelTests.swift in Sources */,
 				0342897DA4F692861F6644FC /* TextifyViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
