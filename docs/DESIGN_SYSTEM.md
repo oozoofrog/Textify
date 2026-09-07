@@ -1,357 +1,60 @@
-# Textify - 디자인 시스템
+# Textify 디자인 시스템
 
-> iOS 앱 UI/UX 가이드라인
+기준: 2026-09-07, iOS 26 이상. 현재 구현의 기준은 `TextifyUI/Shared/Theme/AppTheme.swift`다.
 
----
+## 방향
 
-## 1. 디자인 원칙
+사진을 문자 그림으로 만드는 작은 스튜디오. 배경 장식보다 결과물을 먼저 보여주고, 처음 쓰는 사람도 입력 → 분위기 선택 → 내보내기를 발견할 수 있어야 한다.
 
-### 1.1 핵심 가치
+- 홈의 주 행동은 사진 선택, 보조 행동은 파일 이미지 가져오기다.
+- 결과 예시는 한 곳에 모으고 예시임을 표시한다. 반복되는 배경 ASCII는 사용하지 않는다.
+- 작업공간은 하나의 캔버스에서 텍스트 아트·원본·비교를 전환한다.
+- 빠른 스타일은 화면에, 세부 팔레트·폭·대비·반전은 시트에 둔다.
+- 상태 설명은 생성 완료 결과를 기준으로 하며, 미반영 옵션과 이전 결과를 혼동시키지 않는다.
 
-| 원칙 | 설명 |
-|------|------|
-| **명확성** | 각 화면의 목적이 즉시 이해됨 |
-| **효율성** | 최소한의 탭으로 목표 달성 |
-| **일관성** | 동일한 패턴과 컴포넌트 재사용 |
-| **피드백** | 모든 액션에 즉각적 반응 |
+## 색상과 표면
 
-### 1.2 디자인 톤
+| 역할 | 코드 기준 | 사용 위치 |
+|---|---|---|
+| 작업 배경 | `studioBackground` / systemGroupedBackground | 홈, 스튜디오 |
+| 보조 카드 | 시스템 background | 스타일 카드, 파일 가져오기 |
+| 액션·선택 | `accent` | 주 CTA, 선택 윤곽, 세부 조정 |
+| 아트 캔버스 | `canvasBackground` | 홈 예시, 결과, 전체 보기 |
+| 캔버스 문자 | `canvasForeground` | 예시와 결과 미리보기 |
+| 보조 텍스트 | secondary | 설명, 결과 정보 |
 
-```
-레트로 + 모던 = 네오-레트로
+시스템 배경과 텍스트는 Light/Dark Mode를 따른다. `accent`는 모드별 진한 녹색/밝은 녹색으로 정의한다. 이미지 저장은 기존 녹색 문자/검정 배경 포맷을 유지한다. 스튜디오 표면 색은 이미지 출력 옵션이 아니다.
 
-- ASCII art의 클래식한 감성
-- 현대적인 iOS 디자인 언어
-- 글래스모피즘 효과
-- 부드러운 애니메이션
-```
+## 타이포그래피와 레이아웃
 
----
+- 제목/설명/컨트롤은 Dynamic Type의 시스템 글꼴을 사용한다.
+- 문자 그림은 모노스페이스로 표시한다. `FittedTextArt`가 실제 문자열의 폰트 크기를 측정해 전체가 캔버스에 맞게 들어가도록 한다.
+- 읽을 콘텐츠는 Dynamic Type을 따르지만, 아트의 문자 크기는 도형 비율을 보존하기 위해 캔버스 크기를 따른다.
+- 홈 콘텐츠 최대 폭 620pt, 스튜디오 최대 폭 800pt. iPhone 가로 및 iPad에서는 가운데 정렬한다.
+- 주요 간격 12/20/24/28pt, 카드 모서리 14~24pt.
+- 스타일/팔레트는 adaptive grid로 배치한다.
+- 원본과 비교 결과는 같은 화면 비율 영역에 배치하며 원본을 잘라 채우지 않는다.
 
-## 2. 컬러 시스템
+## 동작과 접근성
 
-### 2.1 라이트 모드
+- 팔레트/스타일 선택은 실제 `Button`이며 선택됨 trait와 체크 표시를 제공한다.
+- 사진 선택과 파일 가져오기는 로딩 중 비활성화한다.
+- 생성 중 또는 옵션과 결과가 다를 때는 내보내기를 비활성화한다.
+- 생성 실패 시 알림을 닫아도 재시도 버튼이 남는다.
+- 비교 슬라이더에는 비율 라벨/접근성 값을 제공한다.
+- 전체 보기는 명시적 닫기·확대·축소·화면 맞춤 버튼과 pinch/pan을 함께 제공한다.
+- 사용자 동작을 발견하는 데 애니메이션, 더블 탭, 길게 누르기가 필수이지 않다.
+- 홈 예시는 짧은 접근성 설명으로 표현한다. 장식 점/비교 구분선은 의미 없는 읽기 요소를 만들지 않는다.
 
-| 용도 | 색상 | HEX |
-|------|------|-----|
-| Background | White | `#FFFFFF` |
-| Surface | Light Gray | `#F5F5F7` |
-| Primary | Blue | `#007AFF` |
-| Secondary | Purple | `#AF52DE` |
-| Text Primary | Black | `#000000` |
-| Text Secondary | Gray | `#8E8E93` |
+## 현재 기능
 
-### 2.2 다크 모드
+| 기능 | 설정 |
+|---|---|
+| 클래식 | 기본 팔레트, 폭 80, 대비 1.0 |
+| 선명하게 | 조밀 팔레트, 폭 100, 대비 1.5 |
+| 블록 | 블록 팔레트, 폭 80, 대비 1.2 |
+| 간결하게 | 미니멀 팔레트, 폭 40, 대비 1.1 |
 
-| 용도 | 색상 | HEX |
-|------|------|-----|
-| Background | Black | `#000000` |
-| Surface | Dark Gray | `#1C1C1E` |
-| Primary | Blue | `#0A84FF` |
-| Secondary | Purple | `#BF5AF2` |
-| Text Primary | White | `#FFFFFF` |
-| Text Secondary | Gray | `#8E8E93` |
+모든 스타일은 반전을 끈 상태로 시작한다. 세부 옵션을 바꾸면 실제 설정이 일치할 때만 스타일 선택 표시를 유지한다. 기본 설정 복원은 클래식과 기본 커스텀 문자 입력으로 되돌린다.
 
-### 2.3 SwiftUI 구현
-
-```swift
-extension Color {
-    static let textifyPrimary = Color("Primary")
-    static let textifySecondary = Color("Secondary")
-    static let textifySurface = Color("Surface")
-}
-
-// AppTheme.swift
-struct AppTheme {
-    static let cornerRadius: CGFloat = 16
-    static let padding: CGFloat = 16
-    static let spacing: CGFloat = 12
-}
-```
-
----
-
-## 3. 타이포그래피
-
-### 3.1 폰트 스케일
-
-| 용도 | 스타일 | 크기 |
-|------|--------|------|
-| Large Title | Bold | 34pt |
-| Title | Bold | 28pt |
-| Headline | Semibold | 17pt |
-| Body | Regular | 17pt |
-| Callout | Regular | 16pt |
-| Caption | Regular | 12pt |
-
-### 3.2 모노스페이스 (결과 표시용)
-
-```swift
-// 텍스트 아트 결과 표시
-Font.system(.body, design: .monospaced)
-
-// 또는 커스텀
-Font.custom("Menlo", size: 12)
-```
-
----
-
-## 4. 컴포넌트 라이브러리
-
-### 4.1 GlassCard
-
-글래스모피즘 효과의 카드 컨테이너
-
-```swift
-struct GlassCard<Content: View>: View {
-    let content: Content
-
-    var body: some View {
-        content
-            .padding()
-            .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-}
-```
-
-### 4.2 LoadingButton
-
-로딩 상태를 표시하는 버튼
-
-```swift
-struct LoadingButton: View {
-    let title: String
-    let isLoading: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            if isLoading {
-                ProgressView()
-            } else {
-                Text(title)
-            }
-        }
-        .disabled(isLoading)
-    }
-}
-```
-
-### 4.3 ValueSlider
-
-값을 조절하는 슬라이더 (폭, 대비 등)
-
-```swift
-struct ValueSlider: View {
-    let title: String
-    @Binding var value: Double
-    let range: ClosedRange<Double>
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text("\(title): \(Int(value))")
-            Slider(value: $value, in: range)
-        }
-    }
-}
-```
-
-### 4.4 ErrorBanner
-
-에러 메시지 표시 배너
-
-```swift
-struct ErrorBanner: View {
-    let message: String
-    let onDismiss: () -> Void
-
-    var body: some View {
-        HStack {
-            Image(systemName: "exclamationmark.triangle")
-            Text(message)
-            Spacer()
-            Button("닫기", action: onDismiss)
-        }
-        .padding()
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(8)
-    }
-}
-```
-
----
-
-## 5. 아이콘
-
-### 5.1 SF Symbols 사용
-
-| 용도 | 아이콘 |
-|------|--------|
-| 새 프로젝트 | `plus.circle.fill` |
-| 히스토리 | `clock.arrow.circlepath` |
-| 설정 | `gearshape.fill` |
-| 복사 | `doc.on.doc` |
-| 저장 | `square.and.arrow.down` |
-| 공유 | `square.and.arrow.up` |
-| 사진 | `photo.on.rectangle` |
-| 파일 | `folder` |
-
-### 5.2 앱 아이콘
-
-```
-1024x1024 마스터 아이콘
-├── 배경: 그라데이션 (Primary → Secondary)
-├── 심볼: 모노스페이스 "Aa" 또는 ASCII art 패턴
-└── 스타일: iOS 18 디자인 언어
-```
-
----
-
-## 6. 애니메이션
-
-### 6.1 표준 타이밍
-
-| 유형 | 지속시간 | 이징 |
-|------|----------|------|
-| 빠른 피드백 | 0.15s | easeOut |
-| 표준 전환 | 0.3s | easeInOut |
-| 강조 애니메이션 | 0.5s | spring |
-
-### 6.2 애니메이션 패턴
-
-```swift
-// 버튼 탭 피드백
-withAnimation(.easeOut(duration: 0.15)) {
-    scale = 0.95
-}
-
-// 화면 전환
-withAnimation(.easeInOut(duration: 0.3)) {
-    isPresented = true
-}
-
-// 결과 표시
-withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-    showResult = true
-}
-```
-
----
-
-## 7. 레이아웃
-
-### 7.1 Safe Area
-
-```swift
-// 항상 safe area 존중
-.padding()
-.safeAreaInset(edge: .bottom) {
-    // 하단 액션 버튼
-}
-```
-
-### 7.2 스페이싱 시스템
-
-```swift
-enum Spacing {
-    static let xs: CGFloat = 4
-    static let sm: CGFloat = 8
-    static let md: CGFloat = 16
-    static let lg: CGFloat = 24
-    static let xl: CGFloat = 32
-}
-```
-
-### 7.3 그리드
-
-```swift
-// 2열 그리드 (히스토리 등)
-LazyVGrid(columns: [
-    GridItem(.flexible()),
-    GridItem(.flexible())
-], spacing: 16) {
-    // items
-}
-```
-
----
-
-## 8. 접근성
-
-### 8.1 VoiceOver
-
-```swift
-// 이미지에 설명 추가
-Image(uiImage: image)
-    .accessibilityLabel("선택한 원본 이미지")
-
-// 버튼에 힌트 추가
-Button("복사") { ... }
-    .accessibilityHint("텍스트 아트를 클립보드에 복사합니다")
-```
-
-### 8.2 Dynamic Type
-
-```swift
-// 텍스트 크기 대응
-Text("제목")
-    .font(.headline)
-    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-```
-
-### 8.3 최소 탭 영역
-
-```swift
-// 44x44pt 최소 크기 보장
-Button { ... }
-    .frame(minWidth: 44, minHeight: 44)
-```
-
----
-
-## 9. 화면별 디자인
-
-### 9.1 홈 화면
-
-```
-┌─────────────────────────────────────┐
-│  Textify                    ⚙️      │
-│                                     │
-│  ┌─────────────────────────────┐   │
-│  │                             │   │
-│  │      + 새 프로젝트 시작      │   │
-│  │                             │   │
-│  └─────────────────────────────┘   │
-│                                     │
-│  최근 히스토리                       │
-│  ┌─────────┐ ┌─────────┐          │
-│  │ 썸네일1  │ │ 썸네일2  │          │
-│  └─────────┘ └─────────┘          │
-│                                     │
-└─────────────────────────────────────┘
-```
-
-### 9.2 결과 화면
-
-```
-┌─────────────────────────────────────┐
-│  ← 결과                              │
-│                                     │
-│  ┌─────────────────────────────┐   │
-│  │ @@@@@@@@@@@@@@@@@@@@@@@@@@ │   │
-│  │ @@@@@@#####@@@@@@#####@@@@ │   │
-│  │ @@@@@#.....#@@@@#.....#@@@ │   │
-│  │ ...                       │   │
-│  │ (스크롤 가능)               │   │
-│  └─────────────────────────────┘   │
-│                                     │
-│  ┌────┐ ┌────┐ ┌────┐ ┌────┐     │
-│  │복사│ │저장│ │공유│ │재생성│     │
-│  └────┘ └────┘ └────┘ └────┘     │
-└─────────────────────────────────────┘
-```
-
----
-
-*Version: 1.0 | Last Updated: 2026-01-30*
+검증 결과와 남은 범위는 `DESIGN_FUNCTION_IMPROVEMENTS.md`에 기록한다.

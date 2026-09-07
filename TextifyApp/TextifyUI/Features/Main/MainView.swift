@@ -1,8 +1,9 @@
 import SwiftUI
 import PhotosUI
+import UniformTypeIdentifiers
 import CoreGraphics
 
-/// 메인 화면 - 사진 선택 + 제품 가치 제안 + 보조 진입점
+/// Entry points into a single photo-to-text workspace.
 @MainActor
 public struct MainView: View {
     @State var viewModel: MainViewModel
@@ -11,6 +12,7 @@ public struct MainView: View {
     @State private var navigateToTextify = false
     @State private var showHistory = false
     @State private var showSettings = false
+    @State private var showFileImporter = false
 
     public init(viewModel: MainViewModel) {
         self._viewModel = State(initialValue: viewModel)
@@ -18,27 +20,34 @@ public struct MainView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack {
-                BackgroundTextArtAnimation()
-                    .ignoresSafeArea()
-
-                ScrollView {
-                    VStack(spacing: 24) {
-                        heroSection
-                        featureHighlights
-                        primaryActionSection
-                        quickActionSection
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 32)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 28) {
+                    introduction
+                    sampleArtwork
+                    importActions
+                    Label("사진과 결과는 기기 안에서만 처리해요", systemImage: "lock.shield")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
+                }
+                .frame(maxWidth: 620)
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
+                .padding(.bottom, 32)
+                .frame(maxWidth: .infinity)
+            }
+            .background(AppTheme.studioBackground)
+            .navigationTitle("Textify")
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button("최근 작업", systemImage: "clock.arrow.circlepath") { showHistory = true }
+                    Button("설정", systemImage: "gearshape") { showSettings = true }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $navigateToTextify) {
                 if let image = viewModel.selectedImage {
-                    TextifyView(
-                        viewModel: dependencies.makeTextifyViewModel(image: image)
-                    )
+                    TextifyView(viewModel: dependencies.makeTextifyViewModel(image: image))
                 }
             }
             .sheet(isPresented: $showHistory) {
@@ -47,251 +56,136 @@ public struct MainView: View {
             .sheet(isPresented: $showSettings) {
                 SettingsView(viewModel: dependencies.makeSettingsViewModel())
             }
+            .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.image]) { result in
+                switch result {
+                case .success(let url):
+                    Task {
+                        if await viewModel.loadImage(fromFile: url) { navigateToTextify = true }
+                    }
+                case .failure(let error):
+                    if (error as NSError).code != NSUserCancelledError {
+                        viewModel.errorMessage = "파일을 열지 못했습니다. 다시 선택해 주세요."
+                    }
+                }
+            }
         }
+        .tint(AppTheme.accent)
         .onChange(of: selectedPhotoItem) { _, newItem in
+            guard let newItem else { return }
             Task {
-                await viewModel.loadImage(from: newItem)
-                if viewModel.selectedImage != nil {
-                    selectedPhotoItem = nil
+                if await viewModel.loadImage(from: newItem) {
                     navigateToTextify = true
                 }
+                selectedPhotoItem = nil
             }
         }
         .onChange(of: navigateToTextify) { _, isPresented in
-            if !isPresented {
-                viewModel.clearSelection()
-            }
+            if !isPresented { viewModel.clearSelection() }
         }
-        .alert(
-            "오류",
-            isPresented: Binding(
-                get: { viewModel.errorMessage != nil },
-                set: { isPresented in
-                    if !isPresented {
-                        viewModel.errorMessage = nil
-                    }
-                }
-            )
-        ) {
-            Button("확인", role: .cancel) {
-                viewModel.errorMessage = nil
-            }
+        .alert("이미지를 불러오지 못했어요", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )) {
+            Button("확인", role: .cancel) { viewModel.errorMessage = nil }
         } message: {
             Text(viewModel.errorMessage ?? "")
         }
     }
 
-    private var heroSection: some View {
-        VStack(spacing: 18) {
-            Text("✦")
-                .font(.system(size: 56))
-
-            Text("Textify")
-                .font(.system(size: 42, weight: .bold, design: .rounded))
-
-            Text("사진을 ASCII 문자열 패턴의 그림으로")
-                .font(.title3.weight(.semibold))
-                .multilineTextAlignment(.center)
-
-            Text("사진 한 장을 고르면 복사·공유 가능한 텍스트 아트가 바로 만들어집니다.")
-                .font(.body)
+    private var introduction: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("PHOTO → TEXT ART")
+                .font(.system(.caption, design: .monospaced).weight(.semibold))
+                .tracking(2)
+                .foregroundStyle(AppTheme.accent)
+            Text("사진을,\n문자로 그리다.")
+                .font(.system(.largeTitle, design: .rounded).weight(.bold))
+                .tracking(-1)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("한 장을 고르고, 분위기를 바꾸고,\n나만의 텍스트 아트를 나눠 보세요.")
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 8)
-        }
-        .padding(.top, 24)
-    }
-
-    private var featureHighlights: some View {
-        VStack(spacing: 12) {
-            LaunchFeatureCard(
-                icon: "bolt.fill",
-                title: "빠른 첫 결과",
-                description: "사진 선택 직후 기본 설정으로 즉시 생성합니다."
-            )
-            LaunchFeatureCard(
-                icon: "paintpalette.fill",
-                title: "팔레트 실험",
-                description: "기본, 블록, 점, 숫자 등 다양한 문자 분위기를 비교합니다."
-            )
-            LaunchFeatureCard(
-                icon: "square.and.arrow.up.fill",
-                title: "바로 소비",
-                description: "복사, 공유, 저장으로 결과를 곧바로 활용합니다."
-            )
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
-    private var primaryActionSection: some View {
+    private var sampleArtwork: some View {
+        VStack(spacing: 16) {
+            HStack {
+                HStack(spacing: 5) {
+                    ForEach(0..<3) { _ in Circle().frame(width: 5, height: 5) }
+                }
+                .foregroundStyle(AppTheme.canvasForeground.opacity(0.4))
+                Spacer()
+                Text("문자로 그린 풍경 · 예시")
+                    .font(.system(.caption2, design: .monospaced))
+                    .foregroundStyle(AppTheme.canvasForeground.opacity(0.7))
+            }
+            Text(Self.sampleArt)
+                .font(.system(size: 11, weight: .medium, design: .monospaced))
+                .lineSpacing(1)
+                .foregroundStyle(AppTheme.canvasForeground)
+                .fixedSize()
+                .frame(maxWidth: .infinity)
+                .accessibilityLabel("문자로 그린 산과 해의 예시")
+            HStack {
+                Text("@ # + : .")
+                Spacer()
+                Text("사진 속 풍경이 문자가 되는 순간")
+            }
+            .font(.system(.caption2, design: .monospaced))
+            .foregroundStyle(AppTheme.canvasForeground.opacity(0.65))
+        }
+        .padding(20)
+        .background(AppTheme.canvasBackground, in: RoundedRectangle(cornerRadius: 24))
+    }
+
+    private var importActions: some View {
         let isLoading = viewModel.isLoading
-
-        return PhotosPicker(
-            selection: $selectedPhotoItem,
-            matching: .images
-        ) {
-            VStack(spacing: 8) {
-                HStack(spacing: 12) {
-                    if isLoading {
-                        ProgressView()
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "photo.fill")
-                            .font(.title3)
-                    }
-
-                    Text(isLoading ? "이미지 불러오는 중…" : "사진 선택하고 시작하기")
-                        .font(.title3.weight(.bold))
+        return VStack(spacing: 12) {
+            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                HStack(spacing: 10) {
+                    if isLoading { ProgressView().tint(.white) }
+                    else { Image(systemName: "photo.on.rectangle.angled") }
+                    Text(isLoading ? "이미지 불러오는 중…" : "사진으로 시작")
+                        .fontWeight(.semibold)
+                    Spacer()
+                    Image(systemName: "arrow.right")
                 }
-
-                Text("선택한 사진은 기기 안에서만 처리됩니다.")
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.88))
+                .padding(18)
+                .foregroundStyle(.white)
+                .background(AppTheme.accent, in: RoundedRectangle(cornerRadius: 18))
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
-            .foregroundStyle(.white)
-            .background(
-                LinearGradient(
-                    colors: [Color.cyan, Color.blue],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ),
-                in: RoundedRectangle(cornerRadius: 22, style: .continuous)
-            )
-            .shadow(color: .cyan.opacity(0.25), radius: 18, x: 0, y: 10)
-        }
-        .disabled(isLoading)
-    }
-
-    private var quickActionSection: some View {
-        HStack(spacing: 12) {
-            Button {
-                showHistory = true
-            } label: {
-                LaunchSecondaryActionButton(
-                    icon: "clock.arrow.circlepath",
-                    title: "최근 작업"
-                )
-            }
-            .buttonStyle(.plain)
+            .disabled(isLoading)
+            .accessibilityIdentifier("import-photo")
 
             Button {
-                showSettings = true
+                showFileImporter = true
             } label: {
-                LaunchSecondaryActionButton(
-                    icon: "gearshape.fill",
-                    title: "설정"
-                )
+                Label("파일에서 이미지 가져오기", systemImage: "folder")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 48)
+                    .background(.background, in: RoundedRectangle(cornerRadius: 16))
             }
-            .buttonStyle(.plain)
-        }
-        .padding(.bottom, 20)
-    }
-}
-
-/// 배경 텍스트 아트 애니메이션
-struct BackgroundTextArtAnimation: View {
-    @State private var offset: CGFloat = 0
-
-    private let sampleTextArts = [
-        """
-        @@@@@@@@@@@@@@@@@@
-        @@##**++==--::..@@
-        @@##  HELLO   ##@@
-        @@##  WORLD   ##@@
-        @@##**++==--::..@@
-        @@@@@@@@@@@@@@@@@@
-        """,
-        """
-        ....::--==++**##@@
-        ..              ..
-        ::    ♥♥♥♥♥    ::
-        --   ♥♥♥♥♥♥♥   --
-        ==    ♥♥♥♥♥    ==
-        ++     ♥♥♥     ++
-        ....::--==++**##@@
-        """,
-        """
-        ████████████████
-        █░░░░░░░░░░░░░░█
-        █░██░░██░░░░░░░█
-        █░░░░░░░░░░░░░░█
-        █░░████████░░░░█
-        █░░░░░░░░░░░░░░█
-        ████████████████
-        """
-    ]
-
-    var body: some View {
-        GeometryReader { _ in
-            VStack(spacing: 36) {
-                ForEach(0..<10, id: \.self) { row in
-                    HStack(spacing: 28) {
-                        ForEach(0..<3, id: \.self) { col in
-                            Text(sampleTextArts[(row + col) % sampleTextArts.count])
-                                .font(.system(size: 8, design: .monospaced))
-                                .foregroundStyle(.primary.opacity(0.08))
-                                .fixedSize()
-                        }
-                    }
-                }
-            }
-            .offset(y: offset)
-            .onAppear {
-                withAnimation(
-                    .linear(duration: 20)
-                    .repeatForever(autoreverses: false)
-                ) {
-                    offset = -400
-                }
-            }
+            .disabled(isLoading)
+            .accessibilityIdentifier("import-file")
         }
     }
-}
 
-private struct LaunchFeatureCard: View {
-    let icon: String
-    let title: String
-    let description: String
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(.cyan)
-                .frame(width: 28)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-
-                Text(description)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer(minLength: 0)
-        }
-        .padding(16)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-    }
-}
-
-private struct LaunchSecondaryActionButton: View {
-    let icon: String
-    let title: String
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-            Text(title)
-                .fontWeight(.semibold)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
+    private static let sampleArt = #"""
+                       .:---:.
+                      :+@@@@@+:
+                       ':---:'
+              /\
+             /##\       /\
+            /####\     /##\
+       /\  /##++##\   /####\
+      /##\/##+..+##\ /##++##\
+     /#######....+###/##+..+##\
+    /########+....+####+....+##\
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      . : .   . : .   . : .   . : .
+    """#
 }
 
 #Preview {

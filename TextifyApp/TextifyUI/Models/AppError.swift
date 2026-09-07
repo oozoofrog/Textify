@@ -73,3 +73,73 @@ public enum AppError: LocalizedError, Sendable {
         }
     }
 }
+
+enum ImageExportPresentationContext {
+    case save
+    case sharePreparation
+}
+
+struct ImageExportPresentation {
+    let message: String
+    let suggestsOpeningSettings: Bool
+}
+
+func makeImageExportPresentation(
+    for error: Error,
+    context: ImageExportPresentationContext
+) -> ImageExportPresentation {
+    guard let exportError = error as? ImageExportError else {
+        switch context {
+        case .save:
+            return ImageExportPresentation(
+                message: "이미지 저장에 실패했습니다.",
+                suggestsOpeningSettings: false
+            )
+        case .sharePreparation:
+            return ImageExportPresentation(
+                message: "공유용 이미지를 준비하지 못했습니다.",
+                suggestsOpeningSettings: false
+            )
+        }
+    }
+
+    switch context {
+    case .save:
+        switch exportError {
+        case .permissionDenied:
+            return ImageExportPresentation(
+                message: "사진 보관함 접근이 거부되어 저장할 수 없습니다. 설정에서 사진 접근을 허용해 주세요.",
+                suggestsOpeningSettings: true
+            )
+        case .permissionRestricted:
+            return ImageExportPresentation(
+                message: "이 기기에서는 사진 보관함 저장이 제한되어 있습니다.",
+                suggestsOpeningSettings: false
+            )
+        case .renderingFailed:
+            return ImageExportPresentation(
+                message: "저장용 이미지를 만드는 데 실패했습니다.",
+                suggestsOpeningSettings: false
+            )
+        case .saveFailed, .platformNotSupported:
+            return ImageExportPresentation(
+                message: "이미지 저장에 실패했습니다.",
+                suggestsOpeningSettings: false
+            )
+        }
+
+    case .sharePreparation:
+        switch exportError {
+        case .renderingFailed:
+            return ImageExportPresentation(
+                message: "공유용 이미지를 만드는 데 실패했습니다.",
+                suggestsOpeningSettings: false
+            )
+        case .saveFailed, .platformNotSupported, .permissionDenied, .permissionRestricted:
+            return ImageExportPresentation(
+                message: "공유용 이미지를 준비하지 못했습니다.",
+                suggestsOpeningSettings: false
+            )
+        }
+    }
+}

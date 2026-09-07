@@ -58,13 +58,18 @@ public final class HistoryDetailViewModel {
     }
 
     public func prepareShareImage() async {
+        guard !isPreparingShare else { return }
+
         isPreparingShare = true
         errorMessage = nil
 
         do {
             shareURL = try await exportService.exportAsImage(textArt: textArt)
         } catch {
-            errorMessage = "이미지 공유 준비에 실패했습니다."
+            errorMessage = makeImageExportPresentation(
+                for: error,
+                context: .sharePreparation
+            ).message
         }
 
         isPreparingShare = false

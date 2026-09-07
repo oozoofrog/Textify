@@ -1,122 +1,79 @@
 import SwiftUI
+import UIKit
 import TextifyKit
 
-/// Fullscreen overlay that displays text art in focus mode with zoom and pan controls.
-/// Hides all UI chrome to provide an immersive viewing experience.
+/// Measures the actual font, including fallback glyphs, to fit the complete artwork.
+struct FittedTextArt: View {
+    let textArt: TextArt
+
+    var body: some View {
+        GeometryReader { proxy in
+            let text = textArt.asString
+            let referenceFont = UIFont.monospacedSystemFont(ofSize: 10, weight: .regular)
+            let measured = (text as NSString).size(withAttributes: [.font: referenceFont])
+            let scale = min(proxy.size.width / max(measured.width, 1), proxy.size.height / max(measured.height, 1))
+            Text(text)
+                .font(.system(size: max(10 * scale, 0.1), design: .monospaced))
+                .foregroundStyle(AppTheme.canvasForeground)
+                .fixedSize()
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .accessibilityLabel("텍스트 아트, 가로 \(textArt.width)자, 세로 \(textArt.height)줄")
+        }
+        .clipped()
+    }
+}
+
+/// Full-screen inspection with discoverable controls as well as pinch/pan gestures.
 struct FocusModeOverlay: View {
     let textArt: TextArt
-    let fontSize: CGFloat
     @Binding var isActive: Bool
-
-    @State private var showHint = true
-    @GestureState private var gestureScale: CGFloat = 1.0
-    @State private var baseScale: CGFloat = 1.0
+    @State private var scale: CGFloat = 1
+    @GestureState private var gestureScale: CGFloat = 1
     @State private var offset: CGSize = .zero
     @GestureState private var gestureOffset: CGSize = .zero
 
-    private var currentScale: CGFloat {
-        baseScale * gestureScale
-    }
-
-    private var currentOffset: CGSize {
-        CGSize(
-            width: offset.width + gestureOffset.width,
-            height: offset.height + gestureOffset.height
-        )
-    }
-
     var body: some View {
-        ZStack {
-            Color.black
-                .ignoresSafeArea()
-
-            VStack {
+        VStack(spacing: 20) {
+            HStack {
+                Text("전체 보기").font(.headline)
                 Spacer()
-
-                Text(textArt.asString)
-                    .font(.system(size: fontSize, design: .monospaced))
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.center)
-                    .scaleEffect(currentScale)
-                    .offset(currentOffset)
-
-                Spacer()
+                Button("닫기", systemImage: "xmark") { isActive = false }
+                    .labelStyle(.iconOnly)
+                    .frame(width: 44, height: 44)
             }
-            .gesture(magnificationGesture)
-            .simultaneousGesture(dragGesture)
-            .simultaneousGesture(singleTapGesture)
-            .simultaneousGesture(doubleTapGesture)
-
-            if showHint {
-                VStack {
-                    Spacer()
-
-                    Text("Tap to exit")
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.6))
-                        .padding(.bottom, 40)
-                }
-                .transition(.opacity)
+            FittedTextArt(textArt: textArt)
+                .scaleEffect(scale * gestureScale)
+                .offset(x: offset.width + gestureOffset.width, y: offset.height + gestureOffset.height)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
+                .contentShape(Rectangle())
+                .gesture(MagnificationGesture()
+                    .updating($gestureScale) { value, state, _ in state = value }
+                    .onEnded { scale = min(max(scale * $0, 1), 8) })
+                .simultaneousGesture(DragGesture()
+                    .updating($gestureOffset) { value, state, _ in state = value.translation }
+                    .onEnded { value in
+                        offset.width += value.translation.width
+                        offset.height += value.translation.height
+                    })
+            HStack(spacing: 24) {
+                Button("축소", systemImage: "minus.magnifyingglass") { scale = max(scale - 0.5, 1) }
+                    .labelStyle(.iconOnly)
+                    .disabled(scale <= 1)
+                Button("화면에 맞춤") { scale = 1; offset = .zero }
+                Button("확대", systemImage: "plus.magnifyingglass") { scale = min(scale + 0.5, 8) }
+                    .labelStyle(.iconOnly)
+                    .disabled(scale >= 8)
             }
+            .font(.subheadline.weight(.semibold))
+            .buttonStyle(.bordered)
+            Text("두 손가락으로 확대하고 드래그해 살펴보세요")
+                .font(.caption)
+                .foregroundStyle(AppTheme.canvasForeground.opacity(0.7))
         }
-        .onAppear {
-            withAnimation(.easeOut(duration: 0.3).delay(2.0)) {
-                showHint = false
-            }
-        }
-    }
-
-    private var magnificationGesture: some Gesture {
-        MagnificationGesture()
-            .updating($gestureScale) { value, state, _ in
-                state = value
-            }
-            .onEnded { value in
-                baseScale *= value
-
-                // Clamp scale between 0.5x and 5x
-                baseScale = min(max(baseScale, 0.5), 5.0)
-            }
-    }
-
-    private var dragGesture: some Gesture {
-        DragGesture()
-            .updating($gestureOffset) { value, state, _ in
-                state = value.translation
-            }
-            .onEnded { value in
-                offset.width += value.translation.width
-                offset.height += value.translation.height
-            }
-    }
-
-    private var singleTapGesture: some Gesture {
-        TapGesture(count: 1)
-            .onEnded {
-                dismiss()
-            }
-    }
-
-    private var doubleTapGesture: some Gesture {
-        TapGesture(count: 2)
-            .onEnded {
-                resetZoom()
-            }
-    }
-
-    private func dismiss() {
-        Task { @MainActor in
-            HapticsService.shared.impact(style: .light)
-            withAnimation(.easeOut(duration: 0.25)) {
-                isActive = false
-            }
-        }
-    }
-
-    private func resetZoom() {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-            baseScale = 1.0
-            offset = .zero
-        }
+        .padding(20)
+        .background(AppTheme.canvasBackground.ignoresSafeArea())
+        .foregroundStyle(AppTheme.canvasForeground)
+        .tint(AppTheme.canvasForeground)
     }
 }
